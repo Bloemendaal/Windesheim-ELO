@@ -1,8 +1,7 @@
 // ==UserScript==
-// @name         Windesheim Elo Fix
-// @namespace    http://casperbloemendaal.nl/
+// @name         Windesheim ELO Fix
 // @version      0.1
-// @description  Make the Elo great (again)!
+// @description  Make the ELO great (again)!
 // @author       Casper Bloemendaal
 // @match        https://elo.windesheim.nl/Start.aspx
 // @grant        none
