@@ -1,11 +1,16 @@
 // ==UserScript==
-// @name         Windesheim ELO Fix
-// @version      0.1
-// @description  Make the ELO great (again)!
-// @author       Casper Bloemendaal
-// @match        https://elo.windesheim.nl/Start.aspx
-// @grant        none
-// @run-at       document-end
+// @name          Windesheim ELO Fix
+// @description   Make the ELO great (again)!
+// @author        Casper Bloemendaal
+
+// @downloadURL   https://raw.githubusercontent.com/Bloemendaal/Windesheim-ELO/master/ELO.js
+// @updateURL     https://raw.githubusercontent.com/Bloemendaal/Windesheim-ELO/master/ELO.js
+// @supportURL    https://github.com/Bloemendaal/Windesheim-ELO/issues
+// @version       0.2
+
+// @match         https://elo.windesheim.nl/Start.aspx
+// @grant         none
+// @run-at        document-end
 // @noframes
 // ==/UserScript==
 
