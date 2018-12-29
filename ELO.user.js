@@ -7,7 +7,7 @@
 // @downloadURL   https://raw.githubusercontent.com/Bloemendaal/Windesheim-ELO/master/ELO.user.js
 // @updateURL     https://raw.githubusercontent.com/Bloemendaal/Windesheim-ELO/master/ELO.user.js
 // @supportURL    https://github.com/Bloemendaal/Windesheim-ELO/issues
-// @version       0.3
+// @version       0.4
 // @match         https://elo.windesheim.nl/Start.aspx
 // @grant         none
 // @run-at        document-end
@@ -42,7 +42,7 @@
             d.addEventListener("load", function(){
                this.style.height = this.contentWindow.document.body.scrollHeight + 'px';
             });
-            d.style.height = d.contentWindow.document.body.scrollHeight + 'px';
+            d.style.height = (d.contentWindow.document.body.scrollHeight + 20) + 'px';
          });
       }
 
