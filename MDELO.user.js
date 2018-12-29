@@ -56,7 +56,9 @@
                      star   = !$el.find('.fa-star-o').length,
                      code   = $el.find('.thumb-item-code').text();
 
-                     list.append('<li class="mdc-list-item uk-width-1-1" data-cid="'+id+'"><div class="uk-margin-right"><div class="uk-inline uk-cover-container uk-border-circle mdc-list-item__image"><img src="'+img+'" alt="'+name+'" uk-cover></div></div><span class="mdc-list-item__text"><span class="mdc-list-item__primary-text">'+name+'</span><span class="mdc-list-item__secondary-text">'+code+'</span></span><i class="mdc-icon-toggle mdc-theme--text-icon-on-background material-icons uk-margin-auto-left" role="button">'+(star ? 'star' : 'star_border')+'</i></li>');
+                     list.append('<li class="mdc-list-item uk-width-1-1" data-cid="'+id+'" data-mdc-auto-init="MDCRipple"><div class="uk-margin-right"><div class="uk-inline uk-cover-container uk-border-circle mdc-list-item__image"><img src="'+img+'" alt="'+name+'" uk-cover></div></div><span class="mdc-list-item__text"><span class="mdc-list-item__primary-text">'+name+'</span><span class="mdc-list-item__secondary-text">'+code+'</span></span><i class="mdc-icon-toggle mdc-theme--text-icon-on-background material-icons uk-margin-auto-left" role="button">'+(star ? 'star' : 'star_border')+'</i></li>');
+
+                     mdc.autoInit(document.getElementById('courses-list'), () => {});
                   }
                });
             }
