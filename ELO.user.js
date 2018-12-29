@@ -42,7 +42,7 @@
             d.addEventListener("load", function(){
                this.style.height = this.contentWindow.document.body.scrollHeight + 'px';
             });
-            d.style.height = d.contentWindow.document.body.scrollHeight + 'px';
+            d.style.height = (d.contentWindow.document.body.scrollHeight + 20) + 'px';
          });
       }
 
