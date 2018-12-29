@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Windesheim ELO Fix
-// @namespace     https://elo.windesheim.nl/
-// @description   Make the ELO great again!
+// @namespace     https://github.com/Bloemendaal
+// @description   Make the ELO great (again)!
 // @author        Casper Bloemendaal
 // @license       MIT
 // @downloadURL   https://raw.githubusercontent.com/Bloemendaal/Windesheim-ELO/master/ELO.user.js
