@@ -44,19 +44,21 @@
       margin-left: 10px
    }
 
-   #container {
+   .container {
       -webkit-touch-callout: text;
       -webkit-user-select: text;
       -khtml-user-select: text;
       -moz-user-select: text;
       -ms-user-select: text;
       user-select: text;
-      min-height: calc(100vh - 40px);
-      padding-bottom: 40px
+      min-height:100vh;
    }
-
-   #container.uk-container-expand {
+   .#container.uk-container-expand {
       padding: 0 0 40px
+   }
+   #container {
+      padding-bottom: 40px;
+      min-height: calc(100vh - 40px);
    }
 
    #top-app-bar input {
@@ -151,12 +153,54 @@
       height: 48px
    }
 
-   .only-child {
+   .only-child,
+   .last-child,
+   .first-child {
       display: none
    }
 
    .only-child:only-child {
       display: initial
+   }
+   .last-child:last-child {
+      display: initial
+   }
+   .first-child:first-child {
+      display: initial
+   }
+
+   .courses-list-icon-margin {
+      margin-right: 24px
+   }
+   #courses-nav .courses-list-icon-margin {
+      margin-left: 24px
+   }
+   .courses-list-icon-arrow {
+      margin: 0px;
+      transition-duration: 0.25s;
+      pointer-events: initial!important
+   }
+   .expanded>.courses-list-icon-arrow{
+      transform: rotate(90deg);
+   }
+   #courses-nav .course-list-hidenav,
+   #courses-sublist .courses-list-icon-arrow {
+      display: none
+   }
+   .courses-list-icon-badge {
+      font-size: 0.5rem;
+      line-height: 1em;
+      font-family: Roboto,sans-serif;
+      position: absolute;
+      color: #fff;
+      bottom: 3px;
+      padding: 1px 2px 0px 2px;
+      right: 3px;
+      border-radius: 2px
+   }
+   .courses-list-text-padding {
+      padding-top: 8px;
+      padding-bottom: 8px
    }
 
    .mdc-fab {
