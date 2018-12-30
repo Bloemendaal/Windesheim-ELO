@@ -11,6 +11,11 @@
       height: auto;
       line-height: normal
    }
+   #courses-sublist .mdc-list-item {
+      min-height: 48px;
+      height: auto;
+      line-height: normal
+   }
 
    .mdc-drawer .mdc-list-item--activated,
    .mdc-drawer .mdc-list-item--activated .mdc-list-item__graphic {
@@ -85,9 +90,16 @@
       #container.uk-container-expand {
          padding: 0 32px 40px
       }
+      .mdc-drawer {
+         width: 512px;
+      }
    }
 
    @media (min-width:960px) {
+      .mdc-drawer {
+         width: 30%;
+      }
+
       .mdc-drawer-scrim {
          display: none !important
       }
@@ -102,13 +114,13 @@
 
       .mdc-drawer--open+.mdc-drawer-scrim+.mdc-drawer-app-content,
       .mdc-drawer--prepare+.mdc-drawer-scrim+.mdc-drawer-app-content {
-         margin-left: 256px;
+         margin-left: 30%;
          margin-right: 0
       }
 
       .mdc-drawer--open:not(.mdc-drawer--closing)+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar,
       .mdc-drawer--prepare+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar {
-         width: calc(100% - 256px)
+         width: 70%
       }
 
       .mdc-drawer-app-content {
