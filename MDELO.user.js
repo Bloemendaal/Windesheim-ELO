@@ -8,7 +8,7 @@
 // @downloadURL   https://raw.githubusercontent.com/Bloemendaal/Windesheim-ELO/master/MDELO.user.js
 // @updateURL     https://raw.githubusercontent.com/Bloemendaal/Windesheim-ELO/master/MDELO.user.js
 // @supportURL    https://github.com/Bloemendaal/Windesheim-ELO/issues
-// @version       0.3
+// @version       0.4
 
 // @match         https://elo.windesheim.nl/Start.aspx
 // @grant         none
@@ -23,84 +23,6 @@
    'use strict';
 
    var favoriteCourses = 0;
-   function setCourses(search = '') {
-      $.ajax({
-         url:  '/services/Studyroutemobile.asmx/LoadStudyroutes',
-         type: 'GET',
-         data: {
-            start: 0,
-            length: 50,
-            filter: favoriteCourses,
-            search: search
-         },
-         success: function(data) {
-            var list = $('#courses-list');
-            list.html('<span class="only-child uk-text-center">Geen resultaten gevonden...</span>');
-
-            data.STUDYROUTES.forEach(function(c) {
-               list.append('<li class="mdc-list-item uk-width-1-1" data-id="'+c.ID+'" data-name="'+c.NAME+'" data-mdc-auto-init="MDCRipple"><div class="uk-margin-right"><div class="uk-inline uk-cover-container uk-border-circle mdc-list-item__image"><img src="'+c.IMAGEURL_24+'" alt="'+c.NAME+'" uk-cover></div></div><span>'+c.NAME+'</span><i class="mdc-icon-toggle mdc-theme--text-icon-on-background material-icons uk-margin-auto-left" role="button">'+(c.IS_FAVORITE ? 'star' : 'star_border')+'</i></li>');
-            });
-
-            mdc.autoInit(document.getElementById('courses-list'), () => {});
-         }
-      });
-   }
-
-   function setCourseItems(append, id, parent = -1) {
-      if (parent != -1) {
-         append.after('<ul id="course-'+parent+'" class="mdc-list uk-margin-left uk-padding-remove" style="display:none"></ul>');
-         append = $('#course-'+parent);
-      }
-      append.html('<span class="last-child uk-text-center">Geen resultaten gevonden...</span>');
-      $.ajax({
-         url:  '/services/Studyroutemobile.asmx/LoadStudyrouteContent',
-         type: 'GET',
-         data: {
-            studyrouteid: id,
-            parentid: parent,
-            start: 0,
-            length: 100
-         },
-         success: function(data) {
-
-            data.STUDYROUTE_CONTENT.forEach(function(item) {
-               if (item.ITEMTYPE == 0) {
-                  append.append('<li class="mdc-list-item '+(item.HIDE_IN_NAVIGATION ? 'course-list-hidenav' : '')+'" data-mdc-auto-init="MDCRipple" data-id="'+item.ID+'" data-name="'+item.NAME+'" data-type="'+item.ITEMTYPE+'" '+(item.hasOwnProperty('URL') ? 'data-url="'+encodeURI(item.URL)+'"' : '')+'><i class="material-icons mdc-list-item__graphic courses-list-icon-arrow" aria-hidden="true">arrow_right</i><i class="material-icons mdc-list-item__graphic courses-list-icon-margin uk-margin-remove-left" aria-hidden="true">folder</i><span class="courses-list-text-padding">'+item.NAME+'</span></li>');
-               } else if (item.ITEMTYPE == 10) {
-                  var surl = item.URL.split('.');
-                  var ext  = itemExt.find(function(v){
-                     return v.ext.indexOf(surl[surl.length - 1]) > -1;
-                  });
-
-                  if (ext) {
-                     append.append('<li class="mdc-list-item '+(item.HIDE_IN_NAVIGATION ? 'course-list-hidenav' : '')+'" data-mdc-auto-init="MDCRipple" data-id="'+item.ID+'" data-name="'+item.NAME+'" data-type="'+item.ITEMTYPE+'" '+(item.hasOwnProperty('URL') ? 'data-url="'+encodeURI(item.URL)+'"' : '')+'><i class="material-icons mdc-list-item__graphic uk-position-relative courses-list-icon-margin" aria-hidden="true" '+(ext.hasOwnProperty('color') && !ext.hasOwnProperty('label') ? 'style="color:'+ext.color+'"' : '')+'">'+ext.icon+(ext.hasOwnProperty('color') && ext.hasOwnProperty('label') ? '<span class="courses-list-icon-badge" style="background-color:'+ext.color+'">'+ext.label+'</span>' : '')+'</i><span class="courses-list-text-padding">'+item.NAME+'</span></li>');
-                  } else {
-                     append.append('<li class="mdc-list-item '+(item.HIDE_IN_NAVIGATION ? 'course-list-hidenav' : '')+'" data-mdc-auto-init="MDCRipple" data-id="'+item.ID+'" data-name="'+item.NAME+'" data-type="'+item.ITEMTYPE+'" '+(item.hasOwnProperty('URL') ? 'data-url="'+encodeURI(item.URL)+'"' : '')+'><i class="material-icons mdc-list-item__graphic uk-position-relative courses-list-icon-margin" aria-hidden="true">'+itemTypes[item.ITEMTYPE]+'</i><span class="courses-list-text-padding">'+item.NAME+'</span></li>');
-                  }
-               } else {
-                  append.append('<li class="mdc-list-item '+(item.HIDE_IN_NAVIGATION ? 'course-list-hidenav' : '')+'" data-mdc-auto-init="MDCRipple" data-id="'+item.ID+'" data-name="'+item.NAME+'" data-type="'+item.ITEMTYPE+'" '+(item.hasOwnProperty('URL') ? 'data-url="'+encodeURI(item.URL)+'"' : '')+'><i class="material-icons mdc-list-item__graphic uk-position-relative courses-list-icon-margin" aria-hidden="true">'+itemTypes[item.ITEMTYPE]+'</i><span class="courses-list-text-padding">'+item.NAME+'</span>'+(item.ITEMTYPE == 3 ? '<i class="mdc-list-item__meta material-icons">launch</i>' : '')+'</li>');
-               }
-
-            });
-
-            switchSubswitcher(1);
-            mdc.autoInit(document.getElementById('courses-nav'), () => {});
-            mdc.autoInit(document.getElementById('courses-sublist'), () => {});
-
-            if (parent != -1) {
-               append.slideDown(250);
-            }
-         }
-      });
-   }
-
-   function switchSubswitcher(index = 0) {
-      $('.sub-switcher').each(function(){
-         $(this).children().removeClass('uk-active');
-         $(this).children(':nth-child('+(index+1)+')').addClass('uk-active');
-      });
-   }
-
    var itemTypes = ['folder', 'ondemand_video', '', 'link', 'ondemand_video', '', '', '', '', 'archive', 'insert_drive_file'];
    var itemExt   = [
       {
@@ -137,11 +59,97 @@
       }
    ];
 
+   function setCourses(search = '') {
+      $.ajax({
+         url:  '/services/Studyroutemobile.asmx/LoadStudyroutes',
+         type: 'GET',
+         data: {
+            start: 0,
+            length: 50,
+            filter: favoriteCourses,
+            search: search
+         },
+         success: function(data) {
+            var list = $('#courses-list');
+            list.html('<span class="only-child uk-text-center">Geen resultaten gevonden...</span>');
+
+            data.STUDYROUTES.forEach(function(c) {
+               list.append('<li class="mdc-list-item uk-width-1-1" data-id="'+c.ID+'" data-name="'+c.NAME+'" data-mdc-auto-init="MDCRipple"><div class="uk-margin-right"><div class="uk-inline uk-cover-container uk-border-circle mdc-list-item__image"><img src="'+c.IMAGEURL_24+'" alt="'+c.NAME+'" uk-cover></div></div><span>'+c.NAME+'</span><i class="mdc-icon-toggle mdc-theme--text-icon-on-background material-icons uk-margin-auto-left" role="button">'+(c.IS_FAVORITE ? 'star' : 'star_border')+'</i></li>');
+            });
+
+            mdc.autoInit(document.getElementById('courses-list'), () => {});
+         }
+      });
+   }
+
+   function setCourseItems(append, id, parent = -1) {
+      if (!Array.isArray(append)) {
+         append = [append];
+      }
+      Object.keys(append).forEach(function(k) {
+         if (parent != -1 && append[k].attr('id') != 'course-'+parent && append[k].parents('#courses-nav').length > 0) {
+            append[k].after('<ul id="course-'+parent+'" class="mdc-list uk-margin-left uk-padding-remove" style="display:none"></ul>');
+            append[k] = $('#course-'+parent);
+         }
+         append[k].html('<span class="last-child uk-text-center">Geen resultaten gevonden...</span>');
+      });
+      $.ajax({
+         url:  '/services/Studyroutemobile.asmx/LoadStudyrouteContent',
+         type: 'GET',
+         data: {
+            studyrouteid: id,
+            parentid: parent,
+            start: 0,
+            length: 100
+         },
+         success: function(data) {
+
+            data.STUDYROUTE_CONTENT.forEach(function(item) {
+               append.forEach(function(a){
+                  if (item.ITEMTYPE == 0) {
+                     a.append('<li class="mdc-list-item '+(item.HIDE_IN_NAVIGATION ? 'course-list-hidenav' : '')+'" data-mdc-auto-init="MDCRipple" data-id="'+item.ID+'" data-name="'+item.NAME+'" data-type="'+item.ITEMTYPE+'" '+(item.hasOwnProperty('URL') ? 'data-url="'+encodeURI(item.URL)+'"' : '')+'><i class="material-icons mdc-list-item__graphic courses-list-icon-arrow" aria-hidden="true">arrow_right</i><i class="material-icons mdc-list-item__graphic courses-list-icon-margin uk-margin-remove-left" aria-hidden="true">folder</i><span class="courses-list-text-padding">'+item.NAME+'</span></li>');
+                  } else if (item.ITEMTYPE == 10) {
+                     var surl = item.URL.split('.');
+                     var ext  = itemExt.find(function(v){
+                        return v.ext.indexOf(surl[surl.length - 1]) > -1;
+                     });
+
+                     if (ext) {
+                        a.append('<li class="mdc-list-item '+(item.HIDE_IN_NAVIGATION ? 'course-list-hidenav' : '')+'" data-mdc-auto-init="MDCRipple" data-id="'+item.ID+'" data-name="'+item.NAME+'" data-type="'+item.ITEMTYPE+'" '+(item.hasOwnProperty('URL') ? 'data-url="'+encodeURI(item.URL)+'"' : '')+'><i class="material-icons mdc-list-item__graphic uk-position-relative courses-list-icon-margin" aria-hidden="true" '+(ext.hasOwnProperty('color') && !ext.hasOwnProperty('label') ? 'style="color:'+ext.color+'"' : '')+'">'+ext.icon+(ext.hasOwnProperty('color') && ext.hasOwnProperty('label') ? '<span class="courses-list-icon-badge" style="background-color:'+ext.color+'">'+ext.label+'</span>' : '')+'</i><span class="courses-list-text-padding">'+item.NAME+'</span></li>');
+                     } else {
+                        a.append('<li class="mdc-list-item '+(item.HIDE_IN_NAVIGATION ? 'course-list-hidenav' : '')+'" data-mdc-auto-init="MDCRipple" data-id="'+item.ID+'" data-name="'+item.NAME+'" data-type="'+item.ITEMTYPE+'" '+(item.hasOwnProperty('URL') ? 'data-url="'+encodeURI(item.URL)+'"' : '')+'><i class="material-icons mdc-list-item__graphic uk-position-relative courses-list-icon-margin" aria-hidden="true">'+itemTypes[item.ITEMTYPE]+'</i><span class="courses-list-text-padding">'+item.NAME+'</span></li>');
+                     }
+                  } else {
+                     a.append('<li class="mdc-list-item '+(item.HIDE_IN_NAVIGATION ? 'course-list-hidenav' : '')+'" data-mdc-auto-init="MDCRipple" data-id="'+item.ID+'" data-name="'+item.NAME+'" data-type="'+item.ITEMTYPE+'" '+(item.hasOwnProperty('URL') ? 'data-url="'+encodeURI(item.URL)+'"' : '')+'><i class="material-icons mdc-list-item__graphic uk-position-relative courses-list-icon-margin" aria-hidden="true">'+itemTypes[item.ITEMTYPE]+'</i><span class="courses-list-text-padding">'+item.NAME+'</span>'+(item.ITEMTYPE == 3 ? '<i class="mdc-list-item__meta material-icons">launch</i>' : '')+'</li>');
+                  }
+               });
+            });
+
+            switchSubswitcher(1);
+            mdc.autoInit(document.getElementById('courses-nav'), () => {});
+            mdc.autoInit(document.getElementById('courses-sublist'), () => {});
+
+            append.forEach(function(a) {
+               if (a.attr('id') == 'course-'+parent && a.is(':not(:visible)')) {
+                  a.slideDown(250);
+               }
+            });
+         }
+      });
+   }
+
+   function switchSubswitcher(index = 0) {
+      $('.sub-switcher').each(function(){
+         $(this).children().removeClass('uk-active');
+         $(this).children(':nth-child('+(index+1)+')').addClass('uk-active');
+      });
+   }
+
    $(function(){
       $('#tns').hide();
       $('head script, head style').remove();
       $('head').append('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.25/css/uikit.min.css" integrity="sha256-P3mc1WE09pSm1iAHPFelzUieKI78yRxZ7dGYjXuqIVw=" crossorigin="anonymous"><link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons"><link rel="stylesheet" href="//unpkg.com/material-components-web@latest/dist/material-components-web.min.css"><style>:root{--mdc-theme-primary:#406790}#drawer .mdc-list-item{min-height:40px;height:auto;line-height:normal}.mdc-drawer .mdc-list-item--activated, .mdc-drawer .mdc-list-item--activated .mdc-list-item__graphic{color:#406790;color:var(--mdc-theme-primary, #406790)}.mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label{color:#000}.mdc-text-field--invalid:not(.mdc-text-field--disabled) .mdc-floating-label{color:#b00020}.material-icons,body{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}a.material-icons{text-decoration-line:none}.mdc-switch+label{margin-left:10px}.container{-webkit-touch-callout:text;-webkit-user-select:text;-khtml-user-select:text;-moz-user-select:text;-ms-user-select:text;user-select:text;min-height:100vh}.#container.uk-container-expand{padding:0 0 40px}#container{padding-bottom:40px;min-height:calc(100vh - 40px)}#top-app-bar input{font-size:1.25rem;color:#fff;color:var(--mdc-theme-on-primary,#fff)}#snackbar{z-index:1500}.mdc-drawer--modal.mdc-drawer--open{display:flex}@media (min-width:600px){.mdc-fab:not(.fab-hidden){transform:translateY(0) !important}}@media (min-width:640px){#container.uk-container-expand{padding:0 32px 40px}}@media (min-width:960px){.mdc-drawer-scrim{display:none !important}.mdc-drawer--modal{box-shadow:none}.mdc-drawer--prepare{display:flex}.mdc-drawer--open+.mdc-drawer-scrim+.mdc-drawer-app-content,.mdc-drawer--prepare+.mdc-drawer-scrim+.mdc-drawer-app-content{margin-left:256px;margin-right:0}.mdc-drawer--open:not(.mdc-drawer--closing)+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar,.mdc-drawer--prepare+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar{width:calc(100% - 256px)}.mdc-drawer-app-content{transition:margin-left .25s cubic-bezier(.4,0,.2,1)}.mdc-top-app-bar{transition:width .25s cubic-bezier(.4,0,.2,1)}.mdc-drawer--open.mdc-drawer--closing+.mdc-drawer-scrim+.mdc-drawer-app-content{margin-left:0;transition:margin-left .2s cubic-bezier(.4,0,.2,1)}.mdc-drawer--open.mdc-drawer--closing+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar{transition:width .2s cubic-bezier(.4,0,.2,1)}}.mdc-drawer__drawer::-webkit-scrollbar,.uk-scrollbar::-webkit-scrollbar{background-color:transparent;width:12px}.mdc-drawer__drawer::-webkit-scrollbar-thumb,.uk-scrollbar::-webkit-scrollbar-thumb{background-clip:padding-box;border-radius:3px;-webkit-border-radius:3px;border:4px solid transparent;background-color:rgba(0,0,0,.2)}ul.mdc-list:not(.mdc-list--non-interactive)>*{cursor:pointer}.uk-cover-container{width:48px;height:48px}.only-child,.last-child,.first-child{display:none}.only-child:only-child{display:initial}.last-child:last-child{display:initial}.first-child:first-child{display:initial}.courses-list-icon-margin{margin-right:24px}#courses-nav .courses-list-icon-margin{margin-left:24px}.courses-list-icon-arrow{margin:0px;transition-duration:0.25s;pointer-events:initial!important}.expanded>.courses-list-icon-arrow{transform:rotate(90deg)}#courses-nav .course-list-hidenav, #courses-sublist .courses-list-icon-arrow{display:none}.courses-list-icon-badge{font-size:0.5rem;line-height:1em;font-family:Roboto,sans-serif;position:absolute;color:#fff;bottom:3px;padding:1px 2px 0px 2px;right:3px;border-radius:2px}.courses-list-text-padding{padding-top:8px;padding-bottom:8px}.mdc-fab{position:fixed;bottom:1rem;right:1rem;animation-duration: .25s;animation-duration:250ms;transition-duration: .25s;transition-duration:250ms}.fab-hidden{opacity:0;transform:translateY(48px)}.fab-container>*{animation:none}@media(min-width:1024px){.mdc-fab{bottom:1.5rem;right:1.5rem}}</style>');
-      $('body').html('<aside id="drawer" class="mdc-drawer mdc-drawer--modal mdc-drawer--prepare"><div class="mdc-drawer__header"><h3 class="mdc-drawer__title uk-text-truncate"></h3><h6 class="mdc-drawer__subtitle uk-text-truncate"></h6></div><div class="mdc-drawer__content uk-scrollbar"><ul class="uk-switcher sub-switcher"><li class="uk-active"><ul id="main-switcher" class="mdc-list" uk-switcher="connect: .main-switcher; animation: uk-animation-slide-top-small"><li class="mdc-list-item mdc-list-item--activated" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">book</i>Studieroutes</li><li class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">folder_shared</i>Portfolio</li><li class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">extension</i>Project</li><li class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">timeline</i>Voortgang</li><li class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">chat</i>Forums</li><li class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">people</i>Online</li><li class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">dashboard</i>Dashboard</li></ul></li><li><ul class="mdc-list"><li id="courses-back" class="mdc-list-item" data-mdc-auto-init="MDCRipple" uk-switcher-item="0"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">book</i>Studieroutes</li></ul><ul id="courses-nav" class="mdc-list uk-padding-remove-top"></ul></li></ul></div> </aside><div class="mdc-drawer-scrim"></div><div class="mdc-drawer-app-content"> <header id="top-app-bar" class="mdc-top-app-bar mdc-top-app-bar--fixed"><div class="mdc-top-app-bar__row top-app-bar__main"> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start"> <span class="material-icons mdc-top-app-bar__navigation-icon">menu</span> <span class="mdc-top-app-bar__title"><ul class="main-switcher uk-switcher"><li>Studieroutes</li><li>Portfolio</li><li>Project</li><li>Voortgang</li><li>Forums</li><li>Online</li><li>Dashboard</li></ul> </span> </section> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar"> <span class="material-icons mdc-top-app-bar__action-item uk-visible@s" aria-label="Notificaties" alt="Notificaties">notifications_none</span> <span uk-toggle="target: #top-app-bar .top-app-bar__search, #top-app-bar .top-app-bar__main; animation: uk-animation-fade" class="material-icons mdc-top-app-bar__action-item" aria-label="Zoeken" alt="Zoeken">search</span> <span id="top-app-bar__more" class="material-icons mdc-top-app-bar__action-item mdc-menu-surface--anchor" aria-label="Meer..." alt="Meer..."> more_vert<div id="top-app-bar__menu" class="mdc-menu mdc-menu-surface"><ul class="mdc-menu__items mdc-list" role="menu" aria-hidden="true"><li class="mdc-list-item" role="menuitem" tabindex="0"> Downloaden</li><li class="mdc-list-item" role="menuitem" tabindex="0"> Printen</li></ul></div> </span> </section></div><div class="mdc-top-app-bar__row top-app-bar__search" hidden> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start"> <span id="search-back" uk-toggle="target: #top-app-bar .top-app-bar__search, #top-app-bar .top-app-bar__main; animation: uk-animation-fade" class="material-icons mdc-top-app-bar__navigation-icon">arrow_back</span><div class="uk-search uk-search-navbar uk-width-1-1 uk-light"> <input id="search" class="uk-search-input mdc-top-app-bar__title" type="search" placeholder="Zoeken..." autofocus></div> </section></div> </header><div id="container" class="container uk-container"><div class="mdc-top-app-bar--fixed-adjust"></div><ul class="main-switcher uk-switcher"><li id="switcher-courses"><ul class="uk-switcher sub-switcher"><li class="uk-active"><ul id="courses-list" class="mdc-list mdc-list--two-line uk-flex uk-flex-column" aria-orientation="vertical"></ul></li><li><ul id="courses-sublist" class="mdc-list"></ul></li></ul></li><li id="switcher-portfolio"></li><li id="switcher-project"></li><li id="switcher-progress"></li><li id="switcher-forums"></li><li id="switcher-online"></li><li id="switcher-dashboard"></li></ul><ul class="main-switcher uk-switcher fab-container"><li> <button id="courses-FAB" class="mdc-fab material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple"> <span class="mdc-fab__icon">star_half</span> </button></li><li> <button id="portfolio-FAB" class="mdc-fab material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple"> <span class="mdc-fab__icon">star_half</span> </button></li><li> <button id="project-FAB" class="mdc-fab material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple"> <span class="mdc-fab__icon">star_half</span> </button></li><li> <button id="progress-FAB" class="mdc-fab material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple"> <span class="mdc-fab__icon">star_half</span> </button></li><li> <button id="forums-FAB" class="mdc-fab material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple"> <span class="mdc-fab__icon">star_half</span> </button></li><li> <button id="online-FAB" class="mdc-fab material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple"> <span class="mdc-fab__icon">star_half</span> </button></li><li> <button id="dashboard-FAB" class="mdc-fab material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple"> <span class="mdc-fab__icon">star_half</span> </button></li></ul></div></div><div id="snackbar" class="mdc-snackbar" aria-live="assertive" aria-atomic="true" aria-hidden="true"><div class="mdc-snackbar__text"></div><div class="mdc-snackbar__action-wrapper"> <button type="button" class="mdc-snackbar__action-button"></button></div></div>');
+      $('body').html('<aside id="drawer" class="mdc-drawer mdc-drawer--modal mdc-drawer--prepare"><div class="mdc-drawer__header"><h3 class="mdc-drawer__title uk-text-truncate"></h3><h6 class="mdc-drawer__subtitle uk-text-truncate"></h6></div><div class="mdc-drawer__content uk-scrollbar"><ul class="uk-switcher sub-switcher"><li class="uk-active"><ul id="main-switcher" class="mdc-list" uk-switcher="connect: .main-switcher; animation: uk-animation-slide-top-small"><li class="mdc-list-item mdc-list-item--activated" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">book</i>Studieroutes</li><li class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">folder_shared</i>Portfolio</li><li class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">extension</i>Project</li><li class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">timeline</i>Voortgang</li><li class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">chat</i>Forums</li><li class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">people</i>Online</li><li class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">dashboard</i>Dashboard</li></ul></li><li><ul class="mdc-list" data-id="-1"><li id="courses-back" class="mdc-list-item" data-mdc-auto-init="MDCRipple" uk-switcher-item="0"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">book</i>Studieroutes</li></ul><ul id="courses-nav" class="mdc-list uk-padding-remove-top"></ul></li></ul></div> </aside><div class="mdc-drawer-scrim"></div><div class="mdc-drawer-app-content"> <header id="top-app-bar" class="mdc-top-app-bar mdc-top-app-bar--fixed"><div class="mdc-top-app-bar__row top-app-bar__main"> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start"> <span class="material-icons mdc-top-app-bar__navigation-icon">menu</span> <span class="mdc-top-app-bar__title"><ul class="main-switcher uk-switcher"><li>Studieroutes</li><li>Portfolio</li><li>Project</li><li>Voortgang</li><li>Forums</li><li>Online</li><li>Dashboard</li></ul> </span> </section> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar"> <span class="material-icons mdc-top-app-bar__action-item uk-visible@s" aria-label="Notificaties" alt="Notificaties">notifications_none</span> <span uk-toggle="target: #top-app-bar .top-app-bar__search, #top-app-bar .top-app-bar__main; animation: uk-animation-fade" class="material-icons mdc-top-app-bar__action-item" aria-label="Zoeken" alt="Zoeken">search</span> <span id="top-app-bar__more" class="material-icons mdc-top-app-bar__action-item mdc-menu-surface--anchor" aria-label="Meer..." alt="Meer..."> more_vert<div id="top-app-bar__menu" class="mdc-menu mdc-menu-surface"><ul class="mdc-menu__items mdc-list" role="menu" aria-hidden="true"><li class="mdc-list-item" role="menuitem" tabindex="0"> Downloaden</li><li class="mdc-list-item" role="menuitem" tabindex="0"> Printen</li></ul></div> </span> </section></div><div class="mdc-top-app-bar__row top-app-bar__search" hidden> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start"> <span id="search-back" uk-toggle="target: #top-app-bar .top-app-bar__search, #top-app-bar .top-app-bar__main; animation: uk-animation-fade" class="material-icons mdc-top-app-bar__navigation-icon">arrow_back</span><div class="uk-search uk-search-navbar uk-width-1-1 uk-light"> <input id="search" class="uk-search-input mdc-top-app-bar__title" type="search" placeholder="Zoeken..." autofocus></div> </section></div> </header><div id="container" class="container uk-container"><div class="mdc-top-app-bar--fixed-adjust"></div><ul class="main-switcher uk-switcher"><li id="switcher-courses"><ul class="uk-switcher sub-switcher"><li class="uk-active"><ul id="courses-list" class="mdc-list mdc-list--two-line uk-flex uk-flex-column" aria-orientation="vertical"></ul></li><li><ul id="courses-sublist" class="mdc-list"></ul></li></ul></li><li id="switcher-portfolio"></li><li id="switcher-project"></li><li id="switcher-progress"></li><li id="switcher-forums"></li><li id="switcher-online"></li><li id="switcher-dashboard"></li></ul><ul class="main-switcher uk-switcher fab-container"><li> <button id="courses-FAB" class="mdc-fab material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple"> <span class="mdc-fab__icon">star_half</span> </button></li><li> <button id="portfolio-FAB" class="mdc-fab material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple"> <span class="mdc-fab__icon">star_half</span> </button></li><li> <button id="project-FAB" class="mdc-fab material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple"> <span class="mdc-fab__icon">star_half</span> </button></li><li> <button id="progress-FAB" class="mdc-fab material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple"> <span class="mdc-fab__icon">star_half</span> </button></li><li> <button id="forums-FAB" class="mdc-fab material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple"> <span class="mdc-fab__icon">star_half</span> </button></li><li> <button id="online-FAB" class="mdc-fab material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple"> <span class="mdc-fab__icon">star_half</span> </button></li><li> <button id="dashboard-FAB" class="mdc-fab material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple"> <span class="mdc-fab__icon">star_half</span> </button></li></ul></div></div><div id="snackbar" class="mdc-snackbar" aria-live="assertive" aria-atomic="true" aria-hidden="true"><div class="mdc-snackbar__text"></div><div class="mdc-snackbar__action-wrapper"> <button type="button" class="mdc-snackbar__action-button"></button></div></div>');
 
       setCourses();
 
@@ -201,33 +209,50 @@
             var append = $('#courses-nav, #courses-sublist');
             append.data('id', $id);
             setCourseItems(append, $id);
-            $('#courses-nav').prepend('<li class="mdc-list-item mdc-list-item--activated" data-mdc-auto-init="MDCRipple"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">folder_special</i><span class="courses-list-text-padding">'+$this.data('name')+'</span></li><hr class="mdc-list-divider"><span class="last-child uk-text-center">Geen resultaten gevonden...</span>');
+            $('#courses-nav').prepend('<li class="mdc-list-item mdc-list-item--activated" data-mdc-auto-init="MDCRipple" data-id="-1" data-type="0"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">folder_special</i><span class="courses-list-text-padding">'+$this.data('name')+'</span></li><hr class="mdc-list-divider">');
          }
       });
 
       $('#courses-nav, #courses-sublist').on('click', 'li.mdc-list-item', function(e){
          var $target = $(e.target);
          var $this   = $(this);
-         console.log($target);
-         console.log($this);
-         console.log($target.is('.courses-list-icon-arrow'));
-         if ($target.is('.courses-list-icon-arrow') && $this.data('type') == 0) {
+         if ($this.data('type') == 0) {
             var courseID = $('#courses-nav').data('id');
             var folderID = $this.data('id');
-            var $next    = $this.next();
-            if ($next.is('#course-'+folderID)) {
-               if ($this.is('.expanded')) {
-                  $next.slideUp(250);
-                  $this.removeClass('expanded');
+            var $thisnav = $('#courses-nav li[data-id="'+folderID+'"]');
+            var $next    = $thisnav.next();
+
+            if ($target.is('.courses-list-icon-arrow')) {
+               if ($next.is('#course-'+folderID)) {
+                  if ($this.is('.expanded')) {
+                     $next.slideUp(250);
+                     $this.removeClass('expanded');
+                  } else {
+                     $next.slideDown(250);
+                     $this.addClass('expanded');
+                  }
                } else {
-                  $next.slideDown(250);
+                  setCourseItems($this, courseID, folderID);
                   $this.addClass('expanded');
                }
             } else {
-               setCourseItems($this, courseID, folderID);
-               $this.addClass('expanded');
+               var sublist = $('#courses-sublist');
+               var update = [sublist];
+               if (!$next.is('#course-'+folderID) && folderID != -1) {
+                  update.push($thisnav);
+               } else if (!$next.is(':visible')) {
+                  $next.slideDown(250);
+               }
+               setCourseItems(update, courseID, folderID);
+               $('#courses-nav li.mdc-list-item').removeClass('mdc-list-item--activated');
+               $thisnav.addClass('mdc-list-item--activated expanded');
+
+               if (folderID != -1) {
+                  sublist.prepend('<li class="mdc-list-item" data-mdc-auto-init="MDCRipple" data-id="'+$thisnav.parent().prev().data('id')+'" data-type="0"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">arrow_back</i><span class="courses-list-text-padding">Map omhoog</span></li><hr class="mdc-list-divider">');
+               }
             }
          }
+
       });
 
       // Search
