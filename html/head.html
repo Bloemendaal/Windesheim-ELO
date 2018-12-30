@@ -1,0 +1,187 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.25/css/uikit.min.css" integrity="sha256-P3mc1WE09pSm1iAHPFelzUieKI78yRxZ7dGYjXuqIVw=" crossorigin="anonymous">
+<link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+<link rel="stylesheet" href="//unpkg.com/material-components-web@latest/dist/material-components-web.min.css">
+<style>
+   :root {
+      --mdc-theme-primary: #406790
+   }
+
+   #drawer .mdc-list-item {
+      min-height: 40px;
+      height: auto;
+      line-height: normal
+   }
+
+   .mdc-drawer .mdc-list-item--activated,
+   .mdc-drawer .mdc-list-item--activated .mdc-list-item__graphic {
+      color: #406790;
+      color: var(--mdc-theme-primary, #406790)
+   }
+
+   .mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label {
+      color: #000
+   }
+
+   .mdc-text-field--invalid:not(.mdc-text-field--disabled) .mdc-floating-label {
+      color: #b00020
+   }
+
+   .material-icons,
+   body {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none
+   }
+
+   a.material-icons {
+      text-decoration-line: none
+   }
+
+   .mdc-switch+label {
+      margin-left: 10px
+   }
+
+   #container {
+      -webkit-touch-callout: text;
+      -webkit-user-select: text;
+      -khtml-user-select: text;
+      -moz-user-select: text;
+      -ms-user-select: text;
+      user-select: text;
+      min-height: calc(100vh - 40px);
+      padding-bottom: 40px
+   }
+
+   #container.uk-container-expand {
+      padding: 0 0 40px
+   }
+
+   #top-app-bar input {
+      font-size: 1.25rem;
+      color: #fff;
+      color: var(--mdc-theme-on-primary, #fff)
+   }
+
+   #snackbar {
+      z-index: 1500
+   }
+
+   .mdc-drawer--modal.mdc-drawer--open {
+      display: flex
+   }
+
+   @media (min-width:600px) {
+      .mdc-fab:not(.fab-hidden) {
+         transform: translateY(0) !important
+      }
+   }
+
+   @media (min-width:640px) {
+      #container.uk-container-expand {
+         padding: 0 32px 40px
+      }
+   }
+
+   @media (min-width:960px) {
+      .mdc-drawer-scrim {
+         display: none !important
+      }
+
+      .mdc-drawer--modal {
+         box-shadow: none
+      }
+
+      .mdc-drawer--prepare {
+         display: flex
+      }
+
+      .mdc-drawer--open+.mdc-drawer-scrim+.mdc-drawer-app-content,
+      .mdc-drawer--prepare+.mdc-drawer-scrim+.mdc-drawer-app-content {
+         margin-left: 256px;
+         margin-right: 0
+      }
+
+      .mdc-drawer--open:not(.mdc-drawer--closing)+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar,
+      .mdc-drawer--prepare+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar {
+         width: calc(100% - 256px)
+      }
+
+      .mdc-drawer-app-content {
+         transition: margin-left .25s cubic-bezier(.4, 0, .2, 1)
+      }
+
+      .mdc-top-app-bar {
+         transition: width .25s cubic-bezier(.4, 0, .2, 1)
+      }
+
+      .mdc-drawer--open.mdc-drawer--closing+.mdc-drawer-scrim+.mdc-drawer-app-content {
+         margin-left: 0;
+         transition: margin-left .2s cubic-bezier(.4, 0, .2, 1)
+      }
+
+      .mdc-drawer--open.mdc-drawer--closing+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar {
+         transition: width .2s cubic-bezier(.4, 0, .2, 1)
+      }
+   }
+
+   .mdc-drawer__drawer::-webkit-scrollbar,
+   .uk-scrollbar::-webkit-scrollbar {
+      background-color: transparent;
+      width: 12px
+   }
+
+   .mdc-drawer__drawer::-webkit-scrollbar-thumb,
+   .uk-scrollbar::-webkit-scrollbar-thumb {
+      background-clip: padding-box;
+      border-radius: 3px;
+      -webkit-border-radius: 3px;
+      border: 4px solid transparent;
+      background-color: rgba(0, 0, 0, .2)
+   }
+
+   ul.mdc-list:not(.mdc-list--non-interactive)>* {
+      cursor: pointer
+   }
+
+   .uk-cover-container {
+      width: 48px;
+      height: 48px
+   }
+
+   .only-child {
+      display: none
+   }
+
+   .only-child:only-child {
+      display: initial
+   }
+
+   .mdc-fab {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      animation-duration: .25s;
+      animation-duration: 250ms;
+      transition-duration: .25s;
+      transition-duration: 250ms
+   }
+
+   .fab-hidden {
+      opacity: 0;
+      transform: translateY(48px)
+   }
+
+   .fab-container>* {
+      animation: none
+   }
+
+   @media(min-width:1024px) {
+      .mdc-fab {
+         bottom: 1.5rem;
+         right: 1.5rem
+      }
+   }
+</style>
