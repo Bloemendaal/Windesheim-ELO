@@ -1,14 +1,19 @@
 # Material Design ELO
 Een klein project ontworpen om de Windesheim ELO dragelijker te maken. Zorg dat de plugin Tampermonkey ([Chrome](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo)) of Greasemonkey ([Firefox](https://addons.mozilla.org/nl/firefox/addon/greasemonkey/)) geïnstalleerd is en open vervolgens het [MDELO.user.js](https://github.com/Bloemendaal/Windesheim-ELO/raw/master/MDELO.user.js) bestand. Als het goed is, opent een pagina om hem te installeren. Zo niet, dan kan je het bestand downloaden en handmatig installeren.
 
-# Technische documentatie
-## Dependencies
+## Screenshots
+![Weergave PDF bestand](docs/screenshot1.png)
+![Weergave Opname lecture](docs/screenshot2.png)
+![Weergave alle cursussen](docs/screenshot3.png)
+
+## Technische documentatie
+### Dependencies
 - [jQuery](https://github.com/jquery/jquery)
 - [Material Design Components](https://github.com/material-components/material-components-web)
 - [UIkit](https://github.com/uikit/uikit)
 - [Material Icons](https://github.com/google/material-design-icons)
 
-## Arrays, Objects & variables
+### Arrays, Objects & variables
 ```js
 var pages = [
    {
