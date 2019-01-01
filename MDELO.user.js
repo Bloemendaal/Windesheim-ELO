@@ -5,8 +5,8 @@
 // @author        Casper Bloemendaal
 // @license       MIT
 
-// @downloadURL   https://raw.githubusercontent.com/Bloemendaal/Windesheim-ELO/master/MDELO.user.js
-// @updateURL     https://raw.githubusercontent.com/Bloemendaal/Windesheim-ELO/master/MDELO.user.js
+// @downloadURL   https://github.com/Bloemendaal/Windesheim-ELO/raw/master/MDELO.user.js
+// @updateURL     https://github.com/Bloemendaal/Windesheim-ELO/raw/master/MDELO.user.js
 // @supportURL    https://github.com/Bloemendaal/Windesheim-ELO/issues
 // @version       1.0
 
