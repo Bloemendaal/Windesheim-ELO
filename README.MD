@@ -28,11 +28,11 @@ var pages = [
          fab: 'icon'                         // FAB weergeven, false of icoon
       },
       functions: {
-         onload: function() { ... },         // Functie die uitgevoerd wordt wanneer de pagina laadt
-         search: function(q) { ... },        // Zoekfunctie met variable q als zoekopdracht
-         container: function(t, e) { ... },  // Klikfunctie van de container, wordt alleen bij display container list uitgevoerd met variable t als this en e.
-         navback: function() { ... },        // Klikfunctie van de terugknop in de nav.
-         fab: function() { ... }             // Klikfunctie van de FAB
+         onload:    function() { ... },         // Functie die uitgevoerd wordt wanneer de pagina laadt
+         search:    function(q) { ... },        // Zoekfunctie met variable q als zoekopdracht
+         container: function(t, e) { ... },     // Klikfunctie van de container, wordt alleen bij display container list uitgevoerd met variable t als this en e.
+         navback:   function() { ... },         // Klikfunctie van de terugknop in de nav.
+         fab:       function() { ... }          // Klikfunctie van de FAB
       }
    },
    { ... }                                   // Pagina's worden op volgorde ingeladen
