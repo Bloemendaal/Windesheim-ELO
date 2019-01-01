@@ -4,8 +4,8 @@
 // @description   Make the ELO great (again)!
 // @author        Casper Bloemendaal
 // @license       MIT
-// @downloadURL   https://raw.githubusercontent.com/Bloemendaal/Windesheim-ELO/master/ELO.user.js
-// @updateURL     https://raw.githubusercontent.com/Bloemendaal/Windesheim-ELO/master/ELO.user.js
+// @downloadURL   https://github.com/Bloemendaal/Windesheim-ELO/raw/master/old/ELO.user.js
+// @updateURL     https://github.com/Bloemendaal/Windesheim-ELO/raw/master/old/ELO.user.js
 // @supportURL    https://github.com/Bloemendaal/Windesheim-ELO/issues
 // @version       0.5
 // @match         https://elo.windesheim.nl/Start.aspx
