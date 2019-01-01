@@ -3,26 +3,21 @@
       <h3 class="mdc-drawer__title uk-text-truncate"></h3>
       <h6 class="mdc-drawer__subtitle uk-text-truncate"></h6>
    </div>
-   <div class="mdc-drawer__content uk-scrollbar">
-      <ul class="uk-switcher sub-switcher">
-         <li class="uk-active">
-            <ul id="main-switcher" class="mdc-list" uk-switcher="connect: .main-switcher; animation: uk-animation-slide-top-small; swiping: false">
-               <li class="mdc-list-item mdc-list-item--activated" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">book</i>Studieroutes</li>
-               <li class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">folder_shared</i>Portfolio</li>
-               <li class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">extension</i>Project</li>
-               <li class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">timeline</i>Voortgang</li>
-               <li class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">chat</i>Forums</li>
-               <li class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">people</i>Online</li>
-               <li class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">dashboard</i>Dashboard</li>
-            </ul>
-         </li>
-         <li>
-            <ul class="mdc-list" data-id="-1">
-               <li id="courses-back" class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">book</i>Studieroutes</li>
-            </ul>
-            <ul id="courses-nav" class="mdc-list uk-padding-remove-top"></ul>
-         </li>
-      </ul>
+   <div id="nav" class="mdc-drawer__content uk-scrollbar">
+      <div id="nav-menu">
+         <ul id="nav-menu-list" class="mdc-list"></ul>
+      </div>
+      <div id="nav-folder">
+         <ul class="mdc-list" data-id="-1">
+            <li id="nav-folder-back" class="mdc-list-item" data-mdc-auto-init="MDCRipple">
+               <i class="material-icons mdc-list-item__graphic" aria-hidden="true">arrow_back</i>
+               <span class="lang-en">Back</span>
+               <span class="lang-nl">Terug</span>
+               <span class="lang-de">Zur&uuml;ck</span>
+            </li>
+         </ul>
+         <ul id="nav-folder-list" class="mdc-list uk-padding-remove-top"></ul>
+      </div>
    </div>
 </aside>
 <div class="mdc-drawer-scrim"></div>
@@ -31,28 +26,14 @@
       <div class="mdc-top-app-bar__row top-app-bar__main">
          <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
             <span class="material-icons mdc-top-app-bar__navigation-icon">menu</span>
-            <span class="mdc-top-app-bar__title">
-               <ul class="main-switcher uk-switcher">
-                  <li>Studieroutes</li>
-                  <li>Portfolio</li>
-                  <li>Project</li>
-                  <li>Voortgang</li>
-                  <li>Forums</li>
-                  <li>Online</li>
-                  <li>Dashboard</li>
-               </ul>
-            </span>
+            <span id="title" class="mdc-top-app-bar__title"></span>
          </section>
          <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
-            <span class="material-icons mdc-top-app-bar__action-item uk-visible@s" aria-label="Notificaties" alt="Notificaties">notifications_none</span>
-            <span uk-toggle="target: #top-app-bar .top-app-bar__search, #top-app-bar .top-app-bar__main; animation: uk-animation-fade" class="material-icons mdc-top-app-bar__action-item" aria-label="Zoeken" alt="Zoeken">search</span>
+            <span id="search-button" uk-toggle="target: #top-app-bar .top-app-bar__search, #top-app-bar .top-app-bar__main; animation: uk-animation-fade" class="material-icons mdc-top-app-bar__action-item" aria-label="Zoeken" alt="Zoeken">search</span>
             <span id="top-app-bar__more" class="material-icons mdc-top-app-bar__action-item mdc-menu-surface--anchor" aria-label="Meer..." alt="Meer...">
-               more_vert
+               notifications_none
                <div id="top-app-bar__menu" class="mdc-menu mdc-menu-surface">
-                  <ul class="mdc-menu__items mdc-list" role="menu" aria-hidden="true">
-                     <li class="mdc-list-item" role="menuitem" tabindex="0"> Downloaden </li>
-                     <li class="mdc-list-item" role="menuitem" tabindex="0"> Printen </li>
-                  </ul>
+                  test notificatie
                </div>
             </span>
          </section>
@@ -66,63 +47,23 @@
          </section>
       </div>
    </header>
-   <div id="container" class="container uk-container">
+   <div class="uk-container">
       <div class="mdc-top-app-bar--fixed-adjust"></div>
-      <ul class="main-switcher uk-switcher">
-         <li id="switcher-courses">
-            <ul class="uk-switcher sub-switcher">
-               <li class="uk-active">
-                  <ul id="courses-list" class="mdc-list mdc-list--two-line uk-flex uk-flex-column" aria-orientation="vertical"></ul>
-               </li>
-               <li>
-                  <ul id="courses-sublist" class="mdc-list"></ul>
-               </li>
-            </ul>
-         </li>
-         <li id="switcher-portfolio">  </li>
-         <li id="switcher-project">    </li>
-         <li id="switcher-progress">   </li>
-         <li id="switcher-forums">     </li>
-         <li id="switcher-online">     </li>
-         <li id="switcher-dashboard">  </li>
-      </ul>
-      <ul class="main-switcher uk-switcher fab-container">
-         <li>
-            <button id="courses-FAB" class="mdc-fab material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple">
-               <span class="mdc-fab__icon">star_half</span>
-            </button>
-         </li>
-         <li>
-            <button id="portfolio-FAB" class="mdc-fab material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple">
-               <span class="mdc-fab__icon">star_half</span>
-            </button>
-         </li>
-         <li>
-            <button id="project-FAB" class="mdc-fab material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple">
-               <span class="mdc-fab__icon">star_half</span>
-            </button>
-         </li>
-         <li>
-            <button id="progress-FAB" class="mdc-fab material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple">
-               <span class="mdc-fab__icon">star_half</span>
-            </button>
-         </li>
-         <li>
-            <button id="forums-FAB" class="mdc-fab material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple">
-               <span class="mdc-fab__icon">star_half</span>
-            </button>
-         </li>
-         <li>
-            <button id="online-FAB" class="mdc-fab material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple">
-               <span class="mdc-fab__icon">star_half</span>
-            </button>
-         </li>
-         <li>
-            <button id="dashboard-FAB" class="mdc-fab material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple">
-               <span class="mdc-fab__icon">star_half</span>
-            </button>
-         </li>
-      </ul>
+      <div id="container">
+         <div id="container-iframe">
+            <iframe src="" width="100%" height="100%"></iframe>
+         </div>
+         <div id="container-include"></div>
+         <div id="container-list">
+            <ul class="mdc-list mdc-list--two-line uk-flex uk-flex-column" aria-orientation="vertical"></ul>
+         </div>
+         <div id="container-folder">
+            <ul class="mdc-list"></ul>
+         </div>
+      </div>
+      <button id="FAB" class="mdc-fab fab-hidden material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple">
+         <span class="mdc-fab__icon"></span>
+      </button>
    </div>
 </div>
 <div id="snackbar" class="mdc-snackbar" aria-live="assertive" aria-atomic="true" aria-hidden="true">
