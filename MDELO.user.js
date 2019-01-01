@@ -8,7 +8,7 @@
 // @downloadURL   https://github.com/Bloemendaal/Windesheim-ELO/raw/master/MDELO.user.js
 // @updateURL     https://github.com/Bloemendaal/Windesheim-ELO/raw/master/MDELO.user.js
 // @supportURL    https://github.com/Bloemendaal/Windesheim-ELO/issues
-// @version       1.1
+// @version       1.2
 
 // @match         https://elo.windesheim.nl/Start.aspx
 // @grant         none
@@ -24,7 +24,7 @@
 
    var snackbar;
    var tab = false;
-   var version = 1.1;
+   var version = 1.2;
    var hidenav = false;
    var favoriteCourses = 0;
    var pages = [
@@ -472,7 +472,10 @@
                $thisnav.addClass('mdc-list-item--activated folder-expanded');
 
                if (folderID != -1) {
-                  sublist.prepend('<li class="mdc-list-item" data-mdc-auto-init="MDCRipple" data-id="'+$thisnav.parent().prev().data('id')+'" data-type="0"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">arrow_back</i><span class="folder-text-padding"><span class="lang-en">Parent folder</span><span class="lang-nl">Map omhoog</span><span class="lang-de">&uuml;bergeordneter Ordner</span></span></li><hr class="mdc-list-divider">');
+                  var iType = itemTypes.find(function(i){
+                     return i.display == 'folder';
+                  });
+                  sublist.prepend('<li class="mdc-list-item" data-mdc-auto-init="MDCRipple" data-id="'+$thisnav.parent().prev().data('id')+'" data-type="'+iType.id[pages[tab].name]+'" data-display="folder"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">arrow_back</i><span class="folder-text-padding"><span class="lang-en">Parent folder</span><span class="lang-nl">Map omhoog</span><span class="lang-de">&uuml;bergeordneter Ordner</span></span></li><hr class="mdc-list-divider">');
                }
             }
          } else {
