@@ -1,12 +1,12 @@
 # Material Design ELO
-Een klein project ontworpen om de Windesheim ELO dragelijker te maken. Zorg dat de plugin Tampermonkey ((Chrome)[https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo]) of Greasemonkey ((Firefox)[https://addons.mozilla.org/nl/firefox/addon/greasemonkey/]) geïnstalleerd is en open vervolgens het (MDELO.user.js)[https://github.com/Bloemendaal/Windesheim-ELO/raw/master/MDELO.user.js] bestand. Als het goed is, krijg opent een pagina om hem te installeren. Zo niet, dan kan je het bestand downloaden en handmatig installeren.
+Een klein project ontworpen om de Windesheim ELO dragelijker te maken. Zorg dat de plugin Tampermonkey ([Chrome](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo)) of Greasemonkey ([Firefox](https://addons.mozilla.org/nl/firefox/addon/greasemonkey/)) geïnstalleerd is en open vervolgens het [MDELO.user.js](https://github.com/Bloemendaal/Windesheim-ELO/raw/master/MDELO.user.js) bestand. Als het goed is, krijg opent een pagina om hem te installeren. Zo niet, dan kan je het bestand downloaden en handmatig installeren.
 
 # Technische documentatie
 ## Dependencies
-- (jQuery)[https://github.com/jquery/jquery]
-- (Material Design Components)[https://github.com/material-components/material-components-web]
-- (UIkit)[https://github.com/uikit/uikit]
-- (Material Icons)[https://github.com/google/material-design-icons]
+- [jQuery](https://github.com/jquery/jquery)
+- [Material Design Components](https://github.com/material-components/material-components-web)
+- [UIkit](https://github.com/uikit/uikit)
+- [Material Icons](https://github.com/google/material-design-icons)
 
 ## Arrays, Objects & variables
 ```js
@@ -32,7 +32,7 @@ var pages = [
          search: function(q) { ... },        // Zoekfunctie met variable q als zoekopdracht
          container: function(t, e) { ... },  // Klikfunctie van de container, wordt alleen bij display container list uitgevoerd met variable t als this en e.
          navback: function() { ... },        // Klikfunctie van de terugknop in de nav.
-         fab: function() { }                 // Klikfunctie van de FAB
+         fab: function() { ... }                 // Klikfunctie van de FAB
       }
    },
    { ... }                                   // Pagina's worden op volgorde ingeladen

@@ -59,8 +59,12 @@
       min-height:100vh;
    }
    #container {
+      min-height: calc(100vh - 64px);
+   }
+   #container-list,
+   #container-folder,
+   #container-include {
       padding-bottom: 40px;
-      min-height: calc(100vh - 40px);
    }
    #container-iframe {
       margin-left: -30px;
@@ -99,9 +103,6 @@
    }
 
    @media (min-width:640px) {
-      #container.uk-container-expand {
-         padding: 0 32px 40px
-      }
       .mdc-drawer {
          width: 512px;
       }

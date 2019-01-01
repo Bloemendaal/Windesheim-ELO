@@ -67,7 +67,7 @@
          }
       },
       {
-         name: 'course',
+         name: 'studyroute',
          title: {
             en: 'Course',
             nl: 'Studieroute',
@@ -80,9 +80,6 @@
             container: 'folder'
          },
          functions: {
-            onload: function() {
-
-            },
             navback: function(){
                preparePage(0);
             }
@@ -108,7 +105,11 @@
             nl: 'Project',
             de: 'Projekte'
          },
-         icon: 'extension'
+         icon: 'extension',
+         display: {
+            nav: 'menu',
+            container: 'list'
+         }
       },
       {
          name: 'forum',
@@ -117,7 +118,11 @@
             nl: 'Forum',
             de: 'Forum'
          },
-         icon: 'forum'
+         icon: 'forum',
+         display: {
+            nav: 'menu',
+            container: 'list'
+         }
       },
       {
          name: 'dashboard',
@@ -126,7 +131,11 @@
             nl: 'Dashboard',
             de: 'Dashboard'
          },
-         icon: 'dashboard'
+         icon: 'dashboard',
+         display: {
+            nav: 'menu',
+            container: 'list'
+         }
       },
       {
          name: 'progress',
@@ -135,61 +144,53 @@
             nl: 'Voortgang',
             de: 'Fortschritt'
          },
-         icon: 'timeline'
+         icon: 'timeline',
+         display: {
+            nav: 'menu',
+            container: 'list'
+         }
       }
    ];
    var itemTypes = [
       {
          id: {
-            course: 0,
+            studyroute: 0,
             portfolio: -1
          },
          icon: 'folder',
-         display: {
-            nav: 'folder',
-            container: 'folder'
-         }
+         display: 'folder'
       },
       {
          id: {
-            course: 1
+            studyroute: 1
          },
          icon: 'ondemand_video',
-         display: {
-            nav: 'folder',
-            container: 'include'
-         }
+         display: 'include'
       },
       {
          id: {
-            course: 3
+            studyroute: 3
          },
          icon: 'link',
          display: 'link'
       },
       {
          id: {
-            course: 4
+            studyroute: 4
          },
          icon: 'ondemand_video',
-         display: {
-            nav: 'folder',
-            container: 'iframe'
-         }
+         display: 'iframe'
       },
       {
          id: {
-            course: 9
+            studyroute: 9
          },
          icon: 'archive',
-         display: {
-            nav: 'folder',
-            container: 'iframe'
-         }
+         display: 'iframe'
       },
       {
          id: {
-            course: 10,
+            studyroute: 10,
             portfolio: 0
          },
          icon: 'insert_drive_file',
@@ -200,10 +201,7 @@
                icon: 'insert_drive_file',
                label: 'PDF',
                color: '#f44336',
-               display: {
-                  nav: 'folder',
-                  container: 'iframe'
-               }
+               display: 'iframe'
             },
             {
                ext: ['doc', 'docx'],
@@ -226,18 +224,12 @@
             {
                ext: ['jpg', 'jpeg', 'png', 'gif', 'bmp'],
                icon: 'photo',
-               display: {
-                  nav: 'folder',
-                  container: 'image'
-               }
+               display: 'image'
             },
             {
                ext: ['txt'],
                icon: 'description',
-               display: {
-                  nav: 'folder',
-                  container: 'iframe'
-               }
+               display: 'iframe'
             }
          ]
       }
@@ -297,7 +289,7 @@
          },
          success: function(data) {
             var list = $('#container-list > ul');
-            list.html('<span class="only-child uk-text-center uk-text-small uk-margin-left">Geen resultaten gevonden...</span>');
+            list.html('<span class="last-child uk-text-center uk-text-small uk-margin-left">Geen resultaten gevonden...</span>');
 
             data.STUDYROUTES.forEach(function(c) {
                list.append('<li class="mdc-list-item uk-width-1-1" data-id="'+c.ID+'" data-name="'+c.NAME+'" data-mdc-auto-init="MDCRipple"><div class="uk-margin-right"><div class="uk-inline uk-cover-container uk-border-circle mdc-list-item__image"><img src="'+c.IMAGEURL_24+'" alt="'+c.NAME+'" uk-cover></div></div><span>'+c.NAME+'</span><i class="mdc-icon-toggle mdc-theme--text-icon-on-background material-icons uk-margin-auto-left" role="button">'+(c.IS_FAVORITE ? 'star' : 'star_border')+'</i></li>');
@@ -313,58 +305,59 @@
          append = [append];
       }
       Object.keys(append).forEach(function(k) {
-         if (parent != -1 && append[k].attr('id') != 'folder-'+parent && append[k].parents('#courses-nav').length > 0) {
+         if (parent != -1 && append[k].attr('id') != 'folder-'+parent && append[k].parents('#nav').length > 0) {
             append[k].after('<ul id="folder-'+parent+'" class="mdc-list uk-margin-left uk-padding-remove" style="display:none"></ul>');
             append[k] = $('#folder-'+parent);
          }
          append[k].html('<span class="last-child uk-text-center uk-text-small uk-margin-left">Geen resultaten gevonden...</span>');
       });
+
+      var url = '/services/'+(pages[tab].name == 'portfolio' ? 'my' + pages[tab].name : pages[tab].name)+'mobile.asmx/Load'+pages[tab].name.charAt(0).toUpperCase() + pages[tab].name.slice(1)+'Content';
+
       $.ajax({
-         url:  '/services/Studyroutemobile.asmx/LoadStudyrouteContent',
+         url:  url,
          type: 'GET',
          data: {
-            studyrouteid: id,
+            [pages[tab].name + 'id']: id,
             parentid: parent,
             start: 0,
             length: 100
          },
          success: function(data) {
+            data[pages[tab].name.toUpperCase() + '_CONTENT'].forEach(function(item) {
+               var itemType = itemTypes.find(function(i){
+                  return i.id[pages[tab].name] == item.ITEMTYPE;
+               });
 
-            data.STUDYROUTE_CONTENT.forEach(function(item) {
-               append.forEach(function(a){
-                  if (item.ITEMTYPE == 0) {
-                     a.append('<li class="mdc-list-item '+(item.HIDE_IN_NAVIGATION ? 'folder-hidenav' : '')+'" data-mdc-auto-init="MDCRipple" data-id="'+item.ID+'" data-name="'+item.NAME+'" data-type="'+item.ITEMTYPE+'" '+(item.hasOwnProperty('URL') ? 'data-url="'+encodeURI(item.URL)+'"' : '')+'><i class="material-icons mdc-list-item__graphic folder-icon-arrow" aria-hidden="true">arrow_right</i><i class="material-icons mdc-list-item__graphic folder-icon-margin uk-margin-remove-left" aria-hidden="true">folder</i><span class="folder-text-padding">'+item.NAME+'</span></li>');
-                  } else if (item.ITEMTYPE == 10) {
-                     var surl = item.URL.split('.');
-                     var ext  = itemExt.find(function(v){
-                        return v.ext.indexOf(surl[surl.length - 1]) > -1;
-                     });
+               var display = itemType.display;
+               var icon    = itemType.icon;
+               var label   = itemType.label;
+               var color   = itemType.color;
 
-                     if (item.hasOwnProperty('URL')) {
-                        if (ext) {
-                           if (!ext.hasOwnProperty('display') || ext.display == 'link') {
-                              a.append('<a href="'+encodeURI(item.URL)+'" target="_blank" rel="noopener" class="mdc-list-item '+(item.HIDE_IN_NAVIGATION ? 'folder-hidenav' : '')+'" data-mdc-auto-init="MDCRipple" data-id="'+item.ID+'" data-name="'+item.NAME+'" data-type="'+item.ITEMTYPE+'"><i class="material-icons mdc-list-item__graphic uk-position-relative folder-icon-margin" aria-hidden="true" '+(ext.hasOwnProperty('color') && !ext.hasOwnProperty('label') ? 'style="color:'+ext.color+'"' : '')+'">'+ext.icon+(ext.hasOwnProperty('color') && ext.hasOwnProperty('label') ? '<span class="folder-icon-badge" style="background-color:'+ext.color+'">'+ext.label+'</span>' : '')+'</i><span class="folder-text-padding">'+item.NAME+'</span><i class="mdc-list-item__meta material-icons">launch</i></li>');
-                           } else {
-                              a.append('<li class="mdc-list-item '+(item.HIDE_IN_NAVIGATION ? 'folder-hidenav' : '')+'" data-mdc-auto-init="MDCRipple" data-id="'+item.ID+'" data-name="'+item.NAME+'" data-type="'+item.ITEMTYPE+'" data-url="'+encodeURI(item.URL)+'" data-display="'+(ext.hasOwnProperty('display') ? ext.display : 'link')+'"><i class="material-icons mdc-list-item__graphic uk-position-relative folder-icon-margin" aria-hidden="true" '+(ext.hasOwnProperty('color') && !ext.hasOwnProperty('label') ? 'style="color:'+ext.color+'"' : '')+'">'+ext.icon+(ext.hasOwnProperty('color') && ext.hasOwnProperty('label') ? '<span class="folder-icon-badge" style="background-color:'+ext.color+'">'+ext.label+'</span>' : '')+'</i><span class="folder-text-padding">'+item.NAME+'</span></li>');
-                           }
+               if (itemType.hasOwnProperty('ext')) {
+                  var surl = item.URL.split('.');
+                  var ext = itemType.ext.find(function(i){
+                     return i.ext.indexOf(surl[surl.length - 1]) > -1;
+                  });
 
-                        } else {
-                           a.append('<a href="'+encodeURI(item.URL)+'" target="_blank" rel="noopener" class="mdc-list-item '+(item.HIDE_IN_NAVIGATION ? 'folder-hidenav' : '')+'" data-mdc-auto-init="MDCRipple" data-id="'+item.ID+'" data-name="'+item.NAME+'" data-type="'+item.ITEMTYPE+'"><i class="material-icons mdc-list-item__graphic uk-position-relative folder-icon-margin" aria-hidden="true">'+itemTypes[item.ITEMTYPE]+'</i><span class="folder-text-padding">'+item.NAME+'</span><i class="mdc-list-item__meta material-icons">launch</i></a>');
-                        }
-                     } else {
-                        a.append('<li class="mdc-list-item '+(item.HIDE_IN_NAVIGATION ? 'folder-hidenav' : '')+'" data-mdc-auto-init="MDCRipple" data-id="'+item.ID+'" data-name="'+item.NAME+'" data-type="'+item.ITEMTYPE+'"><i class="material-icons mdc-list-item__graphic uk-position-relative folder-icon-margin" aria-hidden="true">'+itemTypes[item.ITEMTYPE]+'</i><span class="folder-text-padding">'+item.NAME+'</span></li>');
-                     }
-                  } else {
-                     if (item.hasOwnProperty('URL')) {
-                        a.append('<a href="'+encodeURI(item.URL)+'" target="_blank" rel="noopener" class="mdc-list-item '+(item.HIDE_IN_NAVIGATION ? 'folder-hidenav' : '')+'" data-mdc-auto-init="MDCRipple" data-id="'+item.ID+'" data-name="'+item.NAME+'" data-type="'+item.ITEMTYPE+'"><i class="material-icons mdc-list-item__graphic uk-position-relative folder-icon-margin" aria-hidden="true">'+itemTypes[item.ITEMTYPE]+'</i><span class="folder-text-padding">'+item.NAME+'</span><i class="mdc-list-item__meta material-icons">launch</i></a>');
-                     } else {
-                        a.append('<li class="mdc-list-item '+(item.HIDE_IN_NAVIGATION ? 'folder-hidenav' : '')+'" data-mdc-auto-init="MDCRipple" data-id="'+item.ID+'" data-name="'+item.NAME+'" data-type="'+item.ITEMTYPE+'"><i class="material-icons mdc-list-item__graphic uk-position-relative folder-icon-margin" aria-hidden="true">'+itemTypes[item.ITEMTYPE]+'</i><span class="folder-text-padding">'+item.NAME+'</span></li>');
-                     }
+                  if (ext) {
+                     display = ext.hasOwnProperty('display') && ext.display;
+                     icon    = ext.hasOwnProperty('icon')    && ext.icon;
+                     label   = ext.hasOwnProperty('label')   && ext.label;
+                     color   = ext.hasOwnProperty('color')   && ext.color;
                   }
+               }
+
+               var link = (item.hasOwnProperty('URL') && display == 'link');
+               var html = (link ? '<a href="' + encodeURI(item.URL) + '" target="_blank" rel="noopener" ' : '<li data-display="' + display + '" ' + (item.hasOwnProperty('URL') ? 'data-url="' + encodeURI(item.URL) + '" ' : '')) + 'data-id="'+item.ID+'" data-name="'+item.NAME+'" data-type="' + item.ITEMTYPE + '" data-mdc-auto-init="MDCRipple" class="mdc-list-item ' + (item.hasOwnProperty('HIDE_IN_NAVIGATION') && item.HIDE_IN_NAVIGATION ? 'folder-hidenav' : '') + '">' + (display == 'folder' ? '<i class="material-icons mdc-list-item__graphic folder-icon-arrow">arrow_right</i><i class="material-icons mdc-list-item__graphic folder-icon-margin uk-margin-remove-left uk-position-relative"' : '<i class="material-icons mdc-list-item__graphic folder-icon-margin uk-position-relative"') + (color && !label ? ' style="color:' + color + '"' : '') + '>' + icon + (color && label ? '<span class="folder-icon-badge" style="background-color:' + color + '">' + label + '</span>' : '') + '</i><span class="folder-text-padding">' + item.NAME + '</span>' + (link ? '<i class="mdc-list-item__meta material-icons">launch</i></a>' : '</li>');
+
+               append.forEach(function(a){
+                  a.append(html);
                });
             });
 
-            mdc.autoInit(document.querySelectorAll('#nav-folder-list, #container-folder > ul'), () => {});
+            mdc.autoInit(document.getElementById('nav-folder-list'),       () => {});
+            mdc.autoInit(document.querySelector('#container-folder > ul'), () => {});
 
             append.forEach(function(a) {
                if (a.attr('id') == 'folder-'+parent && a.is(':not(:visible)')) {
@@ -410,8 +403,8 @@
 
    $(function(){
       $('head script, head style').remove();
-      $('head').append('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.25/css/uikit.min.css" integrity="sha256-P3mc1WE09pSm1iAHPFelzUieKI78yRxZ7dGYjXuqIVw=" crossorigin="anonymous"><link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons"><link rel="stylesheet" href="//unpkg.com/material-components-web@latest/dist/material-components-web.min.css"><style>:root{--mdc-theme-primary: #406790}.lang-nl, .lang-de, [lang="nl"] .lang-en, [lang="de"] .lang-en{display: none;}[lang="nl"] .lang-nl, [lang="de"] .lang-de{display: initial;}.mdc-drawer .mdc-list-item--activated, .mdc-drawer .mdc-list-item--activated .mdc-list-item__graphic{color: #406790; color: var(--mdc-theme-primary, #406790)}.mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label{color: #000}.mdc-text-field--invalid:not(.mdc-text-field--disabled) .mdc-floating-label{color: #b00020}body, .material-icons{-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}a.material-icons{text-decoration-line: none}.mdc-switch+label{margin-left: 10px}#container{-webkit-touch-callout: text; -webkit-user-select: text; -khtml-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text; min-height:100vh;}#container.uk-container-expand{padding: 0 0 40px}#container{padding-bottom: 40px; min-height: calc(100vh - 40px);}#container-iframe{margin-left: -30px; margin-right: -30px}#container-folder .mdc-list-item{min-height: 48px; height: auto; line-height: normal}#top-app-bar input{font-size: 1.25rem; color: #fff; color: var(--mdc-theme-on-primary, #fff)}#snackbar{z-index: 1500}#drawer .mdc-list-item{min-height: 40px; height: auto; line-height: normal}.mdc-drawer--modal.mdc-drawer--open{display: flex}@media (min-width:600px){.mdc-fab:not(.fab-hidden){transform: translateY(0) !important}}@media (min-width:640px){#container.uk-container-expand{padding: 0 32px 40px}.mdc-drawer{width: 512px;}}@media (min-width:960px){.mdc-drawer{width: 30%;}.mdc-drawer-scrim{display: none !important}.mdc-drawer--modal{box-shadow: none}.mdc-drawer--prepare{display: flex}.mdc-drawer--open+.mdc-drawer-scrim+.mdc-drawer-app-content, .mdc-drawer--prepare+.mdc-drawer-scrim+.mdc-drawer-app-content{margin-left: 30%; margin-right: 0}.mdc-drawer--open:not(.mdc-drawer--closing)+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar, .mdc-drawer--prepare+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar{width: 70%}.mdc-drawer-app-content{transition: margin-left .25s cubic-bezier(.4, 0, .2, 1)}.mdc-top-app-bar{transition: width .25s cubic-bezier(.4, 0, .2, 1)}.mdc-drawer--open.mdc-drawer--closing+.mdc-drawer-scrim+.mdc-drawer-app-content{margin-left: 0; transition: margin-left .2s cubic-bezier(.4, 0, .2, 1)}.mdc-drawer--open.mdc-drawer--closing+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar{transition: width .2s cubic-bezier(.4, 0, .2, 1)}#container-iframe{margin-left: -40px; margin-right: -40px}}.mdc-drawer__drawer::-webkit-scrollbar, .uk-scrollbar::-webkit-scrollbar{background-color: transparent; width: 12px}.mdc-drawer__drawer::-webkit-scrollbar-thumb, .uk-scrollbar::-webkit-scrollbar-thumb{background-clip: padding-box; border-radius: 3px; -webkit-border-radius: 3px; border: 4px solid transparent; background-color: rgba(0, 0, 0, .2)}ul.mdc-list:not(.mdc-list--non-interactive)>*{cursor: pointer}.uk-cover-container{width: 48px; height: 48px}.only-child, .last-child, .first-child{display: none}.only-child:only-child, .last-child:last-child, .first-child:first-child{display: initial}.folder-icon-margin{margin-right: 24px}#nav-folder .folder-icon-margin{margin-left: 24px}.folder-icon-arrow{margin: 0px; transition-duration: 0.25s; pointer-events: initial!important}.folder-expanded > .folder-icon-arrow{transform: rotate(90deg);}#nav-folder .folder-hidenav, #container-folder .folder-icon-arrow{display: none}.folder-icon-badge{font-size: 0.5rem; line-height: 1em; font-family: Roboto,sans-serif; position: absolute; color: #fff; bottom: 3px; padding: 1px 2px 0px 2px; right: 3px; border-radius: 2px}.folder-text-padding{padding-top: 8px; padding-bottom: 8px}.mdc-fab{position: fixed; bottom: 1rem; right: 1rem; animation-duration: .25s; animation-duration: 250ms; transition-duration: .25s; transition-duration: 250ms}.fab-hidden{opacity: 0; transform: translateY(48px)}@media(min-width:1024px){.mdc-fab{bottom: 1.5rem; right: 1.5rem}}</style>');
-      $('body').html('<aside id="drawer" class="mdc-drawer mdc-drawer--modal mdc-drawer--prepare"> <div class="mdc-drawer__header"> <h3 class="mdc-drawer__title uk-text-truncate"></h3> <h6 class="mdc-drawer__subtitle uk-text-truncate"></h6> </div><div id="nav" class="mdc-drawer__content uk-scrollbar"> <div id="nav-menu"> <ul id="nav-menu-list" class="mdc-list"></ul> </div><div id="nav-folder"> <ul class="mdc-list" data-id="-1"> <li id="nav-folder-back" class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">arrow_back</i> Terug </li></ul> <ul id="nav-folder-list" class="mdc-list uk-padding-remove-top"></ul> </div></div></aside><div class="mdc-drawer-scrim"></div><div class="mdc-drawer-app-content"> <header id="top-app-bar" class="mdc-top-app-bar mdc-top-app-bar--fixed"> <div class="mdc-top-app-bar__row top-app-bar__main"> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start"> <span class="material-icons mdc-top-app-bar__navigation-icon">menu</span> <span id="title" class="mdc-top-app-bar__title"></span> </section> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar"> <span id="search-button" uk-toggle="target: #top-app-bar .top-app-bar__search, #top-app-bar .top-app-bar__main; animation: uk-animation-fade" class="material-icons mdc-top-app-bar__action-item" aria-label="Zoeken" alt="Zoeken">search</span> <span id="top-app-bar__more" class="material-icons mdc-top-app-bar__action-item mdc-menu-surface--anchor" aria-label="Meer..." alt="Meer..."> notifications_none <div id="top-app-bar__menu" class="mdc-menu mdc-menu-surface"> test notificatie </div></span> </section> </div><div class="mdc-top-app-bar__row top-app-bar__search" hidden> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start"> <span id="search-back" uk-toggle="target: #top-app-bar .top-app-bar__search, #top-app-bar .top-app-bar__main; animation: uk-animation-fade" class="material-icons mdc-top-app-bar__navigation-icon">arrow_back</span> <div class="uk-search uk-search-navbar uk-width-1-1 uk-light"> <input id="search" class="uk-search-input mdc-top-app-bar__title" type="search" placeholder="Zoeken..." autofocus> </div></section> </div></header> <div class="uk-container"> <div class="mdc-top-app-bar--fixed-adjust"></div><div id="container"> <div id="container-iframe"> <iframe src="" width="100%" height="100%"></iframe> </div><div id="container-include"></div><div id="container-list"> <ul class="mdc-list mdc-list--two-line uk-flex uk-flex-column" aria-orientation="vertical"></ul> </div><div id="container-folder"> <ul class="mdc-list"></ul> </div></div><button id="FAB" class="mdc-fab fab-hidden material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple"> <span class="mdc-fab__icon"></span> </button> </div></div><div id="snackbar" class="mdc-snackbar" aria-live="assertive" aria-atomic="true" aria-hidden="true"> <div class="mdc-snackbar__text"></div><div class="mdc-snackbar__action-wrapper"> <button type="button" class="mdc-snackbar__action-button"></button> </div></div>');
+      $('head').append('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.25/css/uikit.min.css" integrity="sha256-P3mc1WE09pSm1iAHPFelzUieKI78yRxZ7dGYjXuqIVw=" crossorigin="anonymous"><link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons"><link rel="stylesheet" href="//unpkg.com/material-components-web@latest/dist/material-components-web.min.css"><style>:root{--mdc-theme-primary:#406790}.lang-nl, .lang-de, [lang="nl"] .lang-en, [lang="de"] .lang-en{display:none}[lang="nl"] .lang-nl, [lang="de"] .lang-de{display:initial}.mdc-drawer .mdc-list-item--activated, .mdc-drawer .mdc-list-item--activated .mdc-list-item__graphic{color:#406790;color:var(--mdc-theme-primary, #406790)}.mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label{color:#000}.mdc-text-field--invalid:not(.mdc-text-field--disabled) .mdc-floating-label{color:#b00020}body,.material-icons{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}a.material-icons{text-decoration-line:none}.mdc-switch+label{margin-left:10px}#container{-webkit-touch-callout:text;-webkit-user-select:text;-khtml-user-select:text;-moz-user-select:text;-ms-user-select:text;user-select:text;min-height:100vh}#container{min-height:calc(100vh - 64px)}#container-list,#container-folder,#container-include{padding-bottom:40px}#container-iframe{margin-left:-30px;margin-right:-30px}#container-folder .mdc-list-item{min-height:48px;height:auto;line-height:normal}#top-app-bar input{font-size:1.25rem;color:#fff;color:var(--mdc-theme-on-primary,#fff)}#snackbar{z-index:1500}#drawer .mdc-list-item{min-height:40px;height:auto;line-height:normal}.mdc-drawer--modal.mdc-drawer--open{display:flex}@media (min-width:600px){.mdc-fab:not(.fab-hidden){transform:translateY(0) !important}}@media (min-width:640px){.mdc-drawer{width:512px}}@media (min-width:960px){.mdc-drawer{width:30%}.mdc-drawer-scrim{display:none !important}.mdc-drawer--modal{box-shadow:none}.mdc-drawer--prepare{display:flex}.mdc-drawer--open+.mdc-drawer-scrim+.mdc-drawer-app-content,.mdc-drawer--prepare+.mdc-drawer-scrim+.mdc-drawer-app-content{margin-left:30%;margin-right:0}.mdc-drawer--open:not(.mdc-drawer--closing)+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar,.mdc-drawer--prepare+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar{width:70%}.mdc-drawer-app-content{transition:margin-left .25s cubic-bezier(.4,0,.2,1)}.mdc-top-app-bar{transition:width .25s cubic-bezier(.4,0,.2,1)}.mdc-drawer--open.mdc-drawer--closing+.mdc-drawer-scrim+.mdc-drawer-app-content{margin-left:0;transition:margin-left .2s cubic-bezier(.4,0,.2,1)}.mdc-drawer--open.mdc-drawer--closing+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar{transition:width .2s cubic-bezier(.4,0,.2,1)}#container-iframe{margin-left:-40px;margin-right:-40px}}.mdc-drawer__drawer::-webkit-scrollbar,.uk-scrollbar::-webkit-scrollbar{background-color:transparent;width:12px}.mdc-drawer__drawer::-webkit-scrollbar-thumb,.uk-scrollbar::-webkit-scrollbar-thumb{background-clip:padding-box;border-radius:3px;-webkit-border-radius:3px;border:4px solid transparent;background-color:rgba(0,0,0,.2)}ul.mdc-list:not(.mdc-list--non-interactive)>*{cursor:pointer}.uk-cover-container{width:48px;height:48px}.only-child,.last-child,.first-child{display:none}.only-child:only-child,.last-child:last-child,.first-child:first-child{display:initial}.folder-icon-margin{margin-right:24px}#nav-folder .folder-icon-margin{margin-left:24px}.folder-icon-arrow{margin:0px;transition-duration:0.25s;pointer-events:initial!important}.folder-expanded>.folder-icon-arrow{transform:rotate(90deg)}#nav-folder .folder-hidenav, #container-folder .folder-icon-arrow{display:none}.folder-icon-badge{font-size:0.5rem;line-height:1em;font-family:Roboto,sans-serif;position:absolute;color:#fff;bottom:3px;padding:1px 2px 0px 2px;right:3px;border-radius:2px}.folder-text-padding{padding-top:8px;padding-bottom:8px}.mdc-fab{position:fixed;bottom:1rem;right:1rem;animation-duration: .25s;animation-duration:250ms;transition-duration: .25s;transition-duration:250ms}.fab-hidden{opacity:0;transform:translateY(48px)}@media(min-width:1024px){.mdc-fab{bottom:1.5rem;right:1.5rem}}</style>');
+      $('body').html('<aside id="drawer" class="mdc-drawer mdc-drawer--modal mdc-drawer--prepare"> <div class="mdc-drawer__header"> <h3 class="mdc-drawer__title uk-text-truncate"></h3> <h6 class="mdc-drawer__subtitle uk-text-truncate"></h6> </div><div id="nav" class="mdc-drawer__content uk-scrollbar"> <div id="nav-menu"> <ul id="nav-menu-list" class="mdc-list"></ul> </div><div id="nav-folder"> <ul class="mdc-list" data-id="-1"> <li id="nav-folder-back" class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">arrow_back</i> <span class="lang-en">Back</span> <span class="lang-nl">Terug</span> <span class="lang-de">Zur&uuml;ck</span> </li></ul> <ul id="nav-folder-list" class="mdc-list uk-padding-remove-top"></ul> </div></div></aside><div class="mdc-drawer-scrim"></div><div class="mdc-drawer-app-content"> <header id="top-app-bar" class="mdc-top-app-bar mdc-top-app-bar--fixed"> <div class="mdc-top-app-bar__row top-app-bar__main"> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start"> <span class="material-icons mdc-top-app-bar__navigation-icon">menu</span> <span id="title" class="mdc-top-app-bar__title"></span> </section> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar"> <span id="search-button" uk-toggle="target: #top-app-bar .top-app-bar__search, #top-app-bar .top-app-bar__main; animation: uk-animation-fade" class="material-icons mdc-top-app-bar__action-item" aria-label="Zoeken" alt="Zoeken">search</span> <span id="top-app-bar__more" class="material-icons mdc-top-app-bar__action-item mdc-menu-surface--anchor" aria-label="Meer..." alt="Meer..."> notifications_none <div id="top-app-bar__menu" class="mdc-menu mdc-menu-surface"> test notificatie </div></span> </section> </div><div class="mdc-top-app-bar__row top-app-bar__search" hidden> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start"> <span id="search-back" uk-toggle="target: #top-app-bar .top-app-bar__search, #top-app-bar .top-app-bar__main; animation: uk-animation-fade" class="material-icons mdc-top-app-bar__navigation-icon">arrow_back</span> <div class="uk-search uk-search-navbar uk-width-1-1 uk-light"> <input id="search" class="uk-search-input mdc-top-app-bar__title" type="search" placeholder="Zoeken..." autofocus> </div></section> </div></header> <div class="uk-container"> <div class="mdc-top-app-bar--fixed-adjust"></div><div id="container"> <div id="container-iframe"> <iframe src="" width="100%" height="100%"></iframe> </div><div id="container-include"></div><div id="container-list"> <ul class="mdc-list mdc-list--two-line uk-flex uk-flex-column" aria-orientation="vertical"></ul> </div><div id="container-folder"> <ul class="mdc-list"></ul> </div></div><button id="FAB" class="mdc-fab fab-hidden material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple"> <span class="mdc-fab__icon"></span> </button> </div></div><div id="snackbar" class="mdc-snackbar" aria-live="assertive" aria-atomic="true" aria-hidden="true"> <div class="mdc-snackbar__text"></div><div class="mdc-snackbar__action-wrapper"> <button type="button" class="mdc-snackbar__action-button"></button> </div></div>');
 
       $.ajax({
          url: '/services/Mobile.asmx/LoadUserSchoolConfig',
@@ -434,36 +427,40 @@
          }
       });
 
+      $('#nav-menu-list').on('click', 'li.mdc-list-item', function(){
+         preparePage($(this).data('id'));
+      });
+
       $('#container-list > ul').on('click', 'li.mdc-list-item', function(e){
          if (pages[tab].hasOwnProperty('functions') && pages[tab].functions.hasOwnProperty('container')) {
             pages[tab].functions.container(this, e);
          }
       });
 
-      $('#container-folder > ul').on('click', 'li.mdc-list-item', function(e){
+      $('#nav-folder-list, #container-folder > ul').on('click', 'li.mdc-list-item', function(e){
          var $target = $(e.target);
          var $this   = $(this);
          if ($this.data('type') == 0) {
-            var courseID = $('#courses-nav').data('id');
+            var courseID = $('#nav-folder-list').data('id');
             var folderID = $this.data('id');
-            var $thisnav = $('#courses-nav li[data-id="'+folderID+'"]');
+            var $thisnav = $('#nav-folder-list li[data-id="'+folderID+'"]');
             var $next    = $thisnav.next();
 
             if ($target.is('.folder-icon-arrow')) {
                if ($next.is('#folder-'+folderID)) {
-                  if ($this.is('.expanded')) {
+                  if ($this.is('.folder-expanded')) {
                      $next.slideUp(250);
-                     $this.removeClass('expanded');
+                     $this.removeClass('folder-expanded');
                   } else {
                      $next.slideDown(250);
-                     $this.addClass('expanded');
+                     $this.addClass('folder-expanded');
                   }
                } else {
                   setFolder($this, courseID, folderID);
-                  $this.addClass('expanded');
+                  $this.addClass('folder-expanded');
                }
             } else {
-               var sublist = $('#courses-sublist');
+               var sublist = $('#container-folder > ul');
                var update = [sublist];
                if (!$next.is('#folder-'+folderID) && folderID != -1) {
                   update.push($thisnav);
@@ -471,11 +468,11 @@
                   $next.slideDown(250);
                }
                setFolder(update, courseID, folderID);
-               $('#courses-nav li.mdc-list-item').removeClass('mdc-list-item--activated');
-               $thisnav.addClass('mdc-list-item--activated expanded');
+               $('#nav-folder-list li.mdc-list-item').removeClass('mdc-list-item--activated');
+               $thisnav.addClass('mdc-list-item--activated folder-expanded');
 
                if (folderID != -1) {
-                  sublist.prepend('<li class="mdc-list-item" data-mdc-auto-init="MDCRipple" data-id="'+$thisnav.parent().prev().data('id')+'" data-type="0"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">arrow_back</i><span class="folder-text-padding">Map omhoog</span></li><hr class="mdc-list-divider">');
+                  sublist.prepend('<li class="mdc-list-item" data-mdc-auto-init="MDCRipple" data-id="'+$thisnav.parent().prev().data('id')+'" data-type="0"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">arrow_back</i><span class="folder-text-padding"><span class="lang-en">Parent folder</span><span class="lang-nl">Map omhoog</span><span class="lang-de">&uuml;bergeordneter Ordner</span></span></li><hr class="mdc-list-divider">');
                }
             }
          } else {
@@ -522,6 +519,7 @@
             pages[tab].functions.navback();
          }
       });
+
 
 
       // Snackbar, Drawer en Notificatiemenu
