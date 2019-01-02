@@ -60,20 +60,20 @@
    }
    #container,
    #container-iframe,
-   #container-iframe > iframe {
+   #container-iframe > iframe,
+   #container-handin {
       min-height: calc(100vh - 56px);
    }
    #container-list,
    #container-folder,
    #container-include {
       max-width: 1200px;
-      padding-bottom: 40px;
+      padding-bottom: 15px;
    }
-
    #container-include {
       overflow-wrap: break-word;
       word-wrap: break-word;
-      padding-top: 20px;
+      padding-top: 15px;
    }
    #container-iframe {
       margin-left: -15px;
@@ -83,6 +83,24 @@
       min-height: 48px;
       height: auto;
       line-height: normal
+   }
+   #container-handin {
+      padding-top: 15px;
+      padding-bottom: 15px;
+      box-sizing: border-box;
+      position: relative;
+      height: calc(100vh - 56px);
+   }
+   #handin-upload {
+      border: 1px dashed #e6e6e6;
+      border-top: 0;
+      height: calc(100% - 4px);
+      background-color: #fff;
+   }
+   #handin-iframe {
+      flex: 1;
+      height: 1px;
+      pointer-events: none;
    }
 
    #top-app-bar input {
@@ -100,7 +118,8 @@
       height: auto;
       line-height: normal
    }
-   #nav-focus {
+   #nav-focus,
+   #nav-focus li {
       height: 0;
       width: 0;
       margin: 0;
@@ -114,8 +133,12 @@
    @media (min-width:600px) {
       #container,
       #container-iframe,
-      #container-iframe > iframe {
+      #container-iframe > iframe,
+      #container-handin {
          min-height: calc(100vh - 64px);
+      }
+      #container-handin {
+         height: calc(100vh - 64px);
       }
       .mdc-fab:not(.fab-hidden) {
          transform: translateY(0) !important
@@ -129,6 +152,16 @@
       #container-iframe {
          margin-left: -30px;
          margin-right: -30px
+      }
+      #container-list,
+      #container-folder,
+      #container-handin,
+      #container-include {
+         padding-bottom: 30px;
+      }
+      #container-handin,
+      #container-include {
+         padding-top: 30px;
       }
    }
 
@@ -180,6 +213,16 @@
       #container-iframe {
          margin-left: -40px;
          margin-right: -40px
+      }
+      #container-list,
+      #container-folder,
+      #container-handin,
+      #container-include {
+         padding-bottom: 40px;
+      }
+      #container-handin,
+      #container-include {
+         padding-top: 40px;
       }
    }
 

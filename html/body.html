@@ -4,7 +4,7 @@
       <h6 class="mdc-drawer__subtitle uk-text-truncate"></h6>
    </div>
    <div id="nav" class="mdc-drawer__content uk-scrollbar">
-      <ul id="nav-focus" class="mdc-list"><li class="mdc-list-item"></li></ul>
+      <ul id="nav-focus" class="mdc-list"><li class="mdc-list-item" tabindex="0"></li></ul>
       <div id="nav-menu">
          <ul id="nav-menu-list" class="mdc-list"></ul>
       </div>
@@ -48,11 +48,44 @@
          </section>
       </div>
    </header>
-   <div class="uk-container uk-container-expand">
+   <div id="content" class="uk-container uk-container-expand">
       <div class="mdc-top-app-bar--fixed-adjust"></div>
       <div id="container">
          <div id="container-iframe">
             <iframe src="" width="100%" height="100%"></iframe>
+         </div>
+         <div id="container-handin">
+            <div id="handin-progress" role="progressbar" class="mdc-linear-progress">
+               <div class="mdc-linear-progress__buffering-dots"></div>
+               <div class="mdc-linear-progress__buffer"></div>
+               <div class="mdc-linear-progress__bar mdc-linear-progress__primary-bar">
+                  <span class="mdc-linear-progress__bar-inner"></span>
+               </div>
+               <div class="mdc-linear-progress__bar mdc-linear-progress__secondary-bar">
+                  <span class="mdc-linear-progress__bar-inner"></span>
+               </div>
+            </div>
+            <div id="handin-upload" class="uk-flex uk-flex-column">
+               <div id="handin-iframe">
+                  <iframe src="" width="100%" height="100%"></iframe>
+               </div>
+               <div class="uk-text-center uk-padding">
+                  <i class="material-icons uk-text-middle uk-margin-small-right">cloud_upload</i>
+                  <span class="uk-text-middle">
+                     <span class="lang-en">Attach binaries by dropping them here or</span>
+                     <span class="lang-nl">Upload bestanden door ze hierheen te slepen of</span>
+                     <span class="lang-de">Laden Sie Dateien hoch, indem Sie sie hierher ziehen oder</span>
+                  </span>
+                  <div uk-form-custom>
+                     <input type="file" multiple>
+                     <span class="uk-link">
+                        <span class="lang-en">selecting one</span>
+                        <span class="lang-nl">te selecteren</span>
+                        <span class="lang-de">ausw&auml;hlen</span>
+                     </span>
+                  </div>
+               </div>
+            </div>
          </div>
          <div id="container-include"></div>
          <div id="container-list">

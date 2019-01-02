@@ -22,10 +22,16 @@
 (function() {
    'use strict';
 
-   var snackbar;
-   var tab = false;
    var version = 1.2;
+   var tab     = false;
    var hidenav = false;
+
+   var upload;
+   var uploadActive = false;
+   var progressBar;
+
+   var snackbar;
+
    var favoriteCourses = 0;
    var pages = [
       {
@@ -231,7 +237,7 @@
             studyroute: 9
          },
          icon: 'archive',
-         display: 'iframe'
+         display: 'handin'
       },
       {
          id: {
@@ -307,6 +313,7 @@
          $('#FAB').addClass('fab-hidden').text('');
       }
 
+      $('#content').css('background-color', display.hasOwnProperty('backgroundColor') ? display.backgroundColor : '#fff');
       $('#search-button').toggle(!!display.search);
    }
 
@@ -414,7 +421,7 @@
                }
 
                var link = (item.hasOwnProperty('URL') && display == 'link');
-               var html = (link ? '<a href="' + encodeURI(item.URL) + '" target="_blank" rel="noopener" ' : '<li data-display="' + display + '"' + (item.hasOwnProperty('URL') ? 'data-url="' + encodeURI(item.URL) + '" ' : '')) + 'data-id="'+item.ID+'" data-name="'+item.NAME+'" data-type="' + item.ITEMTYPE + '" data-mdc-auto-init="MDCRipple" class="mdc-list-item ' + (hidenav && item.hasOwnProperty('HIDE_IN_NAVIGATION') && item.HIDE_IN_NAVIGATION ? 'folder-hidenav' : '') + '">' + (display == 'folder' ? '<i class="material-icons mdc-list-item__graphic folder-icon-arrow">arrow_right</i><i class="material-icons mdc-list-item__graphic folder-icon-margin uk-margin-remove-left uk-position-relative"' : '<i class="material-icons mdc-list-item__graphic folder-icon-margin uk-position-relative"') + (color && !label ? ' style="color:' + color + '"' : '') + '>' + icon + (color && label ? '<span class="folder-icon-badge" style="background-color:' + color + '">' + label + '</span>' : '') + '</i><span class="folder-text-padding">' + item.NAME + '</span>' + (link ? '<i class="mdc-list-item__meta material-icons">launch</i></a>' : '</li>');
+               var html = (link ? '<a href="' + encodeURI(item.URL) + '" target="_blank" rel="noopener" ' : '<li data-display="' + display + '"' + (item.hasOwnProperty('URL') ? 'data-url="' + encodeURI(item.URL) + '" ' : '')) + 'data-id="'+item.ID+'" data-name="'+item.NAME+'" data-type="' + item.ITEMTYPE + '" ' + (item.hasOwnProperty('STUDYROUTE_RESOURCE_ID') ? 'data-resource="' + item.STUDYROUTE_RESOURCE_ID + '" ' : '') + ' data-mdc-auto-init="MDCRipple" class="mdc-list-item ' + (hidenav && item.hasOwnProperty('HIDE_IN_NAVIGATION') && item.HIDE_IN_NAVIGATION ? 'folder-hidenav' : '') + '">' + (display == 'folder' ? '<i class="material-icons mdc-list-item__graphic folder-icon-arrow">arrow_right</i><i class="material-icons mdc-list-item__graphic folder-icon-margin uk-margin-remove-left uk-position-relative"' : '<i class="material-icons mdc-list-item__graphic folder-icon-margin uk-position-relative"') + (color && !label ? ' style="color:' + color + '"' : '') + '>' + icon + (color && label ? '<span class="folder-icon-badge" style="background-color:' + color + '">' + label + '</span>' : '') + '</i><span class="folder-text-padding">' + item.NAME + '</span>' + (link ? '<i class="mdc-list-item__meta material-icons">launch</i></a>' : '</li>');
 
                append.forEach(function(a){
                   a.append(html);
@@ -499,6 +506,73 @@
             } else if (display == 'image') {
                $('#container-include').html('<div class="uk-flex"><img src="'+$this.data('url')+'" alt="'+$this.data('name')+'" class="uk-margin-auto"></div>');
                preparePage({nav: 'folder', container: 'include'}, $this.data('name'));
+            } else if (display == 'handin') {
+               var resourse = $this.data('resource');
+               $.ajax({
+                  url: '/services/Studyroutemobile.asmx/LoadUserHandinDetails',
+                  type: 'GET',
+                  data: {
+                     studyRouteResourceId: resourse
+                  },
+                  success: function(data){
+                     data = data.STUDYROUTE_USER_HANDINDETAILS;
+                     preparePage({nav: 'folder', container: 'handin', backgroundColor: '#f8f8f8'}, $this.data('name'));
+                     // $('#container-handin').html('<pre>' + JSON.stringify(data, null, 2) + '</pre>');
+                  }
+               });
+
+               /*
+                  Delete saved document : {
+                     url: '/services/Studyroutemobile.asmx/DeleteWorkingDocument',
+                     type: 'GET',
+                     data: {
+                        cpId: 25478948,
+                        assignmentId: 55093
+                     }
+                  }
+
+                  response:
+                  {
+                     DELETE_WORKING_DOCUMENT: "TRUE"
+                  }
+
+
+                  Save document : {
+                     url: '/Services/Assignment.asmx/UploadTempFile',
+                     type: 'POST',
+                     data: {
+                        OriginalFileName: 'Casper Bloemendaal - S1133305.docx'
+                        FullFileName: 'Casper Bloemendaal - S1133305.docx'
+                        AssignmentId: 55093
+                        ProfileGUID:
+                        Cp_Name:
+                        files[]: (binary)
+                     }
+                  }
+
+                  response:
+                  <xml><errNr>0</errNr><errDescription /><customData><UploadedDoc><SUCCESS>1</SUCCESS><CONVERTED_COUNT>0</CONVERTED_COUNT><TEMP_UPLOAD>1</TEMP_UPLOAD><CPVID>26583819</CPVID><ASSIGNMENTTEMPPACKAGE_ID>148516</ASSIGNMENTTEMPPACKAGE_ID><WORK_FOLDERID>3732628</WORK_FOLDERID></UploadedDoc></customData></xml>
+
+
+                  Submit document : {
+                     url: '/Services/Assignment.asmx/UploadFile',
+                     type: 'POST',
+                     data: {
+                        OriginalFileName: 'Casper Bloemendaal - S1133305.docx'
+                        FullFileName: 'Casper Bloemendaal - S1133305.docx'
+                        AssignmentId: 55093
+                        ProfileGUID:
+                        Cp_Name:
+                        files[]: (binary)
+                     }
+                  }
+
+                  response:
+                  <xml><errNr>0</errNr><errDescription /><customData><UploadedDoc><SUCCESS>1</SUCCESS><CONVERTED_COUNT>0</CONVERTED_COUNT><CPVID>26584069</CPVID><PLAGIARISMECHECK>false</PLAGIARISMECHECK><ASSIGNMENT_SUBMITTED_PACKAGE_ID>1131521</ASSIGNMENT_SUBMITTED_PACKAGE_ID></UploadedDoc></customData></xml>
+
+
+
+               */
             }
          }
       } else {
@@ -586,8 +660,8 @@
 
    $(function(){
       $('head script, head style').remove();
-      $('head').append('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.25/css/uikit.min.css" integrity="sha256-P3mc1WE09pSm1iAHPFelzUieKI78yRxZ7dGYjXuqIVw=" crossorigin="anonymous"><link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons"><link rel="stylesheet" href="//unpkg.com/material-components-web@latest/dist/material-components-web.min.css"><style>:root{--mdc-theme-primary: #406790}.lang-nl, .lang-de, [lang="nl"] .lang-en, [lang="de"] .lang-en{display: none;}[lang="nl"] .lang-nl, [lang="de"] .lang-de{display: initial;}.mdc-drawer .mdc-list-item--activated, .mdc-drawer .mdc-list-item--activated .mdc-list-item__graphic{color: #406790; color: var(--mdc-theme-primary, #406790)}.mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label{color: #000}.mdc-text-field--invalid:not(.mdc-text-field--disabled) .mdc-floating-label{color: #b00020}body, .material-icons{-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}a.material-icons{text-decoration-line: none}.mdc-switch+label{margin-left: 10px}#container{-webkit-touch-callout: text; -webkit-user-select: text; -khtml-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text; min-height:100vh;}#container, #container-iframe, #container-iframe > iframe{min-height: calc(100vh - 56px);}#container-list, #container-folder, #container-include{max-width: 1200px; padding-bottom: 40px;}#container-include{overflow-wrap: break-word; word-wrap: break-word; padding-top: 20px;}#container-iframe{margin-left: -15px; margin-right: -15px}#container-folder .mdc-list-item{min-height: 48px; height: auto; line-height: normal}#top-app-bar input{font-size: 1.25rem; color: #fff; color: var(--mdc-theme-on-primary, #fff)}#snackbar{z-index: 1500}#drawer .mdc-list-item{min-height: 40px; height: auto; line-height: normal}#nav-focus{height: 0; width: 0; margin: 0; padding: 0;}.mdc-drawer--modal.mdc-drawer--open{display: flex}@media (min-width:600px){#container, #container-iframe, #container-iframe > iframe{min-height: calc(100vh - 64px);}.mdc-fab:not(.fab-hidden){transform: translateY(0) !important}}@media (min-width:640px){.mdc-drawer{width: 512px;}#container-iframe{margin-left: -30px; margin-right: -30px}}@media (min-width:960px){.mdc-drawer{width: 30%;}.mdc-drawer-scrim{display: none !important}.mdc-drawer--modal{box-shadow: none}.mdc-drawer--prepare{display: flex}.mdc-drawer--open+.mdc-drawer-scrim+.mdc-drawer-app-content, .mdc-drawer--prepare+.mdc-drawer-scrim+.mdc-drawer-app-content{margin-left: 30%; margin-right: 0}.mdc-drawer--open:not(.mdc-drawer--closing)+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar, .mdc-drawer--prepare+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar{width: 70%}.mdc-drawer-app-content{transition: margin-left .25s cubic-bezier(.4, 0, .2, 1)}.mdc-top-app-bar{transition: width .25s cubic-bezier(.4, 0, .2, 1)}.mdc-drawer--open.mdc-drawer--closing+.mdc-drawer-scrim+.mdc-drawer-app-content{margin-left: 0; transition: margin-left .2s cubic-bezier(.4, 0, .2, 1)}.mdc-drawer--open.mdc-drawer--closing+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar{transition: width .2s cubic-bezier(.4, 0, .2, 1)}#container-iframe{margin-left: -40px; margin-right: -40px}}.mdc-drawer__drawer::-webkit-scrollbar, .uk-scrollbar::-webkit-scrollbar{background-color: transparent; width: 12px}.mdc-drawer__drawer::-webkit-scrollbar-thumb, .uk-scrollbar::-webkit-scrollbar-thumb{background-clip: padding-box; border-radius: 3px; -webkit-border-radius: 3px; border: 4px solid transparent; background-color: rgba(0, 0, 0, .2)}ul.mdc-list:not(.mdc-list--non-interactive)>*{cursor: pointer}.uk-cover-container{width: 48px; height: 48px}.only-child, .last-child, .first-child{display: none}.only-child:only-child, .last-child:last-child, .first-child:first-child{display: initial}.folder-icon-margin{margin-right: 24px}#nav-folder .folder-icon-margin{margin-left: 24px}.folder-icon-arrow{margin: 0px; transition-duration: 0.25s; pointer-events: initial!important}.folder-expanded > .folder-icon-arrow{transform: rotate(90deg);}#nav-folder .folder-hidenav, #container-folder .folder-icon-arrow{display: none}.folder-icon-badge{font-size: 0.5rem; line-height: 1em; font-family: Roboto,sans-serif; position: absolute; color: #fff; bottom: 3px; padding: 1px 2px 0px 2px; right: 3px; border-radius: 2px}.folder-text-padding{padding-top: 8px; padding-bottom: 8px}.mdc-fab{position: fixed; bottom: 1rem; right: 1rem; animation-duration: .25s; animation-duration: 250ms; transition-duration: .25s; transition-duration: 250ms}.fab-hidden{opacity: 0; transform: translateY(48px)}@media(min-width:1024px){.mdc-fab{bottom: 1.5rem; right: 1.5rem}}</style>');
-      $('body').html('<aside id="drawer" class="mdc-drawer mdc-drawer--modal mdc-drawer--prepare"> <div class="mdc-drawer__header"> <h3 class="mdc-drawer__title uk-text-truncate"></h3> <h6 class="mdc-drawer__subtitle uk-text-truncate"></h6> </div><div id="nav" class="mdc-drawer__content uk-scrollbar"> <ul id="nav-focus" class="mdc-list"><li class="mdc-list-item"></li></ul> <div id="nav-menu"> <ul id="nav-menu-list" class="mdc-list"></ul> </div><div id="nav-folder"> <ul class="mdc-list" data-id="-1"> <li id="nav-folder-back" class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">arrow_back</i> <span class="lang-en">Back</span> <span class="lang-nl">Terug</span> <span class="lang-de">Zur&uuml;ck</span> </li></ul> <ul id="nav-folder-list" class="mdc-list uk-padding-remove-top"></ul> </div></div></aside><div class="mdc-drawer-scrim"></div><div class="mdc-drawer-app-content"> <header id="top-app-bar" class="mdc-top-app-bar mdc-top-app-bar--fixed"> <div class="mdc-top-app-bar__row top-app-bar__main"> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start"> <span class="material-icons mdc-top-app-bar__navigation-icon">menu</span> <span id="title" class="mdc-top-app-bar__title"></span> </section> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar"> <span id="search-button" uk-toggle="target: #top-app-bar .top-app-bar__search, #top-app-bar .top-app-bar__main; animation: uk-animation-fade" class="material-icons mdc-top-app-bar__action-item" aria-label="Zoeken" alt="Zoeken">search</span> <span id="top-app-bar__more" class="material-icons mdc-top-app-bar__action-item mdc-menu-surface--anchor" aria-label="Meer..." alt="Meer..."> notifications_none <div id="top-app-bar__menu" class="mdc-menu mdc-menu-surface"> test notificatie </div></span> </section> </div><div class="mdc-top-app-bar__row top-app-bar__search" hidden> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start"> <span id="search-back" uk-toggle="target: #top-app-bar .top-app-bar__search, #top-app-bar .top-app-bar__main; animation: uk-animation-fade" class="material-icons mdc-top-app-bar__navigation-icon">arrow_back</span> <div class="uk-search uk-search-navbar uk-width-1-1 uk-light"> <input id="search" class="uk-search-input mdc-top-app-bar__title" type="search" placeholder="Zoeken..." autofocus> </div></section> </div></header> <div class="uk-container uk-container-expand"> <div class="mdc-top-app-bar--fixed-adjust"></div><div id="container"> <div id="container-iframe"> <iframe src="" width="100%" height="100%"></iframe> </div><div id="container-include"></div><div id="container-list"> <ul class="mdc-list mdc-list--two-line uk-flex uk-flex-column" aria-orientation="vertical"></ul> </div><div id="container-folder"> <ul class="mdc-list"></ul> </div></div><button id="FAB" class="mdc-fab fab-hidden material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple"> <span class="mdc-fab__icon"></span> </button> </div></div><div id="snackbar" class="mdc-snackbar" aria-live="assertive" aria-atomic="true" aria-hidden="true"> <div class="mdc-snackbar__text"></div><div class="mdc-snackbar__action-wrapper"> <button type="button" class="mdc-snackbar__action-button"></button> </div></div>');
+      $('head').append('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.25/css/uikit.min.css" integrity="sha256-P3mc1WE09pSm1iAHPFelzUieKI78yRxZ7dGYjXuqIVw=" crossorigin="anonymous"><link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons"><link rel="stylesheet" href="//unpkg.com/material-components-web@latest/dist/material-components-web.min.css"><style>:root{--mdc-theme-primary: #406790}.lang-nl, .lang-de, [lang="nl"] .lang-en, [lang="de"] .lang-en{display: none;}[lang="nl"] .lang-nl, [lang="de"] .lang-de{display: initial;}.mdc-drawer .mdc-list-item--activated, .mdc-drawer .mdc-list-item--activated .mdc-list-item__graphic{color: #406790; color: var(--mdc-theme-primary, #406790)}.mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label{color: #000}.mdc-text-field--invalid:not(.mdc-text-field--disabled) .mdc-floating-label{color: #b00020}body, .material-icons{-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}a.material-icons{text-decoration-line: none}.mdc-switch+label{margin-left: 10px}#container{-webkit-touch-callout: text; -webkit-user-select: text; -khtml-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text; min-height:100vh;}#container, #container-iframe, #container-iframe > iframe, #container-handin{min-height: calc(100vh - 56px);}#container-list, #container-folder, #container-include{max-width: 1200px; padding-bottom: 15px;}#container-include{overflow-wrap: break-word; word-wrap: break-word; padding-top: 15px;}#container-iframe{margin-left: -15px; margin-right: -15px}#container-folder .mdc-list-item{min-height: 48px; height: auto; line-height: normal}#container-handin{padding-top: 15px; padding-bottom: 15px; box-sizing: border-box; position: relative; height: calc(100vh - 56px);}#handin-upload{border: 1px dashed #e6e6e6; border-top: 0; height: calc(100% - 4px); background-color: #fff;}#handin-iframe{flex: 1; height: 1px; pointer-events: none;}#top-app-bar input{font-size: 1.25rem; color: #fff; color: var(--mdc-theme-on-primary, #fff)}#snackbar{z-index: 1500}#drawer .mdc-list-item{min-height: 40px; height: auto; line-height: normal}#nav-focus, #nav-focus li{height: 0; width: 0; margin: 0; padding: 0;}.mdc-drawer--modal.mdc-drawer--open{display: flex}@media (min-width:600px){#container, #container-iframe, #container-iframe > iframe, #container-handin{min-height: calc(100vh - 64px);}#container-handin{height: calc(100vh - 64px);}.mdc-fab:not(.fab-hidden){transform: translateY(0) !important}}@media (min-width:640px){.mdc-drawer{width: 512px;}#container-iframe{margin-left: -30px; margin-right: -30px}#container-list, #container-folder, #container-handin, #container-include{padding-bottom: 30px;}#container-handin, #container-include{padding-top: 30px;}}@media (min-width:960px){.mdc-drawer{width: 30%;}.mdc-drawer-scrim{display: none !important}.mdc-drawer--modal{box-shadow: none}.mdc-drawer--prepare{display: flex}.mdc-drawer--open+.mdc-drawer-scrim+.mdc-drawer-app-content, .mdc-drawer--prepare+.mdc-drawer-scrim+.mdc-drawer-app-content{margin-left: 30%; margin-right: 0}.mdc-drawer--open:not(.mdc-drawer--closing)+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar, .mdc-drawer--prepare+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar{width: 70%}.mdc-drawer-app-content{transition: margin-left .25s cubic-bezier(.4, 0, .2, 1)}.mdc-top-app-bar{transition: width .25s cubic-bezier(.4, 0, .2, 1)}.mdc-drawer--open.mdc-drawer--closing+.mdc-drawer-scrim+.mdc-drawer-app-content{margin-left: 0; transition: margin-left .2s cubic-bezier(.4, 0, .2, 1)}.mdc-drawer--open.mdc-drawer--closing+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar{transition: width .2s cubic-bezier(.4, 0, .2, 1)}#container-iframe{margin-left: -40px; margin-right: -40px}#container-list, #container-folder, #container-handin, #container-include{padding-bottom: 40px;}#container-handin, #container-include{padding-top: 40px;}}.mdc-drawer__drawer::-webkit-scrollbar, .uk-scrollbar::-webkit-scrollbar{background-color: transparent; width: 12px}.mdc-drawer__drawer::-webkit-scrollbar-thumb, .uk-scrollbar::-webkit-scrollbar-thumb{background-clip: padding-box; border-radius: 3px; -webkit-border-radius: 3px; border: 4px solid transparent; background-color: rgba(0, 0, 0, .2)}ul.mdc-list:not(.mdc-list--non-interactive)>*{cursor: pointer}.uk-cover-container{width: 48px; height: 48px}.only-child, .last-child, .first-child{display: none}.only-child:only-child, .last-child:last-child, .first-child:first-child{display: initial}.folder-icon-margin{margin-right: 24px}#nav-folder .folder-icon-margin{margin-left: 24px}.folder-icon-arrow{margin: 0px; transition-duration: 0.25s; pointer-events: initial!important}.folder-expanded > .folder-icon-arrow{transform: rotate(90deg);}#nav-folder .folder-hidenav, #container-folder .folder-icon-arrow{display: none}.folder-icon-badge{font-size: 0.5rem; line-height: 1em; font-family: Roboto,sans-serif; position: absolute; color: #fff; bottom: 3px; padding: 1px 2px 0px 2px; right: 3px; border-radius: 2px}.folder-text-padding{padding-top: 8px; padding-bottom: 8px}.mdc-fab{position: fixed; bottom: 1rem; right: 1rem; animation-duration: .25s; animation-duration: 250ms; transition-duration: .25s; transition-duration: 250ms}.fab-hidden{opacity: 0; transform: translateY(48px)}@media(min-width:1024px){.mdc-fab{bottom: 1.5rem; right: 1.5rem}}</style>');
+      $('body').html('<aside id="drawer" class="mdc-drawer mdc-drawer--modal mdc-drawer--prepare"> <div class="mdc-drawer__header"> <h3 class="mdc-drawer__title uk-text-truncate"></h3> <h6 class="mdc-drawer__subtitle uk-text-truncate"></h6> </div><div id="nav" class="mdc-drawer__content uk-scrollbar"> <ul id="nav-focus" class="mdc-list"><li class="mdc-list-item" tabindex="0"></li></ul> <div id="nav-menu"> <ul id="nav-menu-list" class="mdc-list"></ul> </div><div id="nav-folder"> <ul class="mdc-list" data-id="-1"> <li id="nav-folder-back" class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">arrow_back</i> <span class="lang-en">Back</span> <span class="lang-nl">Terug</span> <span class="lang-de">Zur&uuml;ck</span> </li></ul> <ul id="nav-folder-list" class="mdc-list uk-padding-remove-top"></ul> </div></div></aside><div class="mdc-drawer-scrim"></div><div class="mdc-drawer-app-content"> <header id="top-app-bar" class="mdc-top-app-bar mdc-top-app-bar--fixed"> <div class="mdc-top-app-bar__row top-app-bar__main"> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start"> <span class="material-icons mdc-top-app-bar__navigation-icon">menu</span> <span id="title" class="mdc-top-app-bar__title"></span> </section> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar"> <span id="search-button" uk-toggle="target: #top-app-bar .top-app-bar__search, #top-app-bar .top-app-bar__main; animation: uk-animation-fade" class="material-icons mdc-top-app-bar__action-item" aria-label="Zoeken" alt="Zoeken">search</span> <span id="top-app-bar__more" class="material-icons mdc-top-app-bar__action-item mdc-menu-surface--anchor" aria-label="Meer..." alt="Meer..."> notifications_none <div id="top-app-bar__menu" class="mdc-menu mdc-menu-surface"> test notificatie </div></span> </section> </div><div class="mdc-top-app-bar__row top-app-bar__search" hidden> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start"> <span id="search-back" uk-toggle="target: #top-app-bar .top-app-bar__search, #top-app-bar .top-app-bar__main; animation: uk-animation-fade" class="material-icons mdc-top-app-bar__navigation-icon">arrow_back</span> <div class="uk-search uk-search-navbar uk-width-1-1 uk-light"> <input id="search" class="uk-search-input mdc-top-app-bar__title" type="search" placeholder="Zoeken..." autofocus> </div></section> </div></header> <div id="content" class="uk-container uk-container-expand"> <div class="mdc-top-app-bar--fixed-adjust"></div><div id="container"> <div id="container-iframe"> <iframe src="" width="100%" height="100%"></iframe> </div><div id="container-handin"> <div id="handin-progress" role="progressbar" class="mdc-linear-progress"> <div class="mdc-linear-progress__buffering-dots"></div><div class="mdc-linear-progress__buffer"></div><div class="mdc-linear-progress__bar mdc-linear-progress__primary-bar"> <span class="mdc-linear-progress__bar-inner"></span> </div><div class="mdc-linear-progress__bar mdc-linear-progress__secondary-bar"> <span class="mdc-linear-progress__bar-inner"></span> </div></div><div id="handin-upload" class="uk-flex uk-flex-column"> <div id="handin-iframe"> <iframe src="" width="100%" height="100%"></iframe> </div><div class="uk-text-center uk-padding"> <i class="material-icons uk-text-middle uk-margin-small-right">cloud_upload</i> <span class="uk-text-middle"> <span class="lang-en">Attach binaries by dropping them here or</span> <span class="lang-nl">Upload bestanden door ze hierheen te slepen of</span> <span class="lang-de">Laden Sie Dateien hoch, indem Sie sie hierher ziehen oder</span> </span> <div uk-form-custom> <input type="file" multiple> <span class="uk-link"> <span class="lang-en">selecting one</span> <span class="lang-nl">te selecteren</span> <span class="lang-de">ausw&auml;hlen</span> </span> </div></div></div></div><div id="container-include"></div><div id="container-list"> <ul class="mdc-list mdc-list--two-line uk-flex uk-flex-column" aria-orientation="vertical"></ul> </div><div id="container-folder"> <ul class="mdc-list"></ul> </div></div><button id="FAB" class="mdc-fab fab-hidden material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple"> <span class="mdc-fab__icon"></span> </button> </div></div><div id="snackbar" class="mdc-snackbar" aria-live="assertive" aria-atomic="true" aria-hidden="true"> <div class="mdc-snackbar__text"></div><div class="mdc-snackbar__action-wrapper"> <button type="button" class="mdc-snackbar__action-button"></button> </div></div>');
 
       $.ajax({
          url: '/services/Mobile.asmx/LoadUserSchoolConfig',
@@ -660,6 +734,23 @@
          }
       });
 
+      progressBar = $('#handin-progress > .mdc-linear-progress__bar.mdc-linear-progress__primary-bar');
+      upload = UIkit.upload('#handin-upload', {
+         url: '/Services/Assignment.asmx/UploadFile',
+         beforeSend: function(){
+            console.log(upload);
+            return false;
+         },
+         loadStart: function (e) {
+            progressBar.css('transform', 'scaleX('+(e.loaded/e.total).toFixed(2)+')');
+         },
+         progress: function (e) {
+            progressBar.css('transform', 'scaleX('+(e.loaded/e.total).toFixed(2)+')');
+         },
+         loadEnd: function (e) {
+            progressBar.css('transform', 'scaleX('+(e.loaded/e.total).toFixed(2)+')');
+         }
+      });
 
 
       // Snackbar, Drawer en Notificatiemenu
