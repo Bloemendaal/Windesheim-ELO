@@ -66,9 +66,7 @@
                </div>
             </div>
             <div id="handin-upload" class="uk-flex uk-flex-column">
-               <div id="handin-iframe">
-                  <iframe src="" width="100%" height="100%"></iframe>
-               </div>
+               <div class="handin-load uk-padding uk-scrollbar"></div>
                <div class="uk-text-center uk-padding">
                   <i class="material-icons uk-text-middle uk-margin-small-right">cloud_upload</i>
                   <span class="uk-text-middle">
@@ -84,6 +82,83 @@
                         <span class="lang-de">ausw&auml;hlen</span>
                      </span>
                   </div>
+               </div>
+               <div class="uk-padding uk-padding-remove-top">
+                  <ul class="mdc-list uk-padding-remove">
+                     <li class="handin-review mdc-list-group">
+                        <h6 class="mdc-list-group__subheader">
+                           <span class="lang-en">Review</span>
+                           <span class="lang-nl">Beoordeling</span>
+                           <span class="lang-de">Rezension</span>
+                        </h6>
+                        <div></div>
+                     </li>
+                     <li class="handin-start mdc-list-group">
+                        <h6 class="mdc-list-group__subheader">
+                           <span class="lang-en">Provided document</span>
+                           <span class="lang-nl">Meegeleverd document</span>
+                           <span class="lang-de">Bereitgestelltes Dokument</span>
+                        </h6>
+                        <div></div>
+                     </li>
+                     <li class="handin-document mdc-list-group">
+                        <h6 class="mdc-list-group__subheader">
+                           <span class="lang-en">Uploaded document</span>
+                           <span class="lang-nl">Geüpload document</span>
+                           <span class="lang-de">Hochgeladenes Dokument</span>
+                        </h6>
+                        <div></div>
+                     </li>
+                  </ul>
+               </div>
+               <div class="uk-padding uk-padding-remove-top">
+                  <div class="uk-grid">
+                     <div class="uk-width-expand">
+                        <small class="uk-text-meta uk-text-middle" style="padding-left: 16px">
+                           <span class="lang-en">Note that pressing submit cannot be undone.</span>
+                           <span class="lang-nl">Op inleveren klikken kan niet ongedaan gemaakt worden.</span>
+                           <span class="lang-de">Beachten Sie, dass das Dr&uuml;cken von "Senden" nicht r&uuml;ckg&auml;ngig gemacht werden kann.</span>
+                        </small>
+                     </div>
+                     <div class="uk-width-auto">
+                        <button class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple">
+                           <span class="lang-en">Submit</span>
+                           <span class="lang-nl">Inleveren</span>
+                           <span class="lang-de">Senden</span>
+                        </button>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div id="handin-review" class="uk-flex uk-flex-column">
+               <div class="handin-load uk-padding uk-scrollbar"></div>
+               <div class="uk-padding">
+                  <ul class="mdc-list uk-padding-remove">
+                     <li class="handin-review mdc-list-group">
+                        <h6 class="mdc-list-group__subheader">
+                           <span class="lang-en">Review</span>
+                           <span class="lang-nl">Beoordeling</span>
+                           <span class="lang-de">Rezension</span>
+                        </h6>
+                        <div></div>
+                     </li>
+                     <li class="handin-start mdc-list-group">
+                        <h6 class="mdc-list-group__subheader">
+                           <span class="lang-en">Provided document</span>
+                           <span class="lang-nl">Meegeleverd document</span>
+                           <span class="lang-de">Bereitgestelltes Dokument</span>
+                        </h6>
+                        <div></div>
+                     </li>
+                     <li class="handin-document mdc-list-group">
+                        <h6 class="mdc-list-group__subheader">
+                           <span class="lang-en">Submitted document</span>
+                           <span class="lang-nl">Ingezonden document</span>
+                           <span class="lang-de">&Uuml;bermitteltes Dokument</span>
+                        </h6>
+                        <div></div>
+                     </li>
+                  </ul>
                </div>
             </div>
          </div>

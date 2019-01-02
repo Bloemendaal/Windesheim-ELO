@@ -91,16 +91,17 @@
       position: relative;
       height: calc(100vh - 56px);
    }
-   #handin-upload {
+   #handin-upload,
+   #handin-review {
       border: 1px dashed #e6e6e6;
       border-top: 0;
       height: calc(100% - 4px);
       background-color: #fff;
    }
-   #handin-iframe {
+   .handin-load {
       flex: 1;
       height: 1px;
-      pointer-events: none;
+      overflow-y: scroll;
    }
 
    #top-app-bar input {
@@ -241,7 +242,7 @@
       background-color: rgba(0, 0, 0, .2)
    }
 
-   ul.mdc-list:not(.mdc-list--non-interactive)>* {
+   ul.mdc-list:not(.mdc-list--non-interactive) .mdc-list-item {
       cursor: pointer
    }
 
