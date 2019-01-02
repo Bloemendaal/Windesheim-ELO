@@ -1,3 +1,105 @@
+## Filesubmit
+### Delete Saved document
+```JS
+var ajax = {
+   url: '/services/Studyroutemobile.asmx/DeleteWorkingDocument',
+   type: 'GET',
+   data: {
+      cpId: 25478948,
+      assignmentId: 55093
+   }
+};
+```
+#### Response
+```JSON
+{"DELETE_WORKING_DOCUMENT": "TRUE"}
+```
+
+### Save document
+```JS
+var ajax = {
+   url: '/Services/Assignment.asmx/UploadTempFile',
+   type: 'POST',
+   data: {
+      OriginalFileName: 'Casper Bloemendaal - S1133305.docx'
+      FullFileName: 'Casper Bloemendaal - S1133305.docx'
+      AssignmentId: 55093
+      ProfileGUID:
+      Cp_Name:
+      files[]: (binary)
+   }
+};
+```
+#### Response
+```XML
+<xml>
+   <errNr>0</errNr>
+   <errDescription />
+   <customData>
+      <UploadedDoc>
+         <SUCCESS>1</SUCCESS>
+         <CONVERTED_COUNT>0</CONVERTED_COUNT>
+         <TEMP_UPLOAD>1</TEMP_UPLOAD>
+         <CPVID>26583819</CPVID>
+         <ASSIGNMENTTEMPPACKAGE_ID>148516</ASSIGNMENTTEMPPACKAGE_ID>
+         <WORK_FOLDERID>3732628</WORK_FOLDERID>
+      </UploadedDoc>
+   </customData>
+</xml>
+```
+
+### Submit Saved document
+```JS
+var ajax = {
+   url: '/services/Studyroutemobile.asmx/SubmitExistingDocument',
+   type: 'GET',
+   data: {
+      assignmentId: 54846,
+      cpId: 25482319,
+      cpType: 0,
+      dc: 1546432563119
+   }
+};
+```
+#### Response
+```JSON
+{"SUCCESS":"TRUE","ERROR":"0"}
+```
+
+### Submit document
+```JS
+var ajax = {
+   url: '/Services/Assignment.asmx/UploadFile',
+   type: 'POST',
+   data: {
+      OriginalFileName: 'Casper Bloemendaal - S1133305.docx'
+      FullFileName: 'Casper Bloemendaal - S1133305.docx'
+      AssignmentId: 55093
+      ProfileGUID:
+      Cp_Name:
+      files[]: (binary)
+   }
+};
+```
+#### Response
+```XML
+<xml>
+   <errNr>0</errNr>
+   <errDescription />
+   <customData>
+      <UploadedDoc>
+         <SUCCESS>1</SUCCESS>
+         <CONVERTED_COUNT>0</CONVERTED_COUNT>
+         <CPVID>26584069</CPVID>
+         <PLAGIARISMECHECK>false</PLAGIARISMECHECK>
+         <ASSIGNMENT_SUBMITTED_PACKAGE_ID>1131521</ASSIGNMENT_SUBMITTED_PACKAGE_ID>
+      </UploadedDoc>
+   </customData>
+</xml>
+```
+
+
+## LoadUserHandinDetails
 ### Submit
 #### Submit
 ```JSON
