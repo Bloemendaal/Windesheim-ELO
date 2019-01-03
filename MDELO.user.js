@@ -27,7 +27,6 @@
    var hidenav = false;
 
    var upload;
-   var uploadActive = false;
    var progressBar;
 
    var snackbar;
@@ -294,8 +293,8 @@
       if (typeof k == 'object') {
          var display = k;
       } else {
-         if (pages[k]).hasOwnProperty('functions') && pages[k].functions.hasOwnProperty('onunload')) {
-            pages[k].functions.onunload();
+         if (tab !== false && pages[tab].hasOwnProperty('functions') && pages[tab].functions.hasOwnProperty('onunload')) {
+            pages[tab].functions.onunload();
          }
 
          tab = k;
@@ -562,7 +561,7 @@
    }
 
    function prepareHandin(resource) {
-      $('#container-handin').data('resourse', resource);
+      $('#container-handin').data('resource', resource);
       $.ajax({
          url: '/services/Studyroutemobile.asmx/LoadUserHandinDetails',
          type: 'GET',
@@ -571,11 +570,13 @@
          },
          success: function(data){
             data = data.STUDYROUTE_USER_HANDINDETAILS[0];
+            upload.params.AssignmentId = data.ID;
 
             var submit   = data.hasOwnProperty('HANDIN_URL');
             var celem    = $('#handin-' + (submit ? 'review' : 'upload'));
             var review   = celem.find('.handin-review');
             var start    = celem.find('.handin-start');
+            var sbtn     = $('#handin-submit');
             var doc      = celem.find('.handin-document');
 
             $('#handin-' + (submit ? 'upload' : 'review')).hide();
@@ -599,20 +600,33 @@
             if (submit) {
                var dProperties = prepareItemType(data.HANDIN_URL, data.HANDIN_TYPE, 'handin');
 
+               progressBar.css('transform', 'scaleX(1)');
+               sbtn.hide();
                doc.show();
                doc.children('div').html(prepareHandinHTML(data.HANDIN_URL, data.HANDIN_NAME, dProperties));
             } else if (data.hasOwnProperty('INITIAL_DOCUMENT_URL') && data.INITIAL_DOCUMENT_STATUS == 1) {
                var dProperties = prepareItemType(data.INITIAL_DOCUMENT_URL, data.INITIAL_DOCUMENT_TYPE, 'handin');
+               dProperties.delete = {
+                  id: data.INITIAL_DOCUMENT_CPID,
+                  assignment: data.ID
+               };
 
+               progressBar.css('transform', 'scaleX(1)');
+               sbtn.show();
                doc.show();
                doc.children('div').html(prepareHandinHTML(data.INITIAL_DOCUMENT_URL, data.INITIAL_DOCUMENT_NAME, dProperties));
-            } else { doc.hide(); }
+            } else {
+               progressBar.css('transform', 'scaleX(0)');
+               doc.hide();
+               sbtn.hide();
+            }
+            mdc.autoInit(document.getElementById('container-handin'), () => {});
          }
       });
    }
 
    function prepareHandinHTML(url, name, properties) {
-      return '<a href="' + encodeURI(url) + '" target="_blank" rel="noopener" data-mdc-auto-init="MDCRipple" class="mdc-list-item"><i class="material-icons mdc-list-item__graphic uk-position-relative"' + (properties.color && !properties.label ? ' style="color:' + properties.color + '"' : '') + '>' + properties.icon + (properties.color && properties.label ? '<span class="folder-icon-badge" style="background-color:' + properties.color + '">' + properties.label + '</span>' : '') + '</i><span class="folder-text-padding">' + name + '</span><i class="mdc-list-item__meta material-icons">launch</i></a>';
+      return (properties.hasOwnProperty('delete') ? '<div class="uk-grid uk-grid-collapse"><div class="uk-width-expand">' : '') + '<a href="' + encodeURI(url) + '" target="_blank" rel="noopener" data-mdc-auto-init="MDCRipple" class="mdc-list-item"><i class="material-icons mdc-list-item__graphic uk-position-relative"' + (properties.color && !properties.label ? ' style="color:' + properties.color + '"' : '') + '>' + properties.icon + (properties.color && properties.label ? '<span class="folder-icon-badge" style="background-color:' + properties.color + '">' + properties.label + '</span>' : '') + '</i><span class="folder-text-padding">' + name + '</span><i class="mdc-list-item__meta material-icons">launch</i></a>' + (properties.hasOwnProperty('delete') ? '</div><div class="uk-width-auto"><div class="handin-delete mdc-list-item" data-id="' + properties.delete.id + '" data-assignment="' + properties.delete.assignment + '" data-mdc-auto-init="MDCRipple"><i class="material-icons mdc-list-item__meta">delete</i></div></div>' : '');
    }
 
    function prepareFolder(page, id, title) {
@@ -672,8 +686,8 @@
 
    $(function(){
       $('head script, head style').remove();
-      $('head').append('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.25/css/uikit.min.css" integrity="sha256-P3mc1WE09pSm1iAHPFelzUieKI78yRxZ7dGYjXuqIVw=" crossorigin="anonymous"><link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons"><link rel="stylesheet" href="//unpkg.com/material-components-web@latest/dist/material-components-web.min.css"><style>:root{--mdc-theme-primary:#406790}.lang-nl, .lang-de, [lang="nl"] .lang-en, [lang="de"] .lang-en{display:none}[lang="nl"] .lang-nl, [lang="de"] .lang-de{display:initial}.mdc-drawer .mdc-list-item--activated, .mdc-drawer .mdc-list-item--activated .mdc-list-item__graphic{color:#406790;color:var(--mdc-theme-primary, #406790)}.mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label{color:#000}.mdc-text-field--invalid:not(.mdc-text-field--disabled) .mdc-floating-label{color:#b00020}body,.material-icons{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}a.material-icons{text-decoration-line:none}.mdc-switch+label{margin-left:10px}#container{-webkit-touch-callout:text;-webkit-user-select:text;-khtml-user-select:text;-moz-user-select:text;-ms-user-select:text;user-select:text;min-height:100vh}#container,#container-iframe,#container-iframe>iframe,#container-handin{min-height:calc(100vh - 56px)}#container-list,#container-folder,#container-include{max-width:1200px;padding-bottom:15px}#container-include{overflow-wrap:break-word;word-wrap:break-word;padding-top:15px}#container-iframe{margin-left:-15px;margin-right:-15px}#container-folder .mdc-list-item{min-height:48px;height:auto;line-height:normal}#container-handin{padding-top:15px;padding-bottom:15px;box-sizing:border-box;position:relative;height:calc(100vh - 56px)}#handin-upload,#handin-review{border:1px dashed #e6e6e6;border-top:0;height:calc(100% - 4px);background-color:#fff}.handin-load{flex:1;height:1px;overflow-y:scroll}#top-app-bar input{font-size:1.25rem;color:#fff;color:var(--mdc-theme-on-primary,#fff)}#snackbar{z-index:1500}#drawer .mdc-list-item{min-height:40px;height:auto;line-height:normal}#nav-focus, #nav-focus li{height:0;width:0;margin:0;padding:0}.mdc-drawer--modal.mdc-drawer--open{display:flex}@media (min-width:600px){#container,#container-iframe,#container-iframe>iframe,#container-handin{min-height:calc(100vh - 64px)}#container-handin{height:calc(100vh - 64px)}.mdc-fab:not(.fab-hidden){transform:translateY(0) !important}}@media (min-width:640px){.mdc-drawer{width:512px}#container-iframe{margin-left:-30px;margin-right:-30px}#container-list,#container-folder,#container-handin,#container-include{padding-bottom:30px}#container-handin,#container-include{padding-top:30px}}@media (min-width:960px){.mdc-drawer{width:30%}.mdc-drawer-scrim{display:none !important}.mdc-drawer--modal{box-shadow:none}.mdc-drawer--prepare{display:flex}.mdc-drawer--open+.mdc-drawer-scrim+.mdc-drawer-app-content,.mdc-drawer--prepare+.mdc-drawer-scrim+.mdc-drawer-app-content{margin-left:30%;margin-right:0}.mdc-drawer--open:not(.mdc-drawer--closing)+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar,.mdc-drawer--prepare+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar{width:70%}.mdc-drawer-app-content{transition:margin-left .25s cubic-bezier(.4,0,.2,1)}.mdc-top-app-bar{transition:width .25s cubic-bezier(.4,0,.2,1)}.mdc-drawer--open.mdc-drawer--closing+.mdc-drawer-scrim+.mdc-drawer-app-content{margin-left:0;transition:margin-left .2s cubic-bezier(.4,0,.2,1)}.mdc-drawer--open.mdc-drawer--closing+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar{transition:width .2s cubic-bezier(.4,0,.2,1)}#container-iframe{margin-left:-40px;margin-right:-40px}#container-list,#container-folder,#container-handin,#container-include{padding-bottom:40px}#container-handin,#container-include{padding-top:40px}}.mdc-drawer__drawer::-webkit-scrollbar,.uk-scrollbar::-webkit-scrollbar{background-color:transparent;width:12px}.mdc-drawer__drawer::-webkit-scrollbar-thumb,.uk-scrollbar::-webkit-scrollbar-thumb{background-clip:padding-box;border-radius:3px;-webkit-border-radius:3px;border:4px solid transparent;background-color:rgba(0, 0, 0, .2)}ul.mdc-list:not(.mdc-list--non-interactive) .mdc-list-item{cursor:pointer}.uk-cover-container{width:48px;height:48px}.only-child,.last-child,.first-child{display:none}.only-child:only-child,.last-child:last-child,.first-child:first-child{display:initial}.folder-icon-margin{margin-right:24px}#nav-folder .folder-icon-margin{margin-left:24px}.folder-icon-arrow{margin:0px;transition-duration:0.25s;pointer-events:initial!important}.folder-expanded>.folder-icon-arrow{transform:rotate(90deg)}#nav-folder .folder-hidenav, #container-folder .folder-icon-arrow{display:none}.folder-icon-badge{font-size:0.5rem;line-height:1em;font-family:Roboto,sans-serif;position:absolute;color:#fff;bottom:3px;padding:1px 2px 0px 2px;right:3px;border-radius:2px}.folder-text-padding{padding-top:8px;padding-bottom:8px}.mdc-fab{position:fixed;bottom:1rem;right:1rem;animation-duration: .25s;animation-duration:250ms;transition-duration: .25s;transition-duration:250ms}.fab-hidden{opacity:0;transform:translateY(48px)}@media(min-width:1024px){.mdc-fab{bottom:1.5rem;right:1.5rem}}</style>');
-      $('body').html('<aside id="drawer" class="mdc-drawer mdc-drawer--modal mdc-drawer--prepare"><div class="mdc-drawer__header"><h3 class="mdc-drawer__title uk-text-truncate"></h3><h6 class="mdc-drawer__subtitle uk-text-truncate"></h6></div><div id="nav" class="mdc-drawer__content uk-scrollbar"><ul id="nav-focus" class="mdc-list"><li class="mdc-list-item" tabindex="0"></li></ul><div id="nav-menu"><ul id="nav-menu-list" class="mdc-list"></ul></div><div id="nav-folder"><ul class="mdc-list" data-id="-1"><li id="nav-folder-back" class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">arrow_back</i> <span class="lang-en">Back</span> <span class="lang-nl">Terug</span> <span class="lang-de">Zur&uuml;ck</span></li></ul><ul id="nav-folder-list" class="mdc-list uk-padding-remove-top"></ul></div></div> </aside><div class="mdc-drawer-scrim"></div><div class="mdc-drawer-app-content"> <header id="top-app-bar" class="mdc-top-app-bar mdc-top-app-bar--fixed"><div class="mdc-top-app-bar__row top-app-bar__main"> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start"> <span class="material-icons mdc-top-app-bar__navigation-icon">menu</span> <span id="title" class="mdc-top-app-bar__title"></span> </section> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar"> <span id="search-button" uk-toggle="target: #top-app-bar .top-app-bar__search, #top-app-bar .top-app-bar__main; animation: uk-animation-fade" class="material-icons mdc-top-app-bar__action-item" aria-label="Zoeken" alt="Zoeken">search</span> <span id="top-app-bar__more" class="material-icons mdc-top-app-bar__action-item mdc-menu-surface--anchor" aria-label="Meer..." alt="Meer..."> notifications_none<div id="top-app-bar__menu" class="mdc-menu mdc-menu-surface"> test notificatie</div> </span> </section></div><div class="mdc-top-app-bar__row top-app-bar__search" hidden> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start"> <span id="search-back" uk-toggle="target: #top-app-bar .top-app-bar__search, #top-app-bar .top-app-bar__main; animation: uk-animation-fade" class="material-icons mdc-top-app-bar__navigation-icon">arrow_back</span><div class="uk-search uk-search-navbar uk-width-1-1 uk-light"> <input id="search" class="uk-search-input mdc-top-app-bar__title" type="search" placeholder="Zoeken..." autofocus></div> </section></div> </header><div id="content" class="uk-container uk-container-expand"><div class="mdc-top-app-bar--fixed-adjust"></div><div id="container"><div id="container-iframe"> <iframe src="" width="100%" height="100%"></iframe></div><div id="container-handin"><div id="handin-progress" role="progressbar" class="mdc-linear-progress"><div class="mdc-linear-progress__buffering-dots"></div><div class="mdc-linear-progress__buffer"></div><div class="mdc-linear-progress__bar mdc-linear-progress__primary-bar"> <span class="mdc-linear-progress__bar-inner"></span></div><div class="mdc-linear-progress__bar mdc-linear-progress__secondary-bar"> <span class="mdc-linear-progress__bar-inner"></span></div></div><div id="handin-upload" class="uk-flex uk-flex-column"><div class="handin-load uk-padding uk-scrollbar"></div><div class="uk-text-center uk-padding"> <i class="material-icons uk-text-middle uk-margin-small-right">cloud_upload</i> <span class="uk-text-middle"> <span class="lang-en">Attach binaries by dropping them here or</span> <span class="lang-nl">Upload bestanden door ze hierheen te slepen of</span> <span class="lang-de">Laden Sie Dateien hoch, indem Sie sie hierher ziehen oder</span> </span><div uk-form-custom> <input type="file" multiple> <span class="uk-link"> <span class="lang-en">selecting one</span> <span class="lang-nl">te selecteren</span> <span class="lang-de">ausw&auml;hlen</span> </span></div></div><div class="uk-padding uk-padding-remove-top"><ul class="mdc-list uk-padding-remove"><li class="handin-review mdc-list-group"><h6 class="mdc-list-group__subheader"> <span class="lang-en">Review</span> <span class="lang-nl">Beoordeling</span> <span class="lang-de">Rezension</span></h6><div></div></li><li class="handin-start mdc-list-group"><h6 class="mdc-list-group__subheader"> <span class="lang-en">Provided document</span> <span class="lang-nl">Meegeleverd document</span> <span class="lang-de">Bereitgestelltes Dokument</span></h6><div></div></li><li class="handin-document mdc-list-group"><h6 class="mdc-list-group__subheader"> <span class="lang-en">Uploaded document</span> <span class="lang-nl">Geüpload document</span> <span class="lang-de">Hochgeladenes Dokument</span></h6><div></div></li></ul></div><div class="uk-padding uk-padding-remove-top"><div class="uk-grid"><div class="uk-width-expand"> <small class="uk-text-meta uk-text-middle" style="padding-left: 16px"> <span class="lang-en">Note that pressing submit cannot be undone.</span> <span class="lang-nl">Op inleveren klikken kan niet ongedaan gemaakt worden.</span> <span class="lang-de">Beachten Sie, dass das Dr&uuml;cken von "Senden" nicht r&uuml;ckg&auml;ngig gemacht werden kann.</span> </small></div><div class="uk-width-auto"> <button class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple"> <span class="lang-en">Submit</span> <span class="lang-nl">Inleveren</span> <span class="lang-de">Senden</span> </button></div></div></div></div><div id="handin-review" class="uk-flex uk-flex-column"><div class="handin-load uk-padding uk-scrollbar"></div><div class="uk-padding"><ul class="mdc-list uk-padding-remove"><li class="handin-review mdc-list-group"><h6 class="mdc-list-group__subheader"> <span class="lang-en">Review</span> <span class="lang-nl">Beoordeling</span> <span class="lang-de">Rezension</span></h6><div></div></li><li class="handin-start mdc-list-group"><h6 class="mdc-list-group__subheader"> <span class="lang-en">Provided document</span> <span class="lang-nl">Meegeleverd document</span> <span class="lang-de">Bereitgestelltes Dokument</span></h6><div></div></li><li class="handin-document mdc-list-group"><h6 class="mdc-list-group__subheader"> <span class="lang-en">Submitted document</span> <span class="lang-nl">Ingezonden document</span> <span class="lang-de">&Uuml;bermitteltes Dokument</span></h6><div></div></li></ul></div></div></div><div id="container-include"></div><div id="container-list"><ul class="mdc-list mdc-list--two-line uk-flex uk-flex-column" aria-orientation="vertical"></ul></div><div id="container-folder"><ul class="mdc-list"></ul></div></div> <button id="FAB" class="mdc-fab fab-hidden material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple"> <span class="mdc-fab__icon"></span> </button></div></div><div id="snackbar" class="mdc-snackbar" aria-live="assertive" aria-atomic="true" aria-hidden="true"><div class="mdc-snackbar__text"></div><div class="mdc-snackbar__action-wrapper"> <button type="button" class="mdc-snackbar__action-button"></button></div></div>');
+      $('head').append('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.25/css/uikit.min.css" integrity="sha256-P3mc1WE09pSm1iAHPFelzUieKI78yRxZ7dGYjXuqIVw=" crossorigin="anonymous"><link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons"><link rel="stylesheet" href="//unpkg.com/material-components-web@latest/dist/material-components-web.min.css"><style>:root{--mdc-theme-primary: #406790}.lang-nl, .lang-de, [lang="nl"] .lang-en, [lang="de"] .lang-en{display: none;}[lang="nl"] .lang-nl, [lang="de"] .lang-de{display: initial;}.mdc-drawer .mdc-list-item--activated, .mdc-drawer .mdc-list-item--activated .mdc-list-item__graphic{color: #406790; color: var(--mdc-theme-primary, #406790)}.mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label{color: #000}.mdc-text-field--invalid:not(.mdc-text-field--disabled) .mdc-floating-label{color: #b00020}body, .material-icons{-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}a.material-icons{text-decoration-line: none}.mdc-switch+label{margin-left: 10px}#container{-webkit-touch-callout: text; -webkit-user-select: text; -khtml-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text; min-height:100vh;}#container, #container-iframe, #container-iframe > iframe, #container-handin{min-height: calc(100vh - 56px);}#container-list, #container-folder, #container-include{max-width: 1200px; padding-bottom: 15px;}#container-include{overflow-wrap: break-word; word-wrap: break-word; padding-top: 15px;}#container-iframe{margin-left: -15px; margin-right: -15px}#container-folder .mdc-list-item{min-height: 48px; height: auto; line-height: normal}#container-handin{padding-top: 15px; padding-bottom: 15px; box-sizing: border-box; position: relative; height: calc(100vh - 56px);}#handin-upload, #handin-review{border: 1px dashed #e6e6e6; border-top: 0; height: calc(100% - 4px); background-color: #fff;}.handin-load{flex: 1; height: 1px; overflow-y: scroll;}#top-app-bar input{font-size: 1.25rem; color: #fff; color: var(--mdc-theme-on-primary, #fff)}#snackbar{z-index: 1500}#drawer .mdc-list-item{min-height: 40px; height: auto; line-height: normal}#nav-focus, #nav-focus li{height: 0; width: 0; margin: 0; padding: 0;}.mdc-drawer--modal.mdc-drawer--open{display: flex}@media (min-width:600px){#container, #container-iframe, #container-iframe > iframe, #container-handin{min-height: calc(100vh - 64px);}#container-handin{height: calc(100vh - 64px);}.mdc-fab:not(.fab-hidden){transform: translateY(0) !important}}@media (min-width:640px){.mdc-drawer{width: 512px;}#container-iframe{margin-left: -30px; margin-right: -30px}#container-list, #container-folder, #container-handin, #container-include{padding-bottom: 30px;}#container-handin, #container-include{padding-top: 30px;}}@media (min-width:960px){.mdc-drawer{width: 30%;}.mdc-drawer-scrim{display: none !important}.mdc-drawer--modal{box-shadow: none}.mdc-drawer--prepare{display: flex}.mdc-drawer--open+.mdc-drawer-scrim+.mdc-drawer-app-content, .mdc-drawer--prepare+.mdc-drawer-scrim+.mdc-drawer-app-content{margin-left: 30%; margin-right: 0}.mdc-drawer--open:not(.mdc-drawer--closing)+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar, .mdc-drawer--prepare+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar{width: 70%}.mdc-drawer-app-content{transition: margin-left .25s cubic-bezier(.4, 0, .2, 1)}.mdc-top-app-bar{transition: width .25s cubic-bezier(.4, 0, .2, 1)}.mdc-drawer--open.mdc-drawer--closing+.mdc-drawer-scrim+.mdc-drawer-app-content{margin-left: 0; transition: margin-left .2s cubic-bezier(.4, 0, .2, 1)}.mdc-drawer--open.mdc-drawer--closing+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar{transition: width .2s cubic-bezier(.4, 0, .2, 1)}#container-iframe{margin-left: -40px; margin-right: -40px}#container-list, #container-folder, #container-handin, #container-include{padding-bottom: 40px;}#container-handin, #container-include{padding-top: 40px;}}.mdc-drawer__drawer::-webkit-scrollbar, .uk-scrollbar::-webkit-scrollbar{background-color: transparent; width: 12px}.mdc-drawer__drawer::-webkit-scrollbar-thumb, .uk-scrollbar::-webkit-scrollbar-thumb{background-clip: padding-box; border-radius: 3px; -webkit-border-radius: 3px; border: 4px solid transparent; background-color: rgba(0, 0, 0, .2)}ul.mdc-list:not(.mdc-list--non-interactive) .mdc-list-item{cursor: pointer}.uk-cover-container{width: 48px; height: 48px}.only-child, .last-child, .first-child{display: none}.only-child:only-child, .last-child:last-child, .first-child:first-child{display: initial}.folder-icon-margin{margin-right: 24px}#nav-folder .folder-icon-margin{margin-left: 24px}.folder-icon-arrow{margin: 0px; transition-duration: 0.25s; pointer-events: initial!important}.folder-expanded > .folder-icon-arrow{transform: rotate(90deg);}#nav-folder .folder-hidenav, #container-folder .folder-icon-arrow{display: none}.folder-icon-badge{font-size: 0.5rem; line-height: 1em; font-family: Roboto,sans-serif; position: absolute; color: #fff; bottom: 3px; padding: 1px 2px 0px 2px; right: 3px; border-radius: 2px}.folder-text-padding{padding-top: 8px; padding-bottom: 8px}.mdc-fab{position: fixed; bottom: 1rem; right: 1rem; animation-duration: .25s; animation-duration: 250ms; transition-duration: .25s; transition-duration: 250ms}.fab-hidden{opacity: 0; transform: translateY(48px)}@media(min-width:1024px){.mdc-fab{bottom: 1.5rem; right: 1.5rem}}</style>');
+      $('body').html('<aside id="drawer" class="mdc-drawer mdc-drawer--modal mdc-drawer--prepare"> <div class="mdc-drawer__header"> <h3 class="mdc-drawer__title uk-text-truncate"></h3> <h6 class="mdc-drawer__subtitle uk-text-truncate"></h6> </div><div id="nav" class="mdc-drawer__content uk-scrollbar"> <ul id="nav-focus" class="mdc-list"><li class="mdc-list-item" tabindex="0"></li></ul> <div id="nav-menu"> <ul id="nav-menu-list" class="mdc-list"></ul> </div><div id="nav-folder"> <ul class="mdc-list" data-id="-1"> <li id="nav-folder-back" class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">arrow_back</i> <span class="lang-en">Back</span> <span class="lang-nl">Terug</span> <span class="lang-de">Zur&uuml;ck</span> </li></ul> <ul id="nav-folder-list" class="mdc-list uk-padding-remove-top"></ul> </div></div></aside><div class="mdc-drawer-scrim"></div><div class="mdc-drawer-app-content"> <header id="top-app-bar" class="mdc-top-app-bar mdc-top-app-bar--fixed"> <div class="mdc-top-app-bar__row top-app-bar__main"> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start"> <span class="material-icons mdc-top-app-bar__navigation-icon">menu</span> <span id="title" class="mdc-top-app-bar__title"></span> </section> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar"> <span id="search-button" uk-toggle="target: #top-app-bar .top-app-bar__search, #top-app-bar .top-app-bar__main; animation: uk-animation-fade" class="material-icons mdc-top-app-bar__action-item" aria-label="Zoeken" alt="Zoeken">search</span> <span id="top-app-bar__more" class="material-icons mdc-top-app-bar__action-item mdc-menu-surface--anchor" aria-label="Meer..." alt="Meer..."> notifications_none <div id="top-app-bar__menu" class="mdc-menu mdc-menu-surface"> test notificatie </div></span> </section> </div><div class="mdc-top-app-bar__row top-app-bar__search" hidden> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start"> <span id="search-back" uk-toggle="target: #top-app-bar .top-app-bar__search, #top-app-bar .top-app-bar__main; animation: uk-animation-fade" class="material-icons mdc-top-app-bar__navigation-icon">arrow_back</span> <div class="uk-search uk-search-navbar uk-width-1-1 uk-light"> <input id="search" class="uk-search-input mdc-top-app-bar__title" type="search" placeholder="Zoeken..." autofocus> </div></section> </div></header> <div id="content" class="uk-container uk-container-expand"> <div class="mdc-top-app-bar--fixed-adjust"></div><div id="container"> <div id="container-iframe"> <iframe src="" width="100%" height="100%"></iframe> </div><div id="container-handin"> <div id="handin-progress" role="progressbar" class="mdc-linear-progress"> <div class="mdc-linear-progress__buffering-dots"></div><div class="mdc-linear-progress__buffer"></div><div class="mdc-linear-progress__bar mdc-linear-progress__primary-bar"> <span class="mdc-linear-progress__bar-inner"></span> </div><div class="mdc-linear-progress__bar mdc-linear-progress__secondary-bar"> <span class="mdc-linear-progress__bar-inner"></span> </div></div><div id="handin-upload" class="uk-flex uk-flex-column"> <div class="handin-load uk-padding uk-scrollbar"></div><div class="uk-text-center uk-padding"> <i class="material-icons uk-text-middle uk-margin-small-right">cloud_upload</i> <span class="uk-text-middle"> <span class="lang-en">Attach binaries by dropping them here or</span> <span class="lang-nl">Upload bestanden door ze hierheen te slepen of</span> <span class="lang-de">Laden Sie Dateien hoch, indem Sie sie hierher ziehen oder</span> </span> <div uk-form-custom> <input type="file" multiple> <span class="uk-link"> <span class="lang-en">selecting one</span> <span class="lang-nl">te selecteren</span> <span class="lang-de">ausw&auml;hlen</span> </span> </div></div><div class="uk-padding uk-padding-remove-top"> <ul class="mdc-list uk-padding-remove"> <li class="handin-review mdc-list-group"> <h6 class="mdc-list-group__subheader"> <span class="lang-en">Review</span> <span class="lang-nl">Beoordeling</span> <span class="lang-de">Rezension</span> </h6> <div></div></li><li class="handin-start mdc-list-group"> <h6 class="mdc-list-group__subheader"> <span class="lang-en">Provided document</span> <span class="lang-nl">Meegeleverd document</span> <span class="lang-de">Bereitgestelltes Dokument</span> </h6> <div></div></li><li class="handin-document mdc-list-group"> <h6 class="mdc-list-group__subheader"> <span class="lang-en">Uploaded document</span> <span class="lang-nl">Geüpload document</span> <span class="lang-de">Hochgeladenes Dokument</span> </h6> <div></div></li></ul> </div><div id="handin-submit" class="uk-padding uk-padding-remove-top"> <div class="uk-grid"> <div class="uk-width-expand"> <small class="uk-text-meta uk-text-middle" style="padding-left: 16px"> <span class="lang-en">Note that pressing submit cannot be undone.</span> <span class="lang-nl">Op inleveren klikken kan niet ongedaan gemaakt worden.</span> <span class="lang-de">Beachten Sie, dass das Dr&uuml;cken von "Senden" nicht r&uuml;ckg&auml;ngig gemacht werden kann.</span> </small> </div><div class="uk-width-auto"> <button class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple"> <span class="lang-en">Submit</span> <span class="lang-nl">Inleveren</span> <span class="lang-de">Senden</span> </button> </div></div></div></div><div id="handin-review" class="uk-flex uk-flex-column"> <div class="handin-load uk-padding uk-scrollbar"></div><div class="uk-padding"> <ul class="mdc-list uk-padding-remove"> <li class="handin-review mdc-list-group"> <h6 class="mdc-list-group__subheader"> <span class="lang-en">Review</span> <span class="lang-nl">Beoordeling</span> <span class="lang-de">Rezension</span> </h6> <div></div></li><li class="handin-start mdc-list-group"> <h6 class="mdc-list-group__subheader"> <span class="lang-en">Provided document</span> <span class="lang-nl">Meegeleverd document</span> <span class="lang-de">Bereitgestelltes Dokument</span> </h6> <div></div></li><li class="handin-document mdc-list-group"> <h6 class="mdc-list-group__subheader"> <span class="lang-en">Submitted document</span> <span class="lang-nl">Ingezonden document</span> <span class="lang-de">&Uuml;bermitteltes Dokument</span> </h6> <div></div></li></ul> </div></div></div><div id="container-include"></div><div id="container-list"> <ul class="mdc-list mdc-list--two-line uk-flex uk-flex-column" aria-orientation="vertical"></ul> </div><div id="container-folder"> <ul class="mdc-list"></ul> </div></div><button id="FAB" class="mdc-fab fab-hidden material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple"> <span class="mdc-fab__icon"></span> </button> </div></div><div id="snackbar" class="mdc-snackbar" aria-live="assertive" aria-atomic="true" aria-hidden="true"> <div class="mdc-snackbar__text"></div><div class="mdc-snackbar__action-wrapper"> <button type="button" class="mdc-snackbar__action-button"></button> </div></div>');
 
       $.ajax({
          url: '/services/Mobile.asmx/LoadUserSchoolConfig',
@@ -700,6 +714,7 @@
          }
       });
 
+      // Navigatiebalk functies
       $('#nav-menu-list').on('click', 'li.mdc-list-item', function(){
          var $this = $(this);
          $('#nav-menu-list > li').removeClass('mdc-list-item--activated');
@@ -707,15 +722,104 @@
          preparePage($this.data('id'));
       });
 
+      $('#nav-folder-list, #container-folder > ul').on('click', 'li.mdc-list-item', function(e){
+         setFolderItem(this, e);
+      });
+
+
+      // Container functies
       $('#container-list > ul').on('click', 'li.mdc-list-item', function(e){
          if (pages[tab].hasOwnProperty('functions') && pages[tab].functions.hasOwnProperty('container')) {
             pages[tab].functions.container(this, e);
          }
       });
 
-      $('#nav-folder-list, #container-folder > ul').on('click', 'li.mdc-list-item', function(e){
-         setFolderItem(this, e);
+      $('#container-handin .handin-document').on('click', '.handin-delete', function(){
+         var $this = $(this);
+         var assignment = $this.data('assignment');
+         var id = $this.data('id');
+         $.ajax({
+            url: '/services/Studyroutemobile.asmx/DeleteWorkingDocument',
+            type: 'GET',
+            data: {
+               cpId: id,
+               assignmentId: assignment
+            },
+            beforeSend: function() {
+               $this.html('<div uk-spinner="ratio:0.8" class="mdc-list-item__meta"></div>');
+            },
+            complete: function(data){
+               if (data.status != 200 || data.responseJSON.DELETE_WORKING_DOCUMENT != "TRUE") {
+                  var msg, actionText;
+                  switch ($('html').attr('lang')) {
+                     case 'nl':
+                        msg = "Verwijderen mislukt, de pagina wordt herladen.";
+                        actionText = "Rapporteer een bug";
+                        break;
+                     case 'de':
+                        msg = "Löschen fehlgeschlagen, Laden der Seite neu.";
+                        actionText = "Einen Fehler einreichen";
+                        break;
+                     default:
+                        msg = "Failed to delete, reloading the page.";
+                        actionText = "Report a bug";
+                  }
+                  snackbar.show({
+                     message: msg,
+                     timeout: 5000,
+                     actionHandler: function() {
+                        window.location.href = 'https://github.com/Bloemendaal/Windesheim-ELO/issues/new?title='+encodeURI('[BUG] Handin DeleteWorkingDocument error')+'&body='+encodeURI('Page: ' + pages[tab].name + "\n" + 'cpId: ' + id + "\n" + 'assignmentId: ' + assignment + "\n" + 'Version: ' + version + 'xhrData: ' + JSON.stringify(data, null, 2) + "\n" + "\n\n" + '[Your description of the steps you took to encounter this problem. Try to reproduce the proces, possibly provide a screenshot.]');
+                     },
+                     actionText: actionText,
+                     multiline: true,
+                     actionOnBottom: true
+                  });
+               }
+               prepareHandin($('#container-handin').data('resource'));
+            }
+         });
       });
+
+      $('#handin-submit button').click(function(){
+         var btn = $(this);
+         if (btn.prop('disabled') == false) {
+            btn.prop('disabled', true).html(printLanguages({
+               en: 'Loading...',
+               nl: 'Laden...',
+               de: 'Wird geladen...'
+            }));
+            var items = $('#handin-upload .handin-document .handin-delete');
+            var icount = 0;
+            var itotal = items.length;
+            items.each(function(){
+               var $this = $(this);
+               var assignment = $this.data('assignment');
+               var id = $this.data('id');
+               $.ajax({
+                  url: '/services/Studyroutemobile.asmx/SubmitExistingDocument',
+                  type: 'GET',
+                  data: {
+                     assignmentId: assignment,
+                     cpId: id,
+                     cpType: 0
+                  },
+                  complete: function(data) {
+                     if (data.status != 200 || data.responseJSON.SUCCESS != "TRUE") {
+                        snackbar.show({
+                           message: data.responseJSON.ERROR
+                        });
+                     }
+                     icount++;
+                     if (icount == itotal) {
+                        prepareHandin($('#container-handin').data('resource'));
+                     }
+                  }
+               });
+            });
+         }
+      });
+
+
 
       // Standaard klikfuncties
       $('#search').on('input', function(){
@@ -751,21 +855,17 @@
          url: '/Services/Assignment.asmx/UploadTempFile',
          multiple: true,
          concurrent: 1,
-         beforeSend: function(){
-            return false;
-            console.log('beforeSend');
-         },
          loadStart: function (e) {
-            console.log((e.loaded/e.total).toFixed(2));
-            progressBar.css('transform', 'scaleX('+(e.loaded/e.total).toFixed(2)+')');
+            progressBar.css('transform', 'scaleX(0)');
          },
          progress: function (e) {
-            console.log((e.loaded/e.total).toFixed(2));
             progressBar.css('transform', 'scaleX('+(e.loaded/e.total).toFixed(2)+')');
          },
          loadEnd: function (e) {
-            console.log((e.loaded/e.total).toFixed(2));
-            progressBar.css('transform', 'scaleX('+(e.loaded/e.total).toFixed(2)+')');
+            progressBar.css('transform', 'scaleX(1)');
+         },
+         completeAll: function() {
+            prepareHandin($('#container-handin').data('resource'));
          }
       });
 
