@@ -21,8 +21,8 @@ var ajax = {
    url: '/Services/Assignment.asmx/UploadTempFile',
    type: 'POST',
    data: {
-      OriginalFileName: 'Casper Bloemendaal - S1133305.docx'
-      FullFileName: 'Casper Bloemendaal - S1133305.docx'
+      OriginalFileName: 'Casper Bloemendaal - Snummer.docx'
+      FullFileName: 'Casper Bloemendaal - Snummer.docx'
       AssignmentId: 55093
       ProfileGUID:
       Cp_Name:
@@ -72,8 +72,8 @@ var ajax = {
    url: '/Services/Assignment.asmx/UploadFile',
    type: 'POST',
    data: {
-      OriginalFileName: 'Casper Bloemendaal - S1133305.docx'
-      FullFileName: 'Casper Bloemendaal - S1133305.docx'
+      OriginalFileName: 'Casper Bloemendaal - Snummer.docx'
+      FullFileName: 'Casper Bloemendaal - Snummer.docx'
       AssignmentId: 55093
       ProfileGUID:
       Cp_Name:
@@ -114,8 +114,8 @@ var ajax = {
     "INITIAL_DOCUMENT_CPID": -1,
     "IS_INITIAL": 1,
     "HANDIN_DATE": "/Date(1545313567477)/",
-    "HANDIN_URL": "/CMS/DPF/103288/Windesheimportfolio/Courses/Pakketselectie/Inleveropdracht/Pakketselectie voorbereiding - Casper Bloemendaal - S1133305.pdf",
-    "HANDIN_NAME": "Pakketselectie voorbereiding - Casper Bloemendaal - S1133305.pdf",
+    "HANDIN_URL": "/CMS/DPF/103288/Windesheimportfolio/Courses/Pakketselectie/Inleveropdracht/Pakketselectie voorbereiding - Casper Bloemendaal - Snummer.pdf",
+    "HANDIN_NAME": "Pakketselectie voorbereiding - Casper Bloemendaal - Snummer.pdf",
     "HANDIN_TYPE": 0,
     "REVIEW_TYPE": -1,
     "REVIEW_PUBLISHED": 1,
@@ -143,8 +143,8 @@ var ajax = {
     "INITIAL_DOCUMENT_CPID": -1,
     "IS_INITIAL": 1,
     "HANDIN_DATE": "/Date(1541668682943)/",
-    "HANDIN_URL": "/CMS/DPF/103288/Windesheimportfolio/Courses/Webprogrammeren/Inleveropdracht/S1133305-Casper Bloemendaal-ICTM1S.zip",
-    "HANDIN_NAME": "S1133305-Casper Bloemendaal-ICTM1S.zip",
+    "HANDIN_URL": "/CMS/DPF/103288/Windesheimportfolio/Courses/Webprogrammeren/Inleveropdracht/Snummer-Casper Bloemendaal-ICTM1S.zip",
+    "HANDIN_NAME": "Snummer-Casper Bloemendaal-ICTM1S.zip",
     "HANDIN_TYPE": 0,
     "REVIEW_TYPE": -1,
     "REVIEW_PUBLISHED": 1,
