@@ -6,8 +6,9 @@ Een klein project ontworpen om de Windesheim ELO dragelijker te maken. Zorg dat 
 
 ## Screenshots
 ![Weergave PDF bestand](docs/screenshot1.png)
-![Weergave Opname lecture](docs/screenshot2.png)
+![Weergave opname lecture](docs/screenshot2.png)
 ![Weergave alle cursussen](docs/screenshot3.png)
+![Weergave bestandupload](docs/screenshot4.png)
 
 ## Technische documentatie
 ### Dependencies
