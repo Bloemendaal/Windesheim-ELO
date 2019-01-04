@@ -22,11 +22,7 @@
 (function() {
    'use strict';
 
-<<<<<<< HEAD
    var version = 1.41;
-=======
-   var version = 1.4.1;
->>>>>>> e7d9aa4a56e5fb5782cadf71f9bd02ce32988c5d
    var tab     = false;
    var hidenav = false;
 
