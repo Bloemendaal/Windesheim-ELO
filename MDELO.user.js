@@ -8,7 +8,7 @@
 // @downloadURL   https://github.com/Bloemendaal/Windesheim-ELO/raw/master/MDELO.user.js
 // @updateURL     https://github.com/Bloemendaal/Windesheim-ELO/raw/master/MDELO.user.js
 // @supportURL    https://github.com/Bloemendaal/Windesheim-ELO/issues
-// @version       1.4
+// @version       1.4.1
 
 // @match         https://elo.windesheim.nl/Start.aspx
 // @grant         none
@@ -22,7 +22,7 @@
 (function() {
    'use strict';
 
-   var version = 1.4;
+   var version = 1.41;
    var tab     = false;
    var hidenav = false;
 
@@ -151,15 +151,14 @@
          icon: 'forum',
          display: {
             nav: 'menu',
-            container: 'list'
+            container: 'iframe'
          },
          functions: {
             onload: function(){
-               $('#container-list > ul').html(printLanguages({
-                  en: 'This part has yet to be developed. Please try again later.',
-                  nl: 'Dit onderdeel moet nog worden ontwikkeld. Probeer het later nog eens.',
-                  de: 'Dieser Teil muss noch entwickelt werden. Bitte versuchen Sie es sp&auml;ter erneut.'
-               }));
+               $('#container-iframe > iframe').attr('src', '/Pages/Forum/ForumPage.aspx');
+            },
+            onunload: function() {
+               $('#container-iframe > iframe').attr('src', '');
             }
          }
       },
@@ -640,7 +639,7 @@
       if (itemType.hasOwnProperty('ext')) {
          var surl = url.split('.');
          var ext = itemType.ext.find(function(i){
-            return i.ext.indexOf(surl[surl.length - 1]) > -1;
+            return i.ext.indexOf(surl[surl.length - 1].toLowerCase()) > -1;
          });
 
          if (ext) {
