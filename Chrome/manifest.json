@@ -1,0 +1,22 @@
+{
+   "name": "Windesheim ELO",
+   "version": "1.5",
+   "description": "Transform the Windesheim ELO into a Material Design environment",
+   "manifest_version": 2,
+   "content_scripts": [
+      {
+         "matches": ["https://elo.windesheim.nl/*"],
+         "css": [
+            "css/uikit.min.css",
+            "css/material-components-web.min.css",
+            "css/app.css"
+         ],
+         "js": [
+            "js/uikit.min.js",
+            "js/jquery-3.3.1.min.js",
+            "js/material-components-web.min.js",
+            "app.js"
+         ]
+      }
+   ],
+}
