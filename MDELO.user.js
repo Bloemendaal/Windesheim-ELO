@@ -426,9 +426,6 @@
 
          if (!ignoreState) {
             var state = { title: t };
-            if (display.nav == 'folder') {
-               state.course = $('#nav-folder-list').data('name');
-            }
             history.pushState(state, t, '/' + pages[k].name);
             path = preparePath();
          }
@@ -505,7 +502,8 @@
       }
       if (npath) {
          var i = id;
-         id = npath[1];
+         var splitC = npath[1].split('-');
+         id = decodeURI(splitC[splitC.length - 1]);
       }
       Object.keys(append).forEach(function(k) {
          if (parent != -1 && append[k].attr('id') != 'folder-'+parent && append[k].parents('#nav').length > 0) {
@@ -604,10 +602,10 @@
                setFolder(update, courseID, itemID);
 
                if (e && ((cpath != itemID && itemID != -1) || (cpath != courseID && itemID == -1))) {
-                  history.pushState({
-                     title: title,
-                     course: course
-                  }, title, '/' + pages[tab].name + '/' + courseID + (itemID == -1 ? '' : '/' + prepareItemPath($thisnav)));
+                  var npath = preparePath(false);
+                  npath = npath[1].split('-');
+                  npath.pop();
+                  history.pushState({ title: title }, title, '/' + pages[tab].name + '/' + npath.join('-') + '-' + courseID + (itemID == -1 ? '' : '/' + prepareItemPath($thisnav)));
                   path = preparePath();
                }
 
@@ -630,10 +628,10 @@
             $thisnav.addClass('mdc-list-item--activated folder-expanded');
 
             if (e && ((cpath != itemID && itemID != -1) || (cpath != courseID && itemID == -1))) {
-               history.pushState({
-                  title: title,
-                  course: course
-               }, title, '/' + pages[tab].name + '/' + courseID + (itemID == -1 ? '' : '/' + prepareItemPath($thisnav)));
+               var npath = preparePath(false);
+               npath = npath[1].split('-');
+               npath.pop();
+               history.pushState({ title: title }, title, '/' + pages[tab].name + '/' + npath.join('-') + '-' + courseID + (itemID == -1 ? '' : '/' + prepareItemPath($thisnav)));
                path = preparePath();
             }
 
@@ -698,13 +696,11 @@
    function prepareFolder(page, id, title) {
       var append = $('#nav-folder-list, #container-folder > ul');
       append.data('id', id);
-      append.data('name', title);
       setPage(page, title, true);
 
       history.pushState({
-         title: title,
-         course: title
-      }, title, '/' + pages[tab].name + '/' + id);
+         title: title
+      }, title, '/' + pages[tab].name + '/' + encodeURI(title) + '-' + id);
       path = preparePath();
 
       setFolder(append, id);
@@ -836,8 +832,12 @@
       return (properties.hasOwnProperty('delete') ? '<div class="uk-grid uk-grid-collapse"><div class="uk-width-expand">' : '') + '<a href="' + encodeURI(url) + '" target="_blank" rel="noopener" data-mdc-auto-init="MDCRipple" class="mdc-list-item"><i class="material-icons mdc-list-item__graphic uk-position-relative"' + (properties.color && !properties.label ? ' style="color:' + properties.color + '"' : '') + '>' + properties.icon + (properties.color && properties.label ? '<span class="folder-icon-badge" style="background-color:' + properties.color + '">' + properties.label + '</span>' : '') + '</i><span class="folder-text-padding">' + name + '</span><i class="mdc-list-item__meta material-icons">launch</i></a>' + (properties.hasOwnProperty('delete') ? '</div><div class="uk-width-auto"><div class="handin-delete mdc-list-item" data-id="' + properties.delete.id + '" data-assignment="' + properties.delete.assignment + '" data-mdc-auto-init="MDCRipple"><i class="material-icons mdc-list-item__meta">delete</i></div></div>' : '');
    }
 
-   function preparePath() {
-      return location.pathname.toLowerCase().split('?')[0].replace(/^\/+|\/+$/g, '').split('/');
+   function preparePath(toLower = true) {
+      if (toLower) {
+         return location.pathname.toLowerCase().split('?')[0].replace(/^\/+|\/+$/g, '').split('/');
+      } else {
+         return location.pathname.split('?')[0].replace(/^\/+|\/+$/g, '').split('/');
+      }
    }
 
    function favoriteCourse(id, e, $this) {
@@ -905,9 +905,6 @@
          if (typeof e == 'object') {
             if (typeof e.state == 'object' && e.state.hasOwnProperty('title')) {
                title = e.state.title;
-               if (e.state.hasOwnProperty('course')) {
-                  courseName = e.state.course;
-               }
             } else {
                title = e.title;
             }
@@ -919,7 +916,10 @@
          setPage(k, title, true);
 
          if (pages[k].display.container == 'folder') {
-            if (path && npath[0] == path[0] && npath[1] == npath[1]) {
+            var splitnC = preparePath(false);
+            splitnC = splitnC[1].split('-');
+            var splitpC = path ? path[1].split('-') : '';
+            if (path && npath[0] == path[0] && decodeURI(splitnC[splitnC.length - 1]) == decodeURI(splitpC[splitpC.length - 1])) {
                if (npath[2] && $('#nav-folder-list li[data-id="'+npath[2]+'"]').length) {
                   readFolderURL(npath, 2);
                } else {
@@ -928,9 +928,10 @@
                }
             } else {
                var append = $('#nav-folder-list, #container-folder > ul');
-               append.data('id', npath[1]);
+               append.data('id', decodeURI(splitnC[splitnC.length - 1]));
                setFolder(append, 1, -1, npath);
-               $('#nav-folder-list').prepend('<li class="mdc-list-item" data-mdc-auto-init="MDCRipple" data-id="-1" data-name="' + (courseName ? courseName : '') + '" data-type="0" data-display="folder"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">folder_special</i><span class="folder-text-padding">' + printLanguages(courseName ? courseName : title) + '</span></li><hr class="mdc-list-divider">');
+               splitnC.pop();
+               $('#nav-folder-list').prepend('<li class="mdc-list-item" data-mdc-auto-init="MDCRipple" data-id="-1" data-name="' + decodeURI(splitnC.join('-')) + '" data-type="0" data-display="folder"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">folder_special</i><span class="folder-text-padding">' + decodeURI(splitnC.join('-')) + '</span></li><hr class="mdc-list-divider">');
             }
          } else if (pages[k].display.nav == 'menu') {
             $('#nav-menu-list > li').removeClass('mdc-list-item--activated');
