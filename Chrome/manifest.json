@@ -1,9 +1,15 @@
 {
    "manifest_version": 2,
-   "name": "Windesheim ELO",
+   "name": "__MSG_appName__",
+   "description": "__MSG_appDesc__",
    "author": "Casper Bloemendaal",
    "version": "1.5.1",
-   "description": "Transform the Windesheim ELO into a Material Design environment",
+   "icons": {
+      "16":  "icon/icon16.png",
+      "48":  "icon/icon48.png",
+      "128": "icon/icon128.png"
+   },
+   "default_locale" : "en",
    "permissions": ["tabs", "*://elo.windesheim.nl/*"],
    "content_scripts": [
       {

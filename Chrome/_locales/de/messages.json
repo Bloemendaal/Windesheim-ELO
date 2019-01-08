@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "Windesheim ELO",
+    "description": "Verwandeln Sie die ELO von Windesheim in eine Material Design-Umgebung!"
+  },
+  "appDesc": {
+    "message": "Diese App schreibt den Quellcode der Windesheim ELO neu, um sie modern zu gestalten.",
+    "description":"Diese App schreibt den Quellcode der Windesheim ELO neu, um sie modern zu gestalten."
+  }
+}

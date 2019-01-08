@@ -198,6 +198,7 @@
             container: function(t, e){
                var $this = $(t);
                if ($this.hasClass('settings-language')) {
+                  var lang = $this.data('lang');
                   $.ajax({
                      url: 'https://elo.windesheim.nl/Services/UserSchoolConfig.asmx',
                      type: 'POST',
@@ -210,6 +211,7 @@
                         $('html').attr('lang', lang);
                      },
                      error: function(){
+                        var msg;
                         switch (lang) {
                            case 'nl':
                               msg = "Opslaan van de taalinstellingen is mislukt";
