@@ -2,7 +2,7 @@
    "manifest_version": 2,
    "name": "Windesheim ELO",
    "author": "Casper Bloemendaal",
-   "version": "1.5",
+   "version": "1.5.1",
    "description": "Transform the Windesheim ELO into a Material Design environment",
    "permissions": ["tabs", "*://elo.windesheim.nl/*"],
    "content_scripts": [
