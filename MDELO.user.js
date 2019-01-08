@@ -429,9 +429,11 @@
          }
 
          if (!ignoreState) {
-            history.pushState({
-               page: pages[k].name
-            }, t, '/' + pages[k].name);
+            var state = { title: t };
+            if (display.nav == 'folder') {
+               state.course = $('#nav-folder-list').data('name');
+            }
+            history.pushState(state, t, '/' + pages[k].name);
             path = preparePath();
          }
 
@@ -501,12 +503,19 @@
       });
    }
 
-   function setFolder(append, id, parent = -1) {
+   function setFolder(append, id, parent = -1, npath = false) {
       if (!Array.isArray(append)) {
          append = [append];
       }
+      if (npath) {
+         var i = id;
+         id = npath[1];
+      }
       Object.keys(append).forEach(function(k) {
          if (parent != -1 && append[k].attr('id') != 'folder-'+parent && append[k].parents('#nav').length > 0) {
+            if (i) {
+               append[k].addClass('folder-expanded');
+            }
             append[k].after('<ul id="folder-'+parent+'" class="mdc-list uk-margin-left uk-padding-remove" style="display:none"></ul>');
             append[k] = $('#folder-'+parent);
          }
@@ -543,26 +552,33 @@
                   a.slideDown(250);
                }
             });
+
+            if (i) {
+               i++;
+               readFolderURL(npath, i);
+            }
          }
       });
    }
 
-   function setFolderItem(t, e) {
-      var $target  = $(e.target);
+   function setFolderItem(t, e = null) {
       var $this    = $(t);
       var display  = $this.data('display');
 
       if (display) {
-         var courseID = $('#nav-folder-list').data('id');
+         var nav      = $('#nav-folder-list');
+         var course   = nav.data('name');
+         var courseID = nav.data('id');
          var   itemID = $this.data('id');
          var $thisnav = $('#nav-folder-list li[data-id="'+itemID+'"]');
          var title    = $this.data('name');
          var cpath    = path[path.length - 1];
 
          if (display == 'folder') {
+            var $target  =  e === null ? null : $(e.target);
             var $next    = $thisnav.next();
 
-            if ($target.is('.folder-icon-arrow')) {
+            if ($target !== null && $target.is('.folder-icon-arrow')) {
                if ($next.is('#folder-'+itemID)) {
                   if ($this.is('.folder-expanded')) {
                      $next.slideUp(250);
@@ -586,10 +602,10 @@
                setPage({nav: 'folder', container: 'folder'}, title, true);
                setFolder(update, courseID, itemID);
 
-               if ((cpath != itemID && itemID != -1) || (cpath != courseID && itemID == -1)) {
+               if (e && ((cpath != itemID && itemID != -1) || (cpath != courseID && itemID == -1))) {
                   history.pushState({
-                     page: pages[tab].name,
-                     title: title
+                     title: title,
+                     course: course
                   }, title, '/' + pages[tab].name + '/' + courseID + (itemID == -1 ? '' : '/' + prepareItemPath($thisnav)));
                   path = preparePath();
                }
@@ -612,10 +628,10 @@
             $('#nav-folder-list li.mdc-list-item').removeClass('mdc-list-item--activated');
             $thisnav.addClass('mdc-list-item--activated folder-expanded');
 
-            if ((cpath != itemID && itemID != -1) || (cpath != courseID && itemID == -1)) {
+            if (e && ((cpath != itemID && itemID != -1) || (cpath != courseID && itemID == -1))) {
                history.pushState({
-                  page: pages[tab].name,
-                  title: title
+                  title: title,
+                  course: course
                }, title, '/' + pages[tab].name + '/' + courseID + (itemID == -1 ? '' : '/' + prepareItemPath($thisnav)));
                path = preparePath();
             }
@@ -680,11 +696,12 @@
    function prepareFolder(page, id, title) {
       var append = $('#nav-folder-list, #container-folder > ul');
       append.data('id', id);
+      append.data('name', title);
       setPage(page, title, true);
 
       history.pushState({
-         page: pages[tab].name,
-         title: title
+         title: title,
+         course: title
       }, title, '/' + pages[tab].name + '/' + id);
       path = preparePath();
 
@@ -870,24 +887,72 @@
       });
    }
 
-   window.onpopstate = function(e){
+   function readURL(e = false) {
+      var npath = preparePath();
       var k = Object.keys(pages).find(function(k){
-         return pages[k].name == e.state.page;
+         return pages[k].name == npath[0];
       });
 
-      var npath = preparePath();
+      if (typeof e == 'object') {
+         if (typeof e.state == 'object' && e.state.hasOwnProperty('title')) {
+            var title = e.state.title;
+         } else {
+            var title = e.title;
+         }
+      } else if (typeof e == 'string') {
+         var title = e;
+      } else {
+         var title = pages[k].title;
+      }
+
       if (pages[k] && typeof pages[k].display == 'object' && pages[k].display.hasOwnProperty('container')) {
+         setPage(k, title, true);
          if (pages[k].display.container == 'folder') {
-            if (npath[0] == path[0]) {
-               if (npath[1] == npath[1]) {
-                  console.log('zelfde course');
-               } else { prepareFolder(k, npath[0], e.state.title); }
-            } else { setPage(k, true); }
-         } else { setPage(k, true); }
+            if (npath[0] == path[0] && npath[1] == npath[1]) {
+               if (npath[2] && $('#nav-folder-list li[data-id="'+npath[2]+'"]').length) {
+                  readFolderURL(npath, 2);
+               } else {
+                  var $this = $('#nav-folder-list li[data-id="-1"]');
+                  setFolderItem($this);
+               }
+            } else {
+               var append = $('#nav-folder-list, #container-folder > ul');
+               append.data('id', npath[1]);
+               setFolder(append, 1, -1, npath);
+               $('#nav-folder-list').prepend('<li class="mdc-list-item mdc-list-item--activated" data-mdc-auto-init="MDCRipple" data-id="-1" data-name="'+e.state.course+'" data-type="0" data-display="folder"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">folder_special</i><span class="folder-text-padding">'+e.state.course+'</span></li><hr class="mdc-list-divider">');
+               if (npath[2]) {
+                  readFolderURL(npath, 2);
+               }
+            }
+         } else if (pages[k].display.nav == 'menu') {
+            $('#nav-menu-list > li').removeClass('mdc-list-item--activated');
+            $('#nav-menu-list > li[data-id="' + k + '"]').addClass('mdc-list-item--activated');
+         }
       }
 
       path = npath;
-   };
+   }
+
+   function readFolderURL(npath, i) {
+      var $this = $('#nav-folder-list li[data-id="'+npath[i]+'"]');
+      console.log('readFolderURL', i, npath);
+      if (i < npath.length) {
+         if ($this.length) {
+            i++;
+            $this.addClass('folder-expanded');
+            readFolderURL(npath, i);
+         } else {
+            setFolder($('#nav-folder-list li[data-id="'+npath[i - 1]+'"]'), i, npath[i - 1], npath);
+         }
+      } else {
+         $('#nav-folder-list li.mdc-list-item').removeClass('mdc-list-item--activated');
+         $this.addClass('mdc-list-item--activated');
+         setFolderItem($this);
+         return;
+      }
+   }
+
+   window.onpopstate = readURL;
 
    $(function(){
       $('head script, head style').remove();
@@ -950,7 +1015,8 @@
             } else {
                menu.append('<li class="mdc-list-item '+(tab === false ? 'mdc-list-item--activated' : '')+'" data-id="'+k+'" data-mdc-auto-init="MDCRipple" tabindex="0" aria-selected="true" aria-expanded="true"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">'+pages[k].icon+'</i>'+printLanguages(pages[k].title)+'</li>');
                if (!tab) {
-                  setPage(k, (location.pathname.toLowerCase().split('?')[0].replace(/^\/+|\/+$/g, '') != 'courses'));
+                  path = preparePath();
+                  setPage(k, (path[0] != pages[k].name));
                }
             }
          }
@@ -961,7 +1027,12 @@
          var $this = $(this);
          $('#nav-menu-list > li').removeClass('mdc-list-item--activated');
          $this.addClass('mdc-list-item--activated');
-         setPage($this.data('id'));
+
+         var id = $this.data('id');
+         var ignoreState = (id == Object.keys(pages).find(function(k) {
+            return path[0] == pages[k].name;
+         }));
+         setPage(id, ignoreState);
       });
 
       $('#nav-folder-list, #container-folder > ul').on('click', 'li.mdc-list-item', function(e){
