@@ -1,28 +1,7 @@
-// ==UserScript==
-// @name          Material Design ELO
-// @namespace     https://github.com/Bloemendaal
-// @description   Make the ELO great (again)!
-// @author        Casper Bloemendaal
-// @license       MIT
-
-// @downloadURL   https://github.com/Bloemendaal/Windesheim-ELO/raw/master/MDELO.user.js
-// @updateURL     https://github.com/Bloemendaal/Windesheim-ELO/raw/master/MDELO.user.js
-// @supportURL    https://github.com/Bloemendaal/Windesheim-ELO/issues
-// @version       1.5.1
-
-// @match         https://elo.windesheim.nl/*
-// @grant         none
-// @run-at        document-start
-// @require       https://code.jquery.com/jquery-3.3.1.min.js#sha256=FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=
-// @require       https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.25/js/uikit.min.js#sha256=zH8nrIM2oxqwe9HgYAuKG4S2q16mZuzymyC84SKEdww=
-// @require       https://unpkg.com/material-components-web@0.42.1/dist/material-components-web.min.js
-// @noframes
-// ==/UserScript==
-
 (function() {
    'use strict';
 
-   var version = 1.51;
+   var version = 1.52;
    var tab     = false;
    var hidenav = false;
    var lang    = 0;
