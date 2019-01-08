@@ -905,7 +905,7 @@
          var courseName;
          var title;
          if (typeof e == 'object') {
-            if (typeof e.state == 'object' && e.state.hasOwnProperty('title')) {
+            if (typeof e.state == 'object' && e.state && e.state.hasOwnProperty('title')) {
                title = e.state.title;
             } else {
                title = e.title;
@@ -936,6 +936,7 @@
                $('#nav-folder-list').prepend('<li class="mdc-list-item" data-mdc-auto-init="MDCRipple" data-id="-1" data-name="' + decodeURI(splitnC.join('-')) + '" data-type="0" data-display="folder"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">folder_special</i><span class="folder-text-padding">' + decodeURI(splitnC.join('-')) + '</span></li><hr class="mdc-list-divider">');
             }
          } else if (pages[k].name == 'notification') {
+            $('#nav-menu-list > li').removeClass('mdc-list-item--activated');
             setPage(k, decodeURIComponent(splitnC[1]), true);
             setIframe(decodeURIComponent(splitnC[2]));
          } else if (pages[k].display.nav == 'menu') {
