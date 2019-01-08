@@ -1,0 +1,32 @@
+{
+   "manifest_version": 2,
+   "name": "__MSG_appName__",
+   "description": "__MSG_appDesc__",
+   "author": "Casper Bloemendaal",
+   "version": "1.5.1",
+   "icons": {
+      "16":  "icon/icon16.png",
+      "48":  "icon/icon48.png",
+      "128": "icon/icon128.png"
+   },
+   "default_locale" : "en",
+   "permissions": ["tabs", "*://elo.windesheim.nl/*"],
+   "content_scripts": [
+      {
+         "matches": ["*://elo.windesheim.nl/*"],
+         "run_at": "document_start",
+         "css": [
+            "css/uikit.min.css",
+            "css/icons.css",
+            "css/material-components-web.min.css",
+            "content.css"
+         ],
+         "js": [
+            "js/jquery-3.3.1.min.js",
+            "js/uikit.min.js",
+            "js/material-components-web.min.js",
+            "content.js"
+         ]
+      }
+   ]
+}
