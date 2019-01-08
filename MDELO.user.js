@@ -8,28 +8,29 @@
 // @downloadURL   https://github.com/Bloemendaal/Windesheim-ELO/raw/master/MDELO.user.js
 // @updateURL     https://github.com/Bloemendaal/Windesheim-ELO/raw/master/MDELO.user.js
 // @supportURL    https://github.com/Bloemendaal/Windesheim-ELO/issues
-// @version       1.4.2
+// @version       1.5
 
-// @match         https://elo.windesheim.nl/Start.aspx
+// @match         https://elo.windesheim.nl/*
 // @grant         none
 // @run-at        document-start
 // @require       https://code.jquery.com/jquery-3.3.1.min.js#sha256=FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=
 // @require       https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.25/js/uikit.min.js#sha256=zH8nrIM2oxqwe9HgYAuKG4S2q16mZuzymyC84SKEdww=
-// @require       https://unpkg.com/material-components-web@latest/dist/material-components-web.js
+// @require       https://unpkg.com/material-components-web@0.42.1/dist/material-components-web.min.js
 // @noframes
 // ==/UserScript==
 
 (function() {
    'use strict';
 
-   var version = 1.42;
+   var version = 1.5;
    var tab     = false;
    var hidenav = false;
+   var lang    = 0;
+   var path;
 
    var upload;
-   var progressBar;
-
    var snackbar;
+   var progressBar;
 
    var favoriteCourses = 0;
    var pages = [
@@ -83,7 +84,9 @@
          },
          functions: {
             navback: function(){
-               preparePage(0);
+               $('#nav-menu-list > li').removeClass('mdc-list-item--activated');
+               $('#nav-menu-list > li[data-id="0"]').addClass('mdc-list-item--activated');
+               setPage(0);
             }
          }
       },
@@ -119,7 +122,9 @@
          },
          functions: {
             navback: function(){
-               preparePage(2);
+               $('#nav-menu-list > li').removeClass('mdc-list-item--activated');
+               $('#nav-menu-list > li[data-id="2"]').addClass('mdc-list-item--activated');
+               setPage(2);
             }
          }
       },
@@ -155,10 +160,10 @@
          },
          functions: {
             onload: function(){
-               $('#container-iframe > iframe').attr('src', '/Pages/Forum/ForumPage.aspx');
+               setIframe('/Pages/Forum/ForumPage.aspx');
             },
             onunload: function() {
-               $('#container-iframe > iframe').attr('src', '');
+               setIframe();
             }
          }
       },
@@ -193,7 +198,6 @@
             container: function(t, e){
                var $this = $(t);
                if ($this.hasClass('settings-language')) {
-                  var lang = $this.data('lang');
                   $.ajax({
                      url: 'https://elo.windesheim.nl/Services/UserSchoolConfig.asmx',
                      type: 'POST',
@@ -379,45 +383,6 @@
    };
 
 
-   function preparePage(k, t = null) {
-      if ($('#search').is(':visible')) {
-         $('#search-back').trigger('click');
-      }
-
-      if (typeof k == 'object') {
-         var display = k;
-      } else {
-         if (tab !== false && pages[tab].hasOwnProperty('functions') && pages[tab].functions.hasOwnProperty('onunload')) {
-            pages[tab].functions.onunload();
-         }
-
-         tab = k;
-         var display = pages[k].display;
-         if (!t) {
-            t = pages[k].title;
-         }
-         if (pages[k].hasOwnProperty('functions') && pages[k].functions.hasOwnProperty('onload')) {
-            pages[k].functions.onload();
-         }
-      }
-
-      $('#container > *, #nav > *:not(#nav-focus)').hide();
-      $('#container-' + display.container + ', #nav-' + display.nav).show();
-
-      if (t) {
-         $('#title').html( typeof t == 'object' ? printLanguages(t) : t );
-      }
-
-      if (display.fab) {
-         $('#FAB').removeClass('fab-hidden').text(display.fab);
-      } else {
-         $('#FAB').addClass('fab-hidden').text('');
-      }
-
-      $('#content').css('background-color', display.hasOwnProperty('backgroundColor') ? display.backgroundColor : '#fff');
-      $('#search-button').toggle(!!display.search);
-   }
-
    function printLanguages(o) {
       if (typeof o == 'object') {
          var r = '';
@@ -428,6 +393,62 @@
       } else {
          return o;
       }
+   }
+
+   function setPage(k, t = null, ignoreState = null) {
+      if ($('#search').is(':visible')) {
+         $('#search-back').trigger('click');
+      }
+
+      var display;
+      if (typeof k == 'object') {
+         display = k;
+      } else {
+         if (tab !== false && pages[tab].hasOwnProperty('functions') && pages[tab].functions.hasOwnProperty('onunload')) {
+            pages[tab].functions.onunload();
+         }
+
+         tab = k;
+         display = pages[k].display;
+         if (t === true || t === false) {
+            if (ignoreState === null) {
+               ignoreState = t;
+            }
+            t = null;
+         }
+
+         if (!t) {
+            t = pages[k].title;
+         }
+
+         if (pages[k].hasOwnProperty('functions') && pages[k].functions.hasOwnProperty('onload')) {
+            pages[k].functions.onload();
+         }
+
+         if (!ignoreState) {
+            var state = { title: t };
+            history.pushState(state, t, '/' + pages[k].name);
+            path = preparePath();
+         }
+
+      }
+
+      $('#container > *, #nav > *:not(#nav-focus)').hide();
+      $('#container-' + display.container + ', #nav-' + display.nav).show();
+
+      if (t) {
+         $('#title').html(printLanguages(t));
+      }
+
+      if (display.fab) {
+         $('#FAB').removeClass('fab-hidden').text(display.fab);
+      } else {
+         $('#FAB').addClass('fab-hidden').text('');
+      }
+
+      $('#content').css('background-color', display.hasOwnProperty('backgroundColor') ? display.backgroundColor : '#fff');
+      $('#search-button').toggle(!!display.search);
+
    }
 
    function setCourses(search = '') {
@@ -453,7 +474,6 @@
       });
    }
 
-
    function setPortfolios(search = '') {
       $.ajax({
          url:  '/services/MyPortfolioMobile.asmx/LoadPortfolios',
@@ -477,12 +497,20 @@
       });
    }
 
-   function setFolder(append, id, parent = -1) {
+   function setFolder(append, id, parent = -1, npath = false) {
       if (!Array.isArray(append)) {
          append = [append];
       }
+      if (npath) {
+         var i = id;
+         var splitC = npath[1].split('-');
+         id = decodeURI(splitC[splitC.length - 1]);
+      }
       Object.keys(append).forEach(function(k) {
          if (parent != -1 && append[k].attr('id') != 'folder-'+parent && append[k].parents('#nav').length > 0) {
+            if (i) {
+               append[k].addClass('folder-expanded');
+            }
             append[k].after('<ul id="folder-'+parent+'" class="mdc-list uk-margin-left uk-padding-remove" style="display:none"></ul>');
             append[k] = $('#folder-'+parent);
          }
@@ -519,24 +547,41 @@
                   a.slideDown(250);
                }
             });
+
+            if (i) {
+               i++;
+               readFolderURL(npath, i);
+            }
          }
       });
    }
 
-   function setFolderItem(t, e) {
-      var $target = $(e.target);
-      var $this   = $(t);
-      var display = $this.data('display');
+   function setFolderItem(t, e = null) {
+      var $this    = $(t);
+      var display  = $this.data('display');
 
       if (display) {
+         var nav      = $('#nav-folder-list');
+         var course   = nav.data('name');
+         var courseID = nav.data('id');
+         var   itemID = $this.data('id');
+         var $thisnav = $('#nav-folder-list li[data-id="'+itemID+'"]');
+         var title    = $this.data('name') || pages[tab].title;
+         var npath    = preparePath(false);
+         var cpath;
+         if (path) {
+            cpath = path[path.length - 1];
+         } else {
+            cpath = preparePath();
+            cpath = cpath[cpath.length - 1];
+         }
+
          if (display == 'folder') {
-            var courseID = $('#nav-folder-list').data('id');
-            var folderID = $this.data('id');
-            var $thisnav = $('#nav-folder-list li[data-id="'+folderID+'"]');
+            var $target  =  e === null ? null : $(e.target);
             var $next    = $thisnav.next();
 
-            if ($target.is('.folder-icon-arrow')) {
-               if ($next.is('#folder-'+folderID)) {
+            if ($target !== null && $target.is('.folder-icon-arrow')) {
+               if ($next.is('#folder-'+itemID)) {
                   if ($this.is('.folder-expanded')) {
                      $next.slideUp(250);
                      $this.removeClass('folder-expanded');
@@ -545,58 +590,78 @@
                      $this.addClass('folder-expanded');
                   }
                } else {
-                  setFolder($this, courseID, folderID);
+                  setFolder($this, courseID, itemID);
                   $this.addClass('folder-expanded');
                }
             } else {
                var sublist = $('#container-folder > ul');
                var update = [sublist];
-               if (!$next.is('#folder-'+folderID) && folderID != -1) {
+               if (!$next.is('#folder-'+itemID) && itemID != -1) {
                   update.push($thisnav);
                } else if (!$next.is(':visible')) {
                   $next.slideDown(250);
                }
-               preparePage({nav: 'folder', container: 'folder'}, $this.data('name'));
-               setFolder(update, courseID, folderID);
+               setPage({nav: 'folder', container: 'folder'}, title, true);
+               setFolder(update, courseID, itemID);
+
+               if (e && ((cpath != itemID && itemID != -1) || (cpath != courseID && itemID == -1))) {
+                  npath = npath[1].split('-');
+                  npath.pop();
+                  history.pushState({ title: title }, title, '/' + pages[tab].name + '/' + npath.join('-') + '-' + courseID + (itemID == -1 ? '' : '/' + prepareItemPath($thisnav)));
+                  path = preparePath();
+               }
+
                $('#nav-folder-list li.mdc-list-item').removeClass('mdc-list-item--activated');
                $thisnav.addClass('mdc-list-item--activated folder-expanded');
 
-               if (folderID != -1) {
+               if (itemID != -1) {
                   var iType = itemTypes.find(function(i){
                      return i.display == 'folder';
                   });
-                  sublist.prepend('<li class="mdc-list-item" data-mdc-auto-init="MDCRipple" data-id="'+$thisnav.parent().prev().data('id')+'" data-type="'+iType.id[pages[tab].name]+'" data-display="folder"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">arrow_back</i><span class="folder-text-padding"><span class="lang-en">Parent folder</span><span class="lang-nl">Map omhoog</span><span class="lang-de">&uuml;bergeordneter Ordner</span></span></li><hr class="mdc-list-divider">');
+                  sublist.prepend('<li class="mdc-list-item" data-mdc-auto-init="MDCRipple" data-id="' + $thisnav.parent().prev().data('id') + '" data-type="' + iType.id[pages[tab].name] + '" data-display="folder"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">arrow_back</i><span class="folder-text-padding">' + printLanguages({
+                     en: 'Parent folder',
+                     nl: 'Map omhoog',
+                     de: '&Uuml;bergeordneter Ordner'
+                  }) + '</span></li><hr class="mdc-list-divider">');
                }
             }
          } else {
             $('#nav-folder-list li.mdc-list-item').removeClass('mdc-list-item--activated');
-            $('#nav-folder-list li[data-id="'+$this.data('id')+'"]').addClass('mdc-list-item--activated folder-expanded');
+            $thisnav.addClass('mdc-list-item--activated folder-expanded');
+
+            if (e && ((cpath != itemID && itemID != -1) || (cpath != courseID && itemID == -1))) {
+               npath = npath[1].split('-');
+               npath.pop();
+               history.pushState({ title: title }, title, '/' + pages[tab].name + '/' + npath.join('-') + '-' + courseID + (itemID == -1 ? '' : '/' + prepareItemPath($thisnav)));
+               path = preparePath();
+            }
+
             if (display == 'include') {
                var url = $this.data('url');
                $('#container-include').load(url, function(response, status){
                   var container = $('#container-include');
                   if ((container.children('p:only-child').length == 1 || container.children('title + p:last-child').length == 1) && container.children('p').children('iframe:only-child').length == 1) {
-                     $('#container-iframe > iframe').attr('src', container.find('iframe').attr('src'));
+                     setIframe(container.find('iframe').attr('src'));
                      container.html('');
-                     preparePage({nav: 'folder', container: 'iframe'}, $this.data('name'));
+                     setPage({nav: 'folder', container: 'iframe'}, title, true);
                   } else {
-                     preparePage({nav: 'folder', container: 'include'}, $this.data('name'));
+                     setPage({nav: 'folder', container: 'include'}, title, true);
                   }
                });
             } else if (display == 'iframe') {
-               $('#container-iframe > iframe').attr('src', $this.data('url'));
-               preparePage({nav: 'folder', container: 'iframe'}, $this.data('name'));
+               setIframe($this.data('url'));
+               setPage({nav: 'folder', container: 'iframe'}, title, true);
             } else if (display == 'image') {
-               $('#container-include').html('<div class="uk-flex"><img src="'+$this.data('url')+'" alt="'+$this.data('name')+'" class="uk-margin-auto"></div>');
-               preparePage({nav: 'folder', container: 'include'}, $this.data('name'));
+               $('#container-include').html('<div class="uk-flex"><img src="' + $this.data('url') + '" alt="' + title + '" class="uk-margin-auto"></div>');
+               setPage({nav: 'folder', container: 'include'}, title, true);
             } else if (display == 'handin') {
                prepareHandin($this.data('resource'));
-               preparePage({nav: 'folder', container: 'handin', backgroundColor: '#f8f8f8'}, $this.data('name'));
+               setPage({nav: 'folder', container: 'handin', backgroundColor: '#f8f8f8'}, title, true);
             }
          }
       } else {
          var msg, actionText;
-         switch ($('html').attr('lang')) {
+         switch (lang) {
             case 'nl':
                msg = "Dit itemtype is onbekend. Excuses voor het ongemak.";
                actionText = "Rapporteer een bug";
@@ -613,12 +678,48 @@
             message: msg,
             timeout: 5000,
             actionHandler: function() {
-               window.location.href = 'https://github.com/Bloemendaal/Windesheim-ELO/issues/new?title='+encodeURI('[BUG] Unknown display')+'&body='+encodeURI('Page: ' + pages[tab].name + "\n" + 'itemID: ' + $this.data('id') + "\n" + 'itemName: ' + $this.data('name') + "\n" + 'itemType: ' + $this.data('type') + "\n" + 'Version: ' + version + "\n\n" + '[Your description of what this item should be, e.g. docx file opened as link or pdf file opened as iframe]');
+               window.location.href = 'https://github.com/Bloemendaal/Windesheim-ELO/issues/new?title='+encodeURIComponent('[BUG] Unknown display')+'&body='+encodeURIComponent('Page: ' + pages[tab].name + "\n" + 'itemID: ' + $this.data('id') + "\n" + 'itemName: ' + title + "\n" + 'itemType: ' + $this.data('type') + "\n" + 'Version: ' + version + "\n\n" + '[Your description of what this item should be, e.g. docx file opened as link or pdf file opened as iframe]');
             },
             actionText: actionText,
             multiline: true,
             actionOnBottom: true
          });
+      }
+   }
+
+   function setIframe(src = 'about:blank') {
+      var iframe = $('#container-iframe > iframe');
+      iframe.remove();
+      iframe.attr('src', src);
+      $('#container-iframe').append(iframe);
+   }
+
+   function prepareFolder(page, id, title) {
+      var append = $('#nav-folder-list, #container-folder > ul');
+      append.data('id', id);
+      setPage(page, title, true);
+
+      history.pushState({
+         title: title
+      }, title, '/' + pages[tab].name + '/' + encodeURIComponent(title) + '-' + id);
+      path = preparePath();
+
+      setFolder(append, id);
+      $('#nav-folder-list').prepend('<li class="mdc-list-item mdc-list-item--activated" data-mdc-auto-init="MDCRipple" data-id="-1" data-name="'+title+'" data-type="0" data-display="folder"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">folder_special</i><span class="folder-text-padding">'+title+'</span></li><hr class="mdc-list-divider">');
+   }
+
+   function prepareItemPath(t, id = null) {
+      if (!id) {
+         id = [t.data('id')];
+      }
+      var p = t.parent().prev();
+      var pid = p.data('id');
+
+      if (pid == -1) {
+         return id.reverse().join('/');
+      } else {
+         id.push(pid);
+         return prepareItemPath(p, id);
       }
    }
 
@@ -700,15 +801,16 @@
                start.children('div').html(prepareHandinHTML(data.INITIAL_DOCUMENT_URL, data.INITIAL_DOCUMENT_NAME, sProperties));
             } else { start.hide(); }
 
+            var dProperties;
             if (submit) {
-               var dProperties = prepareItemType(data.HANDIN_URL, data.HANDIN_TYPE, 'handin');
+               dProperties = prepareItemType(data.HANDIN_URL, data.HANDIN_TYPE, 'handin');
 
                progressBar.css('transform', 'scaleX(1)');
                sbtn.hide();
                doc.show();
                doc.children('div').html(prepareHandinHTML(data.HANDIN_URL, data.HANDIN_NAME, dProperties));
             } else if (data.hasOwnProperty('INITIAL_DOCUMENT_URL') && data.INITIAL_DOCUMENT_STATUS == 1) {
-               var dProperties = prepareItemType(data.INITIAL_DOCUMENT_URL, data.INITIAL_DOCUMENT_TYPE, 'handin');
+               dProperties = prepareItemType(data.INITIAL_DOCUMENT_URL, data.INITIAL_DOCUMENT_TYPE, 'handin');
                dProperties.delete = {
                   id: data.INITIAL_DOCUMENT_CPID,
                   assignment: data.ID
@@ -732,12 +834,12 @@
       return (properties.hasOwnProperty('delete') ? '<div class="uk-grid uk-grid-collapse"><div class="uk-width-expand">' : '') + '<a href="' + encodeURI(url) + '" target="_blank" rel="noopener" data-mdc-auto-init="MDCRipple" class="mdc-list-item"><i class="material-icons mdc-list-item__graphic uk-position-relative"' + (properties.color && !properties.label ? ' style="color:' + properties.color + '"' : '') + '>' + properties.icon + (properties.color && properties.label ? '<span class="folder-icon-badge" style="background-color:' + properties.color + '">' + properties.label + '</span>' : '') + '</i><span class="folder-text-padding">' + name + '</span><i class="mdc-list-item__meta material-icons">launch</i></a>' + (properties.hasOwnProperty('delete') ? '</div><div class="uk-width-auto"><div class="handin-delete mdc-list-item" data-id="' + properties.delete.id + '" data-assignment="' + properties.delete.assignment + '" data-mdc-auto-init="MDCRipple"><i class="material-icons mdc-list-item__meta">delete</i></div></div>' : '');
    }
 
-   function prepareFolder(page, id, title) {
-      var append = $('#nav-folder-list, #container-folder > ul');
-      append.data('id', id);
-      preparePage(page, title);
-      setFolder(append, id);
-      $('#nav-folder-list').prepend('<li class="mdc-list-item mdc-list-item--activated" data-mdc-auto-init="MDCRipple" data-id="-1" data-name="'+title+'" data-type="0" data-display="folder"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">folder_special</i><span class="folder-text-padding">'+title+'</span></li><hr class="mdc-list-divider">');
+   function preparePath(toLower = true) {
+      if (toLower) {
+         return location.pathname.toLowerCase().split('?')[0].replace(/^\/+|\/+$/g, '').split('/');
+      } else {
+         return location.pathname.split('?')[0].replace(/^\/+|\/+$/g, '').split('/');
+      }
    }
 
    function favoriteCourse(id, e, $this) {
@@ -762,7 +864,7 @@
                }
             } else {
                var msg, actionText;
-               switch ($('html').attr('lang')) {
+               switch (lang) {
                   case 'nl':
                   msg = "Er is een fout opgetreden. Probeer het later opnieuw.";
                   actionText = "Herladen";
@@ -789,9 +891,88 @@
       });
    }
 
-   $(function(){
+   function readURL(e = false) {
+      var npath = preparePath();
+      var k = Object.keys(pages).find(function(k){
+         return pages[k].name == npath[0];
+      });
+
+      if (typeof k !== 'undefined' && typeof pages[k].display == 'object' && pages[k].display.hasOwnProperty('container')) {
+         if (tab === false) {
+            initELO();
+         }
+
+         var courseName;
+         var title;
+         if (typeof e == 'object') {
+            if (typeof e.state == 'object' && e.state.hasOwnProperty('title')) {
+               title = e.state.title;
+            } else {
+               title = e.title;
+            }
+         } else if (typeof e == 'string') {
+            title = e;
+         } else {
+            title = pages[k].title;
+         }
+         setPage(k, title, true);
+
+         var splitnC = preparePath(false);
+         if (pages[k].display.container == 'folder') {
+            splitnC = splitnC[1].split('-');
+            var splitpC = (path && path[1]) ? path[1].split('-') : '';
+            if (path && npath[0] == path[0] && decodeURI(splitnC[splitnC.length - 1]) == decodeURI(splitpC[splitpC.length - 1])) {
+               if (npath[2] && $('#nav-folder-list li[data-id="'+npath[2]+'"]').length) {
+                  readFolderURL(npath, 2);
+               } else {
+                  var $this = $('#nav-folder-list li[data-id="-1"]');
+                  setFolderItem($this);
+               }
+            } else {
+               var append = $('#nav-folder-list, #container-folder > ul');
+               append.data('id', decodeURI(splitnC[splitnC.length - 1]));
+               setFolder(append, 1, -1, npath);
+               splitnC.pop();
+               $('#nav-folder-list').prepend('<li class="mdc-list-item" data-mdc-auto-init="MDCRipple" data-id="-1" data-name="' + decodeURI(splitnC.join('-')) + '" data-type="0" data-display="folder"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">folder_special</i><span class="folder-text-padding">' + decodeURI(splitnC.join('-')) + '</span></li><hr class="mdc-list-divider">');
+            }
+         } else if (pages[k].name == 'notification') {
+            setPage(k, decodeURIComponent(splitnC[1]), true);
+            setIframe(decodeURIComponent(splitnC[2]));
+         } else if (pages[k].display.nav == 'menu') {
+            $('#nav-menu-list > li').removeClass('mdc-list-item--activated');
+            $('#nav-menu-list > li[data-id="' + k + '"]').addClass('mdc-list-item--activated');
+         }
+      } else if (['security', 'cms'].indexOf(npath[0]) < 0) {
+         location.replace('/Security/SAML2/Login.aspx?redirectUrl=' + encodeURIComponent(location.origin + '/' + pages[0].name));
+      }
+
+      path = npath;
+   }
+
+   function readFolderURL(npath, i) {
+      var $this;
+      if (i < npath.length) {
+         $this = $('#nav-folder-list li[data-id="'+npath[i]+'"]');
+         if ($this.length) {
+            i++;
+            $this.addClass('folder-expanded');
+            readFolderURL(npath, i);
+         } else {
+            setFolder($('#nav-folder-list li[data-id="'+npath[i - 1]+'"]'), i, npath[i - 1], npath);
+         }
+      } else {
+         $this = $('#nav-folder-list li[data-id="' + (npath.length == 2 ? '-1' : npath[npath.length - 1]) + '"]');
+         $('#nav-folder-list li.mdc-list-item').removeClass('mdc-list-item--activated');
+         $this.addClass('mdc-list-item--activated');
+         setFolderItem($this);
+         return;
+      }
+   }
+
+   function initELO() {
+      $('title').text('Windesheim ELO');
       $('head script, head style').remove();
-      $('head').append('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.25/css/uikit.min.css" integrity="sha256-P3mc1WE09pSm1iAHPFelzUieKI78yRxZ7dGYjXuqIVw=" crossorigin="anonymous"><link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons"><link rel="stylesheet" href="//unpkg.com/material-components-web@latest/dist/material-components-web.min.css"><style>:root{--mdc-theme-primary:#406790}.lang-nl, .lang-de, [lang="nl"] .lang-en, [lang="de"] .lang-en{display:none}[lang="nl"] .lang-nl, [lang="de"] .lang-de{display:initial}.mdc-drawer .mdc-list-item--activated, .mdc-drawer .mdc-list-item--activated .mdc-list-item__graphic{color:#406790;color:var(--mdc-theme-primary, #406790)}.mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label{color:#000}.mdc-text-field--invalid:not(.mdc-text-field--disabled) .mdc-floating-label{color:#b00020}body,.material-icons{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}a.material-icons{text-decoration-line:none}.mdc-switch+label{margin-left:10px}#container{-webkit-touch-callout:text;-webkit-user-select:text;-khtml-user-select:text;-moz-user-select:text;-ms-user-select:text;user-select:text;min-height:100vh}#container,#container-iframe,#container-iframe>iframe,#container-handin{min-height:calc(100vh - 56px)}#container-list,#container-folder,#container-include{max-width:1200px;padding-bottom:15px;margin-left:auto;margin-right:auto}#container-include{overflow-wrap:break-word;word-wrap:break-word;padding-top:15px}#container-iframe{margin-left:-15px;margin-right:-15px}#container-folder .mdc-list-item{min-height:48px;height:auto;line-height:normal}#container-handin{padding-top:15px;padding-bottom:15px;box-sizing:border-box;position:relative;height:calc(100vh - 56px)}#handin-upload,#handin-review{border:1px dashed #e6e6e6;border-top:0;height:calc(100% - 4px);background-color:#fff}.handin-load{flex:1;height:1px;overflow-y:scroll}#top-app-bar input{font-size:1.25rem;color:#fff;color:var(--mdc-theme-on-primary,#fff)}#snackbar{z-index:1500}#drawer .mdc-list-item{min-height:40px;height:auto;line-height:normal}#nav-focus, #nav-focus li{height:0;width:0;margin:0;padding:0}.mdc-drawer--modal.mdc-drawer--open{display:flex}@media (min-width:600px){#container,#container-iframe,#container-iframe>iframe,#container-handin{min-height:calc(100vh - 64px)}#container-handin{height:calc(100vh - 64px)}.mdc-fab:not(.fab-hidden){transform:translateY(0) !important}}@media (min-width:640px){.mdc-drawer{width:512px}#container-iframe{margin-left:-30px;margin-right:-30px}#container-list,#container-folder,#container-handin,#container-include{padding-bottom:30px}#container-handin,#container-include{padding-top:30px}}@media (min-width:960px){.mdc-drawer{width:30%}.mdc-drawer-scrim{display:none !important}.mdc-drawer--modal{box-shadow:none}.mdc-drawer--prepare{display:flex}.mdc-drawer--open+.mdc-drawer-scrim+.mdc-drawer-app-content,.mdc-drawer--prepare+.mdc-drawer-scrim+.mdc-drawer-app-content{margin-left:30%;margin-right:0}.mdc-drawer--open:not(.mdc-drawer--closing)+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar,.mdc-drawer--prepare+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar{width:70%}.mdc-drawer-app-content{transition:margin-left .25s cubic-bezier(.4,0,.2,1)}.mdc-top-app-bar{transition:width .25s cubic-bezier(.4,0,.2,1)}.mdc-drawer--open.mdc-drawer--closing+.mdc-drawer-scrim+.mdc-drawer-app-content{margin-left:0;transition:margin-left .2s cubic-bezier(.4,0,.2,1)}.mdc-drawer--open.mdc-drawer--closing+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar{transition:width .2s cubic-bezier(.4,0,.2,1)}#container-iframe{margin-left:-40px;margin-right:-40px}#container-list,#container-folder,#container-handin,#container-include{padding-bottom:40px}#container-handin,#container-include{padding-top:40px}}.mdc-drawer__drawer::-webkit-scrollbar,.uk-scrollbar::-webkit-scrollbar{background-color:transparent;width:12px}.mdc-drawer__drawer::-webkit-scrollbar-thumb,.uk-scrollbar::-webkit-scrollbar-thumb{background-clip:padding-box;border-radius:3px;-webkit-border-radius:3px;border:4px solid transparent;background-color:rgba(0, 0, 0, .2)}ul.mdc-list:not(.mdc-list--non-interactive) .mdc-list-item{cursor:pointer}.uk-cover-container{width:48px;height:48px}.only-child,.last-child,.first-child{display:none}.only-child:only-child,.last-child:last-child,.first-child:first-child{display:initial}.folder-icon-margin{margin-right:24px}#nav-folder .folder-icon-margin{margin-left:24px}.folder-icon-arrow{margin:0px;transition-duration:0.25s;pointer-events:initial!important}.folder-expanded>.folder-icon-arrow{transform:rotate(90deg)}#nav-folder .folder-hidenav, #container-folder .folder-icon-arrow{display:none}.folder-icon-badge{font-size:0.5rem;line-height:1em;font-family:Roboto,sans-serif;position:absolute;color:#fff;bottom:3px;padding:1px 2px 0px 2px;right:3px;border-radius:2px}.folder-text-padding{padding-top:8px;padding-bottom:8px}.mdc-fab{position:fixed;bottom:1rem;right:1rem;animation-duration: .25s;animation-duration:250ms;transition-duration: .25s;transition-duration:250ms}.fab-hidden{opacity:0;transform:translateY(48px)}@media(min-width:1024px){.mdc-fab{bottom:1.5rem;right:1.5rem}}</style>');
+      $('head').append('<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"><meta name="author" content="Casper Bloemendaal"><meta name="theme-color" content="#406790"><meta name="msapplication-navbutton-color" content="#406790"><meta name="apple-mobile-web-app-status-bar-style" content="#406790"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.25/css/uikit.min.css" integrity="sha256-P3mc1WE09pSm1iAHPFelzUieKI78yRxZ7dGYjXuqIVw=" crossorigin="anonymous"><link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons"><link rel="stylesheet" href="//unpkg.com/material-components-web@latest/dist/material-components-web.min.css"><style>:root{--mdc-theme-primary:#406790}body>#header,body>#content{display:none!important}.lang-nl, .lang-de, [lang="nl"] .lang-en, [lang="de"] .lang-en{display:none}[lang="nl"] .lang-nl, [lang="de"] .lang-de{display:initial}.mdc-drawer .mdc-list-item--activated, .mdc-drawer .mdc-list-item--activated .mdc-list-item__graphic{color:#406790;color:var(--mdc-theme-primary, #406790)}.mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label{color:#000}.mdc-text-field--invalid:not(.mdc-text-field--disabled) .mdc-floating-label{color:#b00020}body,.material-icons{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}a.material-icons{text-decoration-line:none}.mdc-switch+label{margin-left:10px}#container{-webkit-touch-callout:text;-webkit-user-select:text;-khtml-user-select:text;-moz-user-select:text;-ms-user-select:text;user-select:text;min-height:100vh}#container,#container-iframe,#container-iframe>iframe,#container-handin{min-height:calc(100vh - 56px)}#container-list,#container-folder,#container-include{max-width:1200px;padding-bottom:15px;margin-left:auto;margin-right:auto}#container-include{overflow-wrap:break-word;word-wrap:break-word;padding-top:15px}#container-iframe{margin-left:-15px;margin-right:-15px}#container-iframe>iframe{width:100%}#container-folder .mdc-list-item{min-height:48px;height:auto;line-height:normal}#container-handin{padding-top:15px;padding-bottom:15px;box-sizing:border-box;position:relative;height:calc(100vh - 56px)}#handin-upload,#handin-review{border:1px dashed #e6e6e6;border-top:0;height:calc(100% - 4px);background-color:#fff}.handin-load{flex:1;height:1px;overflow-y:scroll}#top-app-bar input{font-size:1.25rem;color:#fff;color:var(--mdc-theme-on-primary,#fff)}#snackbar{z-index:1500}#drawer .mdc-list-item{min-height:40px;height:auto;line-height:normal}#nav-focus, #nav-focus li{height:0;width:0;margin:0;padding:0}.mdc-drawer--modal.mdc-drawer--open{display:flex}@media (min-width:600px){#container,#container-iframe,#container-iframe>iframe,#container-handin{min-height:calc(100vh - 64px)}#container-handin{height:calc(100vh - 64px)}.mdc-fab:not(.fab-hidden){transform:translateY(0) !important}}@media (min-width:640px){.mdc-drawer{width:512px}#container-iframe{margin-left:-30px;margin-right:-30px}#container-list,#container-folder,#container-handin,#container-include{padding-bottom:30px}#container-handin,#container-include{padding-top:30px}}@media (min-width:960px){.mdc-drawer{width:30%}.mdc-drawer-scrim{display:none !important}.mdc-drawer--modal{box-shadow:none}.mdc-drawer--prepare{display:flex}.mdc-drawer--open+.mdc-drawer-scrim+.mdc-drawer-app-content,.mdc-drawer--prepare+.mdc-drawer-scrim+.mdc-drawer-app-content{margin-left:30%;margin-right:0}.mdc-drawer--open:not(.mdc-drawer--closing)+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar,.mdc-drawer--prepare+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar{width:70%}.mdc-drawer-app-content{transition:margin-left .25s cubic-bezier(.4,0,.2,1)}.mdc-top-app-bar{transition:width .25s cubic-bezier(.4,0,.2,1)}.mdc-drawer--open.mdc-drawer--closing+.mdc-drawer-scrim+.mdc-drawer-app-content{margin-left:0;transition:margin-left .2s cubic-bezier(.4,0,.2,1)}.mdc-drawer--open.mdc-drawer--closing+.mdc-drawer-scrim+.mdc-drawer-app-content>.mdc-top-app-bar{transition:width .2s cubic-bezier(.4,0,.2,1)}#container-iframe{margin-left:-40px;margin-right:-40px}#container-list,#container-folder,#container-handin,#container-include{padding-bottom:40px}#container-handin,#container-include{padding-top:40px}}.mdc-drawer__drawer::-webkit-scrollbar,.uk-scrollbar::-webkit-scrollbar{background-color:transparent;width:12px}.mdc-drawer__drawer::-webkit-scrollbar-thumb,.uk-scrollbar::-webkit-scrollbar-thumb{background-clip:padding-box;border-radius:3px;-webkit-border-radius:3px;border:4px solid transparent;background-color:rgba(0, 0, 0, .2)}ul.mdc-list:not(.mdc-list--non-interactive) .mdc-list-item{cursor:pointer}.uk-cover-container{width:48px;height:48px}.only-child,.last-child,.first-child{display:none}.only-child:only-child,.last-child:last-child,.first-child:first-child{display:initial}.folder-icon-margin{margin-right:24px}#nav-folder .folder-icon-margin{margin-left:24px}.folder-icon-arrow{margin:0px;transition-duration:0.25s;pointer-events:initial!important}.folder-expanded>.folder-icon-arrow{transform:rotate(90deg)}#nav-folder .folder-hidenav, #container-folder .folder-icon-arrow{display:none}.folder-icon-badge{font-size:0.5rem;line-height:1em;font-family:Roboto,sans-serif;position:absolute;color:#fff;bottom:3px;padding:1px 2px 0px 2px;right:3px;border-radius:2px}.folder-text-padding{padding-top:8px;padding-bottom:8px}.mdc-fab{position:fixed;bottom:1rem;right:1rem;animation-duration: .25s;animation-duration:250ms;transition-duration: .25s;transition-duration:250ms}.fab-hidden{opacity:0;transform:translateY(48px)}@media(min-width:1024px){.mdc-fab{bottom:1.5rem;right:1.5rem}}</style>');
       $('body').html('<aside id="drawer" class="mdc-drawer mdc-drawer--modal mdc-drawer--prepare"><div class="mdc-drawer__header"><h3 class="mdc-drawer__title uk-text-truncate"></h3><h6 class="mdc-drawer__subtitle uk-text-truncate"></h6></div><div id="nav" class="mdc-drawer__content uk-scrollbar"><ul id="nav-focus" class="mdc-list"><li class="mdc-list-item" tabindex="0"></li></ul><div id="nav-menu"><ul id="nav-menu-list" class="mdc-list"></ul></div><div id="nav-folder"><ul class="mdc-list" data-id="-1"><li id="nav-folder-back" class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">arrow_back</i> <span class="lang-en">Back</span> <span class="lang-nl">Terug</span> <span class="lang-de">Zur&uuml;ck</span></li></ul><ul id="nav-folder-list" class="mdc-list uk-padding-remove-top"></ul></div></div> </aside><div class="mdc-drawer-scrim"></div><div class="mdc-drawer-app-content"> <header id="top-app-bar" class="mdc-top-app-bar mdc-top-app-bar--fixed"><div class="mdc-top-app-bar__row top-app-bar__main"> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start"> <span class="material-icons mdc-top-app-bar__navigation-icon">menu</span> <span id="title" class="mdc-top-app-bar__title"></span> </section> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar"> <span id="search-button" uk-toggle="target: #top-app-bar .top-app-bar__search, #top-app-bar .top-app-bar__main; animation: uk-animation-fade" class="material-icons mdc-top-app-bar__action-item" aria-label="Zoeken" alt="Zoeken">search</span> <span id="top-app-bar__more" class="material-icons mdc-top-app-bar__action-item mdc-menu-surface--anchor" aria-label="Meer..." alt="Meer..."> <span>notifications_none</span><div id="top-app-bar__menu" class="mdc-menu mdc-menu-surface"><ul class="mdc-list mdc-list--two-line"></ul></div> </span> </section></div><div class="mdc-top-app-bar__row top-app-bar__search" hidden> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start"> <span id="search-back" uk-toggle="target: #top-app-bar .top-app-bar__search, #top-app-bar .top-app-bar__main; animation: uk-animation-fade" class="material-icons mdc-top-app-bar__navigation-icon">arrow_back</span><div class="uk-search uk-search-navbar uk-width-1-1 uk-light"> <input id="search" class="uk-search-input mdc-top-app-bar__title" type="search" placeholder="Zoeken..." autofocus></div> </section></div> </header><div id="content" class="uk-container uk-container-expand"><div class="mdc-top-app-bar--fixed-adjust"></div><div id="container"><div id="container-iframe"> <iframe src="" width="100%" height="100%"></iframe></div><div id="container-handin"><div id="handin-progress" role="progressbar" class="mdc-linear-progress"><div class="mdc-linear-progress__buffering-dots"></div><div class="mdc-linear-progress__buffer"></div><div class="mdc-linear-progress__bar mdc-linear-progress__primary-bar"> <span class="mdc-linear-progress__bar-inner"></span></div><div class="mdc-linear-progress__bar mdc-linear-progress__secondary-bar"> <span class="mdc-linear-progress__bar-inner"></span></div></div><div id="handin-upload" class="uk-flex uk-flex-column"><div class="handin-load uk-padding uk-scrollbar"></div><div class="uk-text-center uk-padding"> <i class="material-icons uk-text-middle uk-margin-small-right">cloud_upload</i> <span class="uk-text-middle"> <span class="lang-en">Attach binaries by dropping them here or</span> <span class="lang-nl">Upload bestanden door ze hierheen te slepen of</span> <span class="lang-de">Laden Sie Dateien hoch, indem Sie sie hierher ziehen oder</span> </span><div uk-form-custom> <input type="file" multiple> <span class="uk-link"> <span class="lang-en">selecting one</span> <span class="lang-nl">te selecteren</span> <span class="lang-de">ausw&auml;hlen</span> </span></div></div><div class="uk-padding uk-padding-remove-top"><ul class="mdc-list uk-padding-remove"><li class="handin-review mdc-list-group"><h6 class="mdc-list-group__subheader"> <span class="lang-en">Review</span> <span class="lang-nl">Beoordeling</span> <span class="lang-de">Rezension</span></h6><div></div></li><li class="handin-start mdc-list-group"><h6 class="mdc-list-group__subheader"> <span class="lang-en">Provided document</span> <span class="lang-nl">Meegeleverd document</span> <span class="lang-de">Bereitgestelltes Dokument</span></h6><div></div></li><li class="handin-document mdc-list-group"><h6 class="mdc-list-group__subheader"> <span class="lang-en">Uploaded document</span> <span class="lang-nl">Geüpload document</span> <span class="lang-de">Hochgeladenes Dokument</span></h6><div></div></li></ul></div><div id="handin-submit" class="uk-padding uk-padding-remove-top"><div class="uk-grid"><div class="uk-width-expand"> <small class="uk-text-meta uk-text-middle" style="padding-left: 16px"> <span class="lang-en">Note that pressing submit cannot be undone.</span> <span class="lang-nl">Op inleveren klikken kan niet ongedaan gemaakt worden.</span> <span class="lang-de">Beachten Sie, dass das Dr&uuml;cken von "Senden" nicht r&uuml;ckg&auml;ngig gemacht werden kann.</span> </small></div><div class="uk-width-auto"> <button class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple"></button></div></div></div></div><div id="handin-review" class="uk-flex uk-flex-column"><div class="handin-load uk-padding uk-scrollbar"></div><div class="uk-padding"><ul class="mdc-list uk-padding-remove"><li class="handin-review mdc-list-group"><h6 class="mdc-list-group__subheader"> <span class="lang-en">Review</span> <span class="lang-nl">Beoordeling</span> <span class="lang-de">Rezension</span></h6><div></div></li><li class="handin-start mdc-list-group"><h6 class="mdc-list-group__subheader"> <span class="lang-en">Provided document</span> <span class="lang-nl">Meegeleverd document</span> <span class="lang-de">Bereitgestelltes Dokument</span></h6><div></div></li><li class="handin-document mdc-list-group"><h6 class="mdc-list-group__subheader"> <span class="lang-en">Submitted document</span> <span class="lang-nl">Ingezonden document</span> <span class="lang-de">&Uuml;bermitteltes Dokument</span></h6><div></div></li></ul></div></div></div><div id="container-include"></div><div id="container-list"><ul class="mdc-list mdc-list--two-line uk-flex uk-flex-column" aria-orientation="vertical"></ul></div><div id="container-folder"><ul class="mdc-list"></ul></div></div> <button id="FAB" class="mdc-fab fab-hidden material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple"> <span class="mdc-fab__icon"></span> </button></div></div><div id="snackbar" class="mdc-snackbar" aria-live="assertive" aria-atomic="true" aria-hidden="true"><div class="mdc-snackbar__text"></div><div class="mdc-snackbar__action-wrapper"> <button type="button" class="mdc-snackbar__action-button"></button></div></div>');
 
       $.ajax({
@@ -801,12 +982,12 @@
             if (data.ACTIVESESSION) {
                $('#drawer > .mdc-drawer__header > .mdc-drawer__title'  ).text(data.USERNAME);
                $('#drawer > .mdc-drawer__header > .mdc-drawer__subtitle').text(data.LOGINID);
-               var lang = Object.keys(languages).find(function(k){
+               lang = Object.keys(languages).find(function(k){
                   return languages[k].key == data.NOMENCLATURE;
                });
                $('html').attr('lang', lang || '');
             } else {
-               window.location.replace(window.location.origin);
+               window.location.replace('/Security/SAML2/Login.aspx?redirectUrl=' + encodeURIComponent(location.origin + '/courses'));
             }
          }
       });
@@ -848,10 +1029,7 @@
             } else if (pages[k].display.hasOwnProperty('link')) {
                menu.append('<a href="' + pages[k].display.link + '" target="_blank" rel="noopener" class="mdc-list-item" data-mdc-auto-init="MDCRipple" tabindex="0" aria-selected="true" aria-expanded="true"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">'+pages[k].icon+'</i>'+printLanguages(pages[k].title)+'<i class="mdc-list-item__meta material-icons">launch</i></a>')
             } else {
-               menu.append('<li class="mdc-list-item '+(tab === false && 'mdc-list-item--activated')+'" data-id="'+k+'" data-mdc-auto-init="MDCRipple" tabindex="0" aria-selected="true" aria-expanded="true"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">'+pages[k].icon+'</i>'+printLanguages(pages[k].title)+'</li>');
-               if (!tab) {
-                  preparePage(k);
-               }
+               menu.append('<li class="mdc-list-item" data-id="'+k+'" data-mdc-auto-init="MDCRipple" tabindex="0" aria-selected="true" aria-expanded="true"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">'+pages[k].icon+'</i>'+printLanguages(pages[k].title)+'</li>');
             }
          }
       });
@@ -861,7 +1039,12 @@
          var $this = $(this);
          $('#nav-menu-list > li').removeClass('mdc-list-item--activated');
          $this.addClass('mdc-list-item--activated');
-         preparePage($this.data('id'));
+
+         var id = $this.data('id');
+         var ignoreState = (id == Object.keys(pages).find(function(k) {
+            return path[0] == pages[k].name;
+         }));
+         setPage(id, ignoreState);
       });
 
       $('#nav-folder-list, #container-folder > ul').on('click', 'li.mdc-list-item', function(e){
@@ -893,7 +1076,7 @@
             complete: function(data){
                if (data.status != 200 || data.responseJSON.DELETE_WORKING_DOCUMENT != "TRUE") {
                   var msg, actionText;
-                  switch ($('html').attr('lang')) {
+                  switch (lang) {
                      case 'nl':
                         msg = "Verwijderen mislukt, de pagina wordt herladen.";
                         actionText = "Rapporteer een bug";
@@ -994,8 +1177,12 @@
 
       $('#top-app-bar__menu > ul').on('click', 'li.mdc-list-item', function(){
          var $this = $(this);
-         preparePage(7, $this.data('name'));
-         $('#container-iframe > iframe').attr('src', $this.data('url'));
+         var title = $this.data('name');
+         var url   = $this.data('url');
+
+         setPage(7, title, true);
+         history.pushState({ title: title }, title, '/' + pages[tab].name + '/' + encodeURIComponent(title) + '/' + encodeURIComponent(url));
+         setIframe(url);
          $('#nav-menu-list > li').removeClass('mdc-list-item--activated');
          if ($this.hasClass('mdc-list-item--activated')) {
             $.ajax({
@@ -1034,7 +1221,6 @@
             prepareHandin($('#container-handin').data('resource'));
          }
       });
-
 
       // Snackbar, Drawer en Notificatiemenu
       mdc.autoInit();
@@ -1110,6 +1296,9 @@
             var detail = evt.detail;
          });
       }
-   });
+   }
 
+   window.onpopstate = readURL;
+
+   readURL();
 })();
