@@ -15,7 +15,7 @@ De material design ELO haalt zijn content op via de JSON routes van de [mobiele 
 - De mapinhoud van een studieroute/portfolio.
 - De bestanden in de mappen van de studieroute/portfolio, weergegeven als download, in een iframe of geïmplementeerd in de HTML.
 - Notificaties ontvangen en weergeven in een iframe.
-- Persoonlijke instellingen inlezen. Mocht je hier je twijfels bij hebben, dit wordt gedaan met de eerste `jQuery.ajax()` in de `init()` functie. Jouw naam, studentnummer, weergavetaal en actieve sessie (boolean) worden uitsluitend voor het weergeven van de ELO afgelezen en zullen nooit worden verspreidt!
+- Persoonlijke instellingen inlezen. Mocht je hier je twijfels bij hebben, dit wordt gedaan met de eerste `jQuery.ajax()` in de[ `initELO()`](#initELO) functie. Jouw naam, studentnummer, weergavetaal en actieve sessie (boolean) worden uitsluitend voor het weergeven van de ELO gebruikt en zullen nooit worden verspreidt!
 - Een iframe met daarin het forum, deze moet nog ontwikkeld worden als material design component.
 
 De material design ELO verstuurt ook content naar de server:
