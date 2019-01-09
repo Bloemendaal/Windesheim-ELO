@@ -1,0 +1,9 @@
+{
+  "appName": {
+    "message": "Windesheim ELO",
+    "description": "Verander de Windesheim ELO in een Material Design applicatie!"
+  },
+  "appDesc": {
+    "message": "Deze extensie herschrijft de broncode van de ELO, waardoor het een modern uiterlijk krijgt."
+  }
+}

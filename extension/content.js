@@ -1,7 +1,8 @@
+/*! Material Design ELO | https://github.com/Bloemendaal/Windesheim-ELO | (c) 2019 Casper Bloemendaal | MIT License */
 (function() {
    'use strict';
 
-   var version = 1.52;
+   var version = 1.53;
    var tab     = false;
    var hidenav = false;
    var lang    = 0;
@@ -969,7 +970,7 @@
                });
                $('html').attr('lang', lang || '');
             } else {
-               window.location.replace('/Security/SAML2/Login.aspx?redirectUrl=' + encodeURIComponent(location.origin + '/courses'));
+               window.location.replace('/Security/SAML2/Login.aspx?redirectUrl=' + encodeURIComponent(location.href));
             }
          }
       });
