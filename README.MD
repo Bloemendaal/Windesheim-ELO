@@ -20,7 +20,7 @@ De material design ELO haalt zijn content op via de JSON routes van de [mobiele 
 
 De material design ELO verstuurt ook content naar de server:
 - Bestanden die je upload via de inlevermodule. Deze bestanden worden als tijdelijke bestanden op de server van Windesheim opgeslagen en worden nooit gedeeld. Dit gebeurt altijd met de `UIkit.upload()` functie.
-- Het inleveren van bestanden, hiermee lever je geüploadde bestanden in. Deze functie kan niet ongedaan gemaakt worden, het inleveren van bestanden is altijd definitief. Deze extensie is niet verantwoordelijk voor fouten bij het inleveren van bestanden gezien de functionaliteit van de 'inleveren' knop precies hetzelfde is als op de normale ELO.
+- Het inleveren van bestanden, hiermee lever je geüploade bestanden in. Deze functie kan niet ongedaan gemaakt worden, het inleveren van bestanden is altijd definitief. Deze extensie is niet verantwoordelijk voor fouten bij het inleveren van bestanden gezien de functionaliteit van de 'inleveren' knop precies hetzelfde is als op de normale ELO.
 - Het verwijderen van tijdelijke bestanden, ook dit kan niet ongedaan gemaakt worden. Deze extensie is niet verantwoordelijk voor fouten bij het inleveren van bestanden gezien de functionaliteit van de 'verwijderen' knop precies hetzelfde is als op de normale ELO.
 - Wanneer je op een ongelezen notificatie klikt, wordt deze als gelezen gemarkeerd.
 - Jouw zoektermen worden verstuurd naar de ELO.
