@@ -945,7 +945,7 @@
             $('#nav-menu-list > li').removeClass('mdc-list-item--activated');
             $('#nav-menu-list > li[data-id="' + k + '"]').addClass('mdc-list-item--activated');
          }
-      } else if (['security', 'cms'].indexOf(npath[0]) < 0) {
+      } else if (['security', 'cms', 'services'].indexOf(npath[0]) < 0) {
          location.replace('/Security/SAML2/Login.aspx?redirectUrl=' + encodeURIComponent(location.origin + '/' + pages[0].name));
       }
 
