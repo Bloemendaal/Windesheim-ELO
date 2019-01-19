@@ -1,4 +1,8 @@
 ## Filesubmit
+
+## Download folder
+/Services/CMS.asmx/ExportFolder?folderId=3748542&download
+
 ### Delete Saved document
 ```JS
 var ajax = {

@@ -3,14 +3,14 @@
    "name": "__MSG_appName__",
    "description": "__MSG_appDesc__",
    "author": "Casper Bloemendaal",
-   "version": "1.5.3",
+   "version": "1.5.4",
    "icons": {
       "16":  "icon/icon16.png",
       "48":  "icon/icon48.png",
       "128": "icon/icon128.png"
    },
    "default_locale" : "en",
-   "homepage_url": "https://github.com/Bloemendaal/Windesheim-ELO",
+   "homepage_url": "https://elo.windesheim.nl",
    "content_scripts": [
       {
          "matches": ["*://elo.windesheim.nl/*"],
