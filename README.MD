@@ -6,6 +6,10 @@ Een material design omgeving ontworpen voor de Windesheim ELO, verkrijgbaar als 
 
 Heb je zo je twijfels bij het installeren, dan ben je vast ook een ICT'er. Het project is open source en zal dat ook altijd blijven. Je kan per release controleren hoe de code veranderd is. De functionele code van de [Chrome Extensie](https://chrome.google.com/webstore/detail/windesheim-elo/admnckenaonlfihjidfgpkapnhgdjpbj) staat in [extension/content.js](https://github.com/Bloemendaal/Windesheim-ELO/blob/master/extension/content.js) en die van het [UserScript](https://github.com/Bloemendaal/Windesheim-ELO/raw/master/userscript/MDELO.user.js) staat in [userscript/MDELO.user.js](https://github.com/Bloemendaal/Windesheim-ELO/blob/master/userscript/MDELO.user.js). Verder worden er verschillende CSS en JS libraries gebruikt, zie de [technische documentatie](#technische-documentatie).
 
+## Geldverspilling
+Mocht je slecht met geld om kunnen gaan, dan kan je je euro's verspillen aan dit project. Als mijn calculaties kloppen, wanneer iedereen die een hekel heeft aan de huidige ELO een euro zou doneren, dan zou ik nu miljonair zijn.
+Doneren kan [hier](https://paypal.me/CasperBloemendaal) maar alleen als je het geld kan missen!
+
 ## Functionaliteiten
 De extensie herschrijft de broncode van de ELO. Dit betekent dat de HTML van je huidige ELO compleet vervangen wordt door de [HTML van de extensie](https://github.com/Bloemendaal/Windesheim-ELO/blob/master/userscript/document.html). Vervolgens manipuleert de extensie de HTML zodat het de juiste informatie weergeeft, namelijk jouw studieroutes, portfolio, notificaties en instellingen.
 
