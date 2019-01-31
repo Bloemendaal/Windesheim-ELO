@@ -144,9 +144,16 @@ Deze functie moet gebruikt worden bij het instellen van een nieuwe `src` van de 
 
 #### prepareFolder
 ```js
-prepareFolder(page, id, title);
+prepareFolder(page, id, title, syllabus = null);
 ```
-Deze functie wordt alleen gebruikt wanneer er vanuit het overzicht studieroutes of portfolios genavigeerd wordt naar een specifiek(e) studieroute/portfolio. Het bereidt de pagina voor door de functies [`setPage()`](#setPage), `history.pushState()`, [`preparePath()`](#preparePath) en [`setFolder()`](#setFolder) op de juiste manier op te roepen.
+Deze functie wordt alleen gebruikt wanneer er vanuit het overzicht studieroutes of portfolios genavigeerd wordt naar een specifiek(e) studieroute/portfolio. Het bereidt de pagina voor door de functies [`setPage()`](#setPage), `history.pushState()`, [`preparePath()`](#preparePath), [`prepareSyllabus()`](#prepareSyllabus) en [`setFolder()`](#setFolder) op de juiste manier op te roepen.
+
+
+#### prepareSyllabus
+```js
+var html = prepareSyllabus(url);
+```
+Deze functie geeft de correcte HTML van de studiewijzer. De URL van het bestand wordt meegegeven als parameter.
 
 
 #### prepareItemPath
@@ -220,9 +227,9 @@ Deze functie schakelt de favoriete status van de studieroute aan en uit waarbij 
 ```js
 readURL(e = false);
 ```
-Deze functie leest de URL af nadat de URL geüpdatet is door de navigatieknoppen via `window.onpopstate`. Deze laadt ook de pagina wanneer hij nog niet geladen was en roept daarvoor [`initELO()`](#initELO) op. Om het laden elke specifieke pagina mogelijk te maken, maakt deze functie gebruik van de volgende functies: [`preparePath()`](#preparePath), [`setPage()`](#setPage), [`readFolderURL()`](#readFolderURL), [`setFolderItem()`](#setFolderItem), [`setFolder()`](#setFolder) en [`setIframe()`](#setIframe).
+Deze functie leest de URL af nadat de URL geüpdatet is door de navigatieknoppen via `window.onpopstate`. Deze laadt ook de pagina wanneer hij nog niet geladen was en roept daarvoor [`initELO()`](#initELO) op. Om het laden elke specifieke pagina mogelijk te maken, maakt deze functie gebruik van de volgende functies: [`preparePath()`](#preparePath), [`prepareSyllabus()`](#prepareSyllabus), [`setPage()`](#setPage), [`readFolderURL()`](#readFolderURL), [`setFolderItem()`](#setFolderItem), [`setFolder()`](#setFolder) en [`setIframe()`](#setIframe).
 
-De functie kijkt naar een aantal belangrijke aspecten. Allereerst of de opgegeven URL bestaat volgens de array [`pages`](#pages), vervolgens of de pagina al geladen is en dan of hij te maken heeft met een folder, een notificatie of een menu. Wanneer de URL niet bestaat volgens de array [`pages`](#pages) en geen 'security' of 'cms' pagina is, wordt de gebruiker doorgestuurd naar de inlogcontrole.
+De functie kijkt naar een aantal belangrijke aspecten. Allereerst of de opgegeven URL bestaat volgens de array [`pages`](#pages), vervolgens of de pagina al geladen is en dan of hij te maken heeft met een folder, een notificatie of een menu. Wanneer de URL niet bestaat volgens de array [`pages`](#pages) en geen 'security', 'cms' of 'services' pagina is, wordt de gebruiker doorgestuurd naar de inlogcontrole.
 
 
 #### readFolderURL

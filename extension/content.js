@@ -2,7 +2,7 @@
 (function() {
    'use strict';
 
-   var version = 1.55;
+   var version = 1.56;
    var tab     = false;
    var hidenav = false;
    var lang    = 0;
@@ -41,7 +41,7 @@
                if (e.target.nodeName == 'I') {
                   favoriteCourse(id, e, $this);
                } else {
-                  prepareFolder(1, id, $this.data('name'));
+                  prepareFolder(1, id, $this.data('name'), $this.data('syllabus'));
                }
             },
             fab: function() {
@@ -508,7 +508,7 @@
             list.html('<span class="last-child uk-text-center uk-text-small uk-margin-left">Geen resultaten gevonden...</span>');
 
             data.STUDYROUTES.forEach(function(c) {
-               list.append('<li class="mdc-list-item uk-width-1-1 ' + (c.IS_FAVORITE ? 'uk-flex-first' : '') + '" data-id="'+c.ID+'" data-name="'+c.NAME+'" data-mdc-auto-init="MDCRipple"><div class="uk-margin-right"><div class="uk-inline uk-cover-container uk-border-circle mdc-list-item__image"><img src="'+c.IMAGEURL_24+'" alt="'+c.NAME+'" uk-cover></div></div><span>'+c.NAME+'</span><i class="mdc-icon-toggle mdc-theme--text-icon-on-background material-icons uk-margin-auto-left" role="button">'+(c.IS_FAVORITE ? 'star' : 'star_border')+'</i></li>');
+               list.append('<li class="mdc-list-item uk-width-1-1 ' + (c.IS_FAVORITE ? 'uk-flex-first' : '') + '" data-id="'+c.ID+'" data-name="'+c.NAME+'" ' + (c.PREFACEPAGE_URL ? 'data-syllabus="' + encodeURI(c.PREFACEPAGE_URL) + '"' : '') + ' data-mdc-auto-init="MDCRipple"><div class="uk-margin-right"><div class="uk-inline uk-cover-container uk-border-circle mdc-list-item__image"><img src="'+c.IMAGEURL_24+'" alt="'+c.NAME+'" uk-cover></div></div><span>'+c.NAME+'</span><i class="mdc-icon-toggle mdc-theme--text-icon-on-background material-icons uk-margin-auto-left" role="button">'+(c.IS_FAVORITE ? 'star' : 'star_border')+'</i></li>');
             });
 
             mdc.autoInit(document.getElementById('container-list'), () => {});
@@ -739,7 +739,7 @@
       $('#container-iframe').append(iframe);
    }
 
-   function prepareFolder(page, id, title) {
+   function prepareFolder(page, id, title, syllabus = null) {
       var append = $('#nav-folder-list, #container-folder > ul');
       append.data('id', id);
       setPage(page, title, true);
@@ -750,7 +750,18 @@
       path = preparePath();
 
       setFolder(append, id);
-      $('#nav-folder-list').prepend('<li class="mdc-list-item mdc-list-item--activated" data-mdc-auto-init="MDCRipple" data-id="-1" data-name="'+title+'" data-type="0" data-display="folder"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">folder_special</i><span class="folder-text-padding">'+title+'</span></li><hr class="mdc-list-divider">');
+
+      $('#nav-folder-list').prepend((syllabus ? prepareSyllabus(syllabus) : '') + '<li class="mdc-list-item mdc-list-item--activated" data-mdc-auto-init="MDCRipple" data-id="-1" data-name="' + title + '" data-type="0" data-display="folder"><i class="material-icons mdc-list-item__graphic">folder_special</i><span class="folder-text-padding">' + title + '</span></li><hr class="mdc-list-divider">');
+   }
+
+   function prepareSyllabus(url) {
+      var properties = prepareItemType(url, 10, 'studyroute');
+      var syllabusLang = {
+         en: 'Syllabus',
+         nl: 'Studiewijzer',
+         de: 'Lernf&uuml;hrer'
+      };
+      return (properties.display == 'link' ? '<a href="' + url + '" target="_blank" rel="noopener"': '<li data-url="' + url + '"') + ' data-id="syllabus" data-name="' + syllabusLang[lang] + '" data-display="' + properties.display + '" data-mdc-auto-init="MDCRipple" class="mdc-list-item"><i class="material-icons mdc-list-item__graphic">class</i><span class="folder-text-padding">' + printLanguages(syllabusLang) + '</span>' + (properties.display == 'link' ? '<i class="mdc-list-item__meta material-icons">launch</i></a>' : '</li>');
    }
 
    function prepareItemPath(t, id = null) {
@@ -944,10 +955,13 @@
 
       if (typeof k !== 'undefined' && typeof pages[k].display == 'object' && pages[k].display.hasOwnProperty('container')) {
          if (tab === false) {
-            initELO();
+            if (location.protocol == 'https:') {
+               initELO();
+            } else {
+               location.protocol = 'https:';
+            }
          }
 
-         var courseName;
          var title;
          if (typeof e == 'object') {
             if (typeof e.state == 'object' && e.state && e.state.hasOwnProperty('title')) {
@@ -975,10 +989,45 @@
                }
             } else {
                var append = $('#nav-folder-list, #container-folder > ul');
-               append.data('id', decodeURI(splitnC[splitnC.length - 1]));
+               var id = decodeURI(splitnC[splitnC.length - 1]);
+               append.data('id', id);
                setFolder(append, 1, -1, npath);
                splitnC.pop();
                $('#nav-folder-list').prepend('<li class="mdc-list-item" data-mdc-auto-init="MDCRipple" data-id="-1" data-name="' + decodeURI(splitnC.join('-')) + '" data-type="0" data-display="folder"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">folder_special</i><span class="folder-text-padding">' + decodeURI(splitnC.join('-')) + '</span></li><hr class="mdc-list-divider">');
+
+               var name = pages[tab].name;
+               if (name == 'studyroute' || name == 'portfolio') {
+                  $.ajax({
+                     url:  '/services/' + (name == 'studyroute' ? 'Studyroutemobile.asmx/LoadStudyroutes' : 'MyPortfolioMobile.asmx/LoadPortfolios'),
+                     type: 'GET',
+                     data: {
+                        start: 0,
+                        length: 300,
+                        userId: -1,
+                        filter: 0,
+                        search: ''
+                     },
+                     success: function(data) {
+                        var cs = data[name.toUpperCase() + 'S'].find(function(r) {
+                           return r.ID == id;
+                        });
+
+                        $('#nav-folder-list > li:first-child').data('name', cs.NAME).children('.folder-text-padding').text(cs.NAME);
+                        if (cs.PREFACEPAGE_URL) {
+                           $('#nav-folder-list').prepend(prepareSyllabus(encodeURI(cs.PREFACEPAGE_URL)));
+                        }
+
+                        if (npath.length == 2) {
+                           $('#title').text(cs.NAME);
+                        } else if (npath[2] == 'syllabus') {
+                           readURL();
+                        }
+
+                        mdc.autoInit(document.getElementById('nav-folder-list'), () => {});
+                     }
+                  });
+               }
+
             }
          } else if (pages[k].name == 'notification') {
             $('#nav-menu-list > li').removeClass('mdc-list-item--activated');
@@ -1016,8 +1065,6 @@
    }
 
    function initELO() {
-      if (location.protocol != 'https:') { location.protocol = 'https:'; }
-
       document.write('<!DOCTYPE html><html><head><title>Windesheim ELO</title><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"><meta name="author" content="Casper Bloemendaal"><meta name="theme-color" content="#406790"><meta name="msapplication-navbutton-color" content="#406790"><meta name="apple-mobile-web-app-status-bar-style" content="#406790"></head><body><aside id="drawer" class="mdc-drawer mdc-drawer--modal mdc-drawer--prepare"><div class="mdc-drawer__header"><h3 class="mdc-drawer__title uk-text-truncate"></h3><h6 class="mdc-drawer__subtitle uk-text-truncate"></h6></div><div id="nav" class="mdc-drawer__content uk-scrollbar"><ul id="nav-focus" class="mdc-list"><li class="mdc-list-item" tabindex="0"></li></ul><div id="nav-menu"><ul id="nav-menu-list" class="mdc-list"></ul></div><div id="nav-folder"><ul class="mdc-list" data-id="-1"><li id="nav-folder-back" class="mdc-list-item" data-mdc-auto-init="MDCRipple"> <i class="material-icons mdc-list-item__graphic" aria-hidden="true">arrow_back</i> <span class="lang-en">Back</span> <span class="lang-nl">Terug</span> <span class="lang-de">Zur&uuml;ck</span></li></ul><ul id="nav-folder-list" class="mdc-list uk-padding-remove-top"></ul></div></div> </aside><div class="mdc-drawer-scrim"></div><div class="mdc-drawer-app-content"> <header id="top-app-bar" class="mdc-top-app-bar mdc-top-app-bar--fixed"><div class="mdc-top-app-bar__row top-app-bar__main"> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start"> <span class="material-icons mdc-top-app-bar__navigation-icon">menu</span> <span id="title" class="mdc-top-app-bar__title"></span> </section> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar"> <span id="search-button" uk-toggle="target: #top-app-bar .top-app-bar__search, #top-app-bar .top-app-bar__main; animation: uk-animation-fade" class="material-icons mdc-top-app-bar__action-item" aria-label="Zoeken" alt="Zoeken">search</span> <span id="top-app-bar__more" class="material-icons mdc-top-app-bar__action-item mdc-menu-surface--anchor" aria-label="Meer..." alt="Meer..."> <span>notifications_none</span><div id="top-app-bar__menu" class="mdc-menu mdc-menu-surface"><ul class="mdc-list mdc-list--two-line"></ul></div> </span> </section></div><div class="mdc-top-app-bar__row top-app-bar__search" hidden> <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start"> <span id="search-back" uk-toggle="target: #top-app-bar .top-app-bar__search, #top-app-bar .top-app-bar__main; animation: uk-animation-fade" class="material-icons mdc-top-app-bar__navigation-icon">arrow_back</span><div class="uk-search uk-search-navbar uk-width-1-1 uk-light"> <input id="search" class="uk-search-input mdc-top-app-bar__title" type="search" placeholder="Zoeken..." autofocus></div> </section></div> </header><div id="content" class="uk-container uk-container-expand"><div class="mdc-top-app-bar--fixed-adjust"></div><div id="container"><div id="container-iframe"> <iframe src="" width="100%" height="100%"></iframe></div><div id="container-handin"><div id="handin-progress" role="progressbar" class="mdc-linear-progress"><div class="mdc-linear-progress__buffering-dots"></div><div class="mdc-linear-progress__buffer"></div><div class="mdc-linear-progress__bar mdc-linear-progress__primary-bar"> <span class="mdc-linear-progress__bar-inner"></span></div><div class="mdc-linear-progress__bar mdc-linear-progress__secondary-bar"> <span class="mdc-linear-progress__bar-inner"></span></div></div><div id="handin-upload" class="uk-flex uk-flex-column"><div class="handin-load uk-padding uk-scrollbar"></div><div class="uk-text-center uk-padding"> <i class="material-icons uk-text-middle uk-margin-small-right">cloud_upload</i> <span class="uk-text-middle"> <span class="lang-en">Attach binaries by dropping them here or</span> <span class="lang-nl">Upload bestanden door ze hierheen te slepen of</span> <span class="lang-de">Laden Sie Dateien hoch, indem Sie sie hierher ziehen oder</span> </span><div uk-form-custom> <input type="file" multiple> <span class="uk-link"> <span class="lang-en">selecting one</span> <span class="lang-nl">te selecteren</span> <span class="lang-de">ausw&auml;hlen</span> </span></div></div><div class="uk-padding uk-padding-remove-top"><ul class="mdc-list uk-padding-remove"><li class="handin-review mdc-list-group"><h6 class="mdc-list-group__subheader"> <span class="lang-en">Review</span> <span class="lang-nl">Beoordeling</span> <span class="lang-de">Rezension</span></h6><div></div></li><li class="handin-start mdc-list-group"><h6 class="mdc-list-group__subheader"> <span class="lang-en">Provided document</span> <span class="lang-nl">Meegeleverd document</span> <span class="lang-de">Bereitgestelltes Dokument</span></h6><div></div></li><li class="handin-document mdc-list-group"><h6 class="mdc-list-group__subheader"> <span class="lang-en">Uploaded document</span> <span class="lang-nl">Geüpload document</span> <span class="lang-de">Hochgeladenes Dokument</span></h6><div></div></li></ul></div><div id="handin-submit" class="uk-padding uk-padding-remove-top"><div class="uk-grid"><div class="uk-width-expand"> <small class="uk-text-meta uk-text-middle" style="padding-left: 16px"> <span class="lang-en">Note that pressing submit cannot be undone.</span> <span class="lang-nl">Op inleveren klikken kan niet ongedaan gemaakt worden.</span> <span class="lang-de">Beachten Sie, dass das Dr&uuml;cken von "Senden" nicht r&uuml;ckg&auml;ngig gemacht werden kann.</span> </small></div><div class="uk-width-auto"> <button class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple"></button></div></div></div></div><div id="handin-review" class="uk-flex uk-flex-column"><div class="handin-load uk-padding uk-scrollbar"></div><div class="uk-padding"><ul class="mdc-list uk-padding-remove"><li class="handin-review mdc-list-group"><h6 class="mdc-list-group__subheader"> <span class="lang-en">Review</span> <span class="lang-nl">Beoordeling</span> <span class="lang-de">Rezension</span></h6><div></div></li><li class="handin-start mdc-list-group"><h6 class="mdc-list-group__subheader"> <span class="lang-en">Provided document</span> <span class="lang-nl">Meegeleverd document</span> <span class="lang-de">Bereitgestelltes Dokument</span></h6><div></div></li><li class="handin-document mdc-list-group"><h6 class="mdc-list-group__subheader"> <span class="lang-en">Submitted document</span> <span class="lang-nl">Ingezonden document</span> <span class="lang-de">&Uuml;bermitteltes Dokument</span></h6><div></div></li></ul></div></div></div><div id="container-include"></div><div id="container-list"><ul class="mdc-list mdc-list--two-line uk-flex uk-flex-column" aria-orientation="vertical"></ul></div><div id="container-folder"><ul class="mdc-list"></ul></div></div> <button id="FAB" class="mdc-fab fab-hidden material-icons" aria-label="Favorite" data-mdc-auto-init="MDCRipple"> <span class="mdc-fab__icon"></span> </button></div></div><div id="snackbar" class="mdc-snackbar" aria-live="assertive" aria-atomic="true" aria-hidden="true"><div class="mdc-snackbar__text"></div><div class="mdc-snackbar__action-wrapper"> <button type="button" class="mdc-snackbar__action-button"></button></div></div></body></html>');
       document.close();
 
