@@ -37,19 +37,19 @@ De material design ELO heeft een geavanceerd navigatiesysteem. Alle acties worde
 
 ## Screenshots
 Een aantal screenshots van de material design ELO, genomen van [v1.5.3](https://github.com/Bloemendaal/Windesheim-ELO/tree/v1.5.3).
-![Weergave PDF bestand](docs/screenshot1.png)
+![Weergave PDF bestand](docs/screenshots/screenshot1.png)
 De weergave van een PDF bestanden.
 
-![Weergave opname lecture](docs/screenshot2.png)
+![Weergave opname lecture](docs/screenshots/screenshot2.png)
 De weergave van een opgenomen hoorcollege.
 
-![Weergave bestandupload](docs/screenshot4.png)
+![Weergave bestandupload](docs/screenshots/screenshot4.png)
 De weergave van de inlevermodule.
 
-![Weergave alle studieroutes](docs/screenshot3.png)
+![Weergave alle studieroutes](docs/screenshots/screenshot3.png)
 Het overzicht van alle studieroutes.
 
-![Weergave portfolio en notificaties](docs/screenshot5.png)
+![Weergave portfolio en notificaties](docs/screenshots/screenshot5.png)
 Het overzicht van alle portfolios met een geopend notificatiescherm.
 
 ## UserScripts installeren
