@@ -2,7 +2,7 @@
 (function() {
    'use strict';
 
-   var version = 1.56;
+   var version = 1.57;
    var tab     = false;
    var hidenav = false;
    var lang    = 0;
@@ -221,66 +221,47 @@
                   de: 'Sprache'
                }) + '</h2>');
 
-               var clang = $('html').attr('lang');
                Object.keys(languages).forEach(function(k){
-                  append.append('<li class="mdc-list-item settings-language' + (k == clang ? ' mdc-list-item--activated' : '') + '" data-lang="' + k + '" data-mdc-auto-init="MDCRipple"><div class="uk-margin-right"><div class="uk-inline uk-cover-container uk-border-circle mdc-list-item__image">' + languages[k].svg + '</div></div><span class="mdc-list-item__text"><span class="mdc-list-item__primary-text">' + printLanguages(languages[k].title) + '</span><span class="mdc-list-item__secondary-text">' + languages[k].title[k] + '</span></span></li>');
+                  append.append('<li class="mdc-list-item settings-language' + (k == lang ? ' mdc-list-item--activated' : '') + '" data-lang="' + k + '" data-mdc-auto-init="MDCRipple"><div class="uk-margin-right"><div class="uk-inline uk-cover-container uk-border-circle mdc-list-item__image">' + languages[k].svg + '</div></div><span class="mdc-list-item__text"><span class="mdc-list-item__primary-text">' + printLanguages(languages[k].title) + '</span><span class="mdc-list-item__secondary-text">' + languages[k].title[k] + '</span></span></li>');
                });
-               append.append('<h2 class="mdc-list-group__subheader uk-margin-top" style="font-size:1.5rem">' + printLanguages({
-                  en: 'Dark theme',
-                  nl: 'Donker thema',
-                  de: 'Dark theme'
+
+               append.append('<h2 class="mdc-list-group__subheader uk-margin-large-top" style="font-size:1.5rem">' + printLanguages({
+                  en: 'Night mode',
+                  nl: 'Nachtmodus',
+                  de: 'Nacht-Modus'
                }) + '</h2>');
 
-               var darkThemeText = printLanguages({
-                  en: 'Enable dark theme',
-                  nl: 'Gebruik donker theme',
-                  de: 'Enable dark theme'
-               });
-
-               if(localStorage.getItem("darkTheme") == "enabled") {
-                   darkThemeText = printLanguages({
-                       en: 'Disable dark theme',
-                       nl: 'Gebruik licht thema',
-                       de: 'Disable dark theme'
-                   });
-               }
-
-               var darkThemeSubtitle = printLanguages({
-                  en: 'Click to make everything dark',
-                  nl: 'Klik om een donker theme te gebruiken',
-                  de: 'Click to make everything dark'
-               });
-
-               if(localStorage.getItem("darkTheme") == "enabled") {
-                   darkThemeSubtitle = printLanguages({
-                       en: 'Click to make everything light',
-                       nl: 'Klik om een licht thema te gebuiken',
-                       de: 'Click to make everything light'
-                   });
-               }
-
-               append.append('<li class="mdc-list-item settings-darktheme" data-mdc-auto-init="MDCRipple"><span class="mdc-list-item__text"><span class="mdc-list-item__primary-text">'+darkThemeText+'</span><span class="mdc-list-item__secondary-text">'+darkThemeSubtitle+'</span></span></li>');
+               append.append('<li class="mdc-list-item settings-darktheme" data-mdc-auto-init="MDCRipple"><span class="uk-margin-right uk-cover-container mdc-list-item__image mdc-list-item__graphic material-icons"><span class="darktheme-show">brightness_2</span><span class="darktheme-hide">wb_sunny</span></span><span class="darktheme-show">' + printLanguages({
+                   en: 'Switch to a light theme',
+                   nl: 'Gebruik een licht thema',
+                   de: 'Wechseln Sie zu einem hellen Thema'
+               }) + '</span><span class="darktheme-hide">' + printLanguages({
+                  en: 'Switch to a dark theme',
+                  nl: 'Gebruik een donker thema',
+                  de: 'Wechseln Sie zu einem dunklen Thema'
+               }) + '</span></li>');
 
                mdc.autoInit(document.getElementById('container-list'), () => {});
             },
             container: function(t, e){
                var $this = $(t);
                if ($this.hasClass('settings-language')) {
-                  var lang = $this.data('lang');
+                  var slang = $this.data('lang');
                   $.ajax({
-                     url: 'https://elo.windesheim.nl/Services/UserSchoolConfig.asmx',
+                     url: '/Services/UserSchoolConfig.asmx',
                      type: 'POST',
-                     data: '<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><ChangeUserLanguageID xmlns="http://www.threeships.com/N@TSchool/UserSchoolConfig"><lcid>' + languages[lang].key + '</lcid></ChangeUserLanguageID></soap:Body></soap:Envelope>',
+                     data: '<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><ChangeUserLanguageID xmlns="http://www.threeships.com/N@TSchool/UserSchoolConfig"><lcid>' + languages[slang].key + '</lcid></ChangeUserLanguageID></soap:Body></soap:Envelope>',
                      dataType: 'xml',
                      contentType: 'text/xml',
                      complete: function(){
+                        lang = slang;
                         $('#container-list > ul > .settings-language').removeClass('mdc-list-item--activated');
                         $this.addClass('mdc-list-item--activated');
-                        $('html').attr('lang', lang);
+                        $('html').attr('lang', slang);
                      },
                      error: function(){
                         var msg;
-                        switch (lang) {
+                        switch (slang) {
                            case 'nl':
                               msg = "Opslaan van de taalinstellingen is mislukt";
                               break;
@@ -296,14 +277,9 @@
                      }
                   });
                } else if ($this.hasClass('settings-darktheme')) {
-                   // Toggle darktheme
-                   if(localStorage.getItem("darkTheme") == "disabled") {
-                       localStorage.setItem("darkTheme", "enabled");
-                   } else {
-                       localStorage.setItem("darkTheme", "disabled");
-                   }
-
-                   history.go(0);
+                   var dT = !+localStorage.getItem("darkTheme");
+                   localStorage.setItem("darkTheme", (+dT).toString());
+                   $('html').toggleClass('darktheme', dT);
                }
             }
          }
@@ -1124,8 +1100,11 @@
                lang = Object.keys(languages).find(function(k){
                   return languages[k].key == data.NOMENCLATURE;
                });
-               $('html').attr('lang', lang || '');
-               $('html').attr('class', localStorage.getItem("darkTheme") == "enabled" ? 'darktheme' : '');
+               $('html').attr('lang', lang || '').toggleClass('darktheme', !!+localStorage.getItem("darkTheme"));
+
+               if (pages[tab].name == 'settings') {
+                  pages[tab].functions.onload();
+               }
             } else {
                window.location.replace('/Security/SAML2/Login.aspx?redirectUrl=' + encodeURIComponent(location.href));
             }

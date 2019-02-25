@@ -317,7 +317,7 @@ ul.mdc-list:not(.mdc-list--non-interactive) .mdc-list-item {
    }
 }
 
-/* Materia dark theme */
+/* Material dark theme */
 
 .darktheme .mdc-linear-progress__buffer {
     background: rgba(0,0,0,.12);
@@ -349,4 +349,12 @@ ul.mdc-list:not(.mdc-list--non-interactive) .mdc-list-item {
 }
 .darktheme #container-iframe iframe[src='/Pages/Forum/ForumPage.aspx'] {
     filter: invert(75%);
+}
+
+.darktheme-show,
+.darktheme .darktheme-hide {
+   display: none;
+}
+.darktheme .darktheme-show {
+   display: initial;
 }
