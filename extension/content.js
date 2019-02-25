@@ -225,6 +225,41 @@
                Object.keys(languages).forEach(function(k){
                   append.append('<li class="mdc-list-item settings-language' + (k == clang ? ' mdc-list-item--activated' : '') + '" data-lang="' + k + '" data-mdc-auto-init="MDCRipple"><div class="uk-margin-right"><div class="uk-inline uk-cover-container uk-border-circle mdc-list-item__image">' + languages[k].svg + '</div></div><span class="mdc-list-item__text"><span class="mdc-list-item__primary-text">' + printLanguages(languages[k].title) + '</span><span class="mdc-list-item__secondary-text">' + languages[k].title[k] + '</span></span></li>');
                });
+               append.append('<h2 class="mdc-list-group__subheader uk-margin-top" style="font-size:1.5rem">' + printLanguages({
+                  en: 'Dark theme',
+                  nl: 'Donker thema',
+                  de: 'Dark theme'
+               }) + '</h2>');
+
+               var darkThemeText = printLanguages({
+                  en: 'Enable dark theme',
+                  nl: 'Gebruik donker theme',
+                  de: 'Enable dark theme'
+               });
+
+               if(localStorage.getItem("darkTheme") == "enabled") {
+                   darkThemeText = printLanguages({
+                       en: 'Disable dark theme',
+                       nl: 'Gebruik licht thema',
+                       de: 'Disable dark theme'
+                   });
+               }
+
+               var darkThemeSubtitle = printLanguages({
+                  en: 'Click to make everything dark',
+                  nl: 'Klik om een donker theme te gebruiken',
+                  de: 'Click to make everything dark'
+               });
+
+               if(localStorage.getItem("darkTheme") == "enabled") {
+                   darkThemeSubtitle = printLanguages({
+                       en: 'Click to make everything light',
+                       nl: 'Klik om een licht thema te gebuiken',
+                       de: 'Click to make everything light'
+                   });
+               }
+
+               append.append('<li class="mdc-list-item settings-darktheme" data-mdc-auto-init="MDCRipple"><span class="mdc-list-item__text"><span class="mdc-list-item__primary-text">'+darkThemeText+'</span><span class="mdc-list-item__secondary-text">'+darkThemeSubtitle+'</span></span></li>');
 
                mdc.autoInit(document.getElementById('container-list'), () => {});
             },
@@ -260,6 +295,15 @@
                         });
                      }
                   });
+               } else if ($this.hasClass('settings-darktheme')) {
+                   // Toggle darktheme
+                   if(localStorage.getItem("darkTheme") == "disabled") {
+                       localStorage.setItem("darkTheme", "enabled");
+                   } else {
+                       localStorage.setItem("darkTheme", "disabled");
+                   }
+
+                   history.go(0);
                }
             }
          }
@@ -1081,6 +1125,7 @@
                   return languages[k].key == data.NOMENCLATURE;
                });
                $('html').attr('lang', lang || '');
+               $('html').attr('class', localStorage.getItem("darkTheme") == "enabled" ? 'darktheme' : '');
             } else {
                window.location.replace('/Security/SAML2/Login.aspx?redirectUrl=' + encodeURIComponent(location.href));
             }

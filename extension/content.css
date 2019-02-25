@@ -316,3 +316,37 @@ ul.mdc-list:not(.mdc-list--non-interactive) .mdc-list-item {
       right: 1.5rem
    }
 }
+
+/* Materia dark theme */
+
+.darktheme .mdc-linear-progress__buffer {
+    background: rgba(0,0,0,.12);
+}
+.darktheme #drawer, .darktheme .mdc-fab, .darktheme .mdc-menu-surface, .darktheme #handin-upload, .darktheme #handin-review {
+    background: #333;
+}
+.darktheme #container, .darktheme #content, .darktheme .mdc-drawer-app-content, .darktheme html {
+    background: #444 !important;
+}
+.darktheme #handin-upload, .darktheme #handin-review {
+    border-color: rgba(0,0,0,.12);
+}
+.darktheme .mdc-drawer .mdc-list-item, .darktheme .mdc-drawer .mdc-drawer__title, .darktheme .mdc-list, .darktheme .mdc-list-item__secondary-text, .darktheme .mdc-list-group__subheader, .darktheme .mdc-list-item--selected, .darktheme .mdc-list-item--activated, .darktheme html {
+    color: rgba(255, 255, 255, 0.87);
+}
+.darktheme .mdc-list-item__graphic, .darktheme .mdc-list-item__meta, .darktheme .mdc-theme--text-icon-on-background {
+    color: rgba(255, 255, 255, 0.38) !important;
+}
+.darktheme .mdc-drawer .mdc-list-item__graphic, .darktheme .mdc-drawer .mdc-drawer__subtitle {
+    color: rgba(255, 255, 255, 0.6);
+}
+.darktheme .mdc-drawer .mdc-list-item--activated, .darktheme .mdc-drawer .mdc-list-item--activated .mdc-list-item__graphic {
+    color: rgba(255, 255, 255, 1);
+    background: #383838;
+}
+.darktheme {
+    --mdc-theme-primary: #333;
+}
+.darktheme #container-iframe iframe[src='/Pages/Forum/ForumPage.aspx'] {
+    filter: invert(75%);
+}
