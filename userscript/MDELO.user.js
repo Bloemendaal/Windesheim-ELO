@@ -8,7 +8,7 @@
 // @downloadURL   https://github.com/Bloemendaal/Windesheim-ELO/raw/master/userscript/MDELO.user.js
 // @updateURL     https://github.com/Bloemendaal/Windesheim-ELO/raw/master/userscript/MDELO.user.js
 // @supportURL    https://github.com/Bloemendaal/Windesheim-ELO/issues
-// @version       1.5.7
+// @version       1.5.8
 
 // @match         https://elo.windesheim.nl/*
 // @grant         none
@@ -21,7 +21,7 @@
 (function() {
    'use strict';
 
-   var version = 1.57;
+   var version = 1.58;
    var tab     = false;
    var hidenav = false;
    var lang    = 0;
@@ -1127,6 +1127,9 @@
             } else {
                window.location.replace('/Security/SAML2/Login.aspx?redirectUrl=' + encodeURIComponent(location.href));
             }
+         },
+         error: function () {
+            window.location.replace('/Security/SAML2/Login.aspx?redirectUrl=' + encodeURIComponent(location.href));
          }
       });
 

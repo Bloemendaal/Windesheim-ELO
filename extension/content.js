@@ -2,7 +2,7 @@
 (function() {
    'use strict';
 
-   var version = 1.57;
+   var version = 1.58;
    var tab     = false;
    var hidenav = false;
    var lang    = 0;
@@ -1108,6 +1108,9 @@
             } else {
                window.location.replace('/Security/SAML2/Login.aspx?redirectUrl=' + encodeURIComponent(location.href));
             }
+         },
+         error: function () {
+            window.location.replace('/Security/SAML2/Login.aspx?redirectUrl=' + encodeURIComponent(location.href));
          }
       });
 
