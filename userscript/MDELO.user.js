@@ -282,7 +282,7 @@
                         var msg;
                         switch (slang) {
                            case 'nl':
-                              msg = "Opslaan van de taalinstellingen is mislukt";
+                              msg = "Opslaan van de taalinstellingen is mislukt.";
                               break;
                            case 'de':
                               msg = "Spracheinstellungen konnten nicht gespeichert werden.";
@@ -1231,7 +1231,7 @@
                      message: msg,
                      timeout: 5000,
                      actionHandler: function() {
-                        window.location.href = 'https://github.com/Bloemendaal/Windesheim-ELO/issues/new?title='+encodeURI('[BUG] Handin DeleteWorkingDocument error')+'&body='+encodeURI('Page: ' + pages[tab].name + "\n" + 'cpId: ' + id + "\n" + 'assignmentId: ' + assignment + "\n" + 'Version: ' + version + 'xhrData: ' + JSON.stringify(data, null, 2) + "\n" + "\n\n" + '[Your description of the steps you took to encounter this problem. Try to reproduce the proces, possibly provide a screenshot.]');
+                        window.location.href = 'https://github.com/Bloemendaal/Windesheim-ELO/issues/new?title='+encodeURIComponent('[BUG] Handin DeleteWorkingDocument error')+'&body='+encodeURIComponent('Page: ' + pages[tab].name + "\n" + 'cpId: ' + id + "\n" + 'assignmentId: ' + assignment + "\n" + 'Version: ' + version + 'xhrData: ' + JSON.stringify(data, null, 2) + "\n" + "\n\n" + '[Your description of the steps you took to encounter this problem. Try to reproduce the proces, possibly provide a screenshot.]');
                      },
                      actionText: actionText,
                      multiline: true,
