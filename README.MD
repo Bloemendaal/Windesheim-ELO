@@ -101,18 +101,11 @@ Deze functie maakt de pagina klaar om van content te veranderen aan de hand van 
 
 #### setCourses
 ```js
-setCourses(search = '');
+setCoursesPortfolios(courses, search = '');
 
 var favoriteCourses = 0 || -1;         // 0 voor alle studieroutes, -1 voor alleen favoriete studieroutes
 ```
-Deze functie maakt een `jQuery.ajax()` request om zo een JSON op te halen met daarin de studieroutes, waaruit een lijst gegenereerd wordt, gesorteerd op favoriet, alfabet. `search` is een optionele parameter die kan worden gebruikt om naar studieroutes te zoeken. Er wordt rekening gehouden met de globale variable `favoriteCourses`, waardoor alle of alleen favoriete studieroutes weergegeven worden.
-
-
-#### setPortfolios
-```js
-setPortfolios(search = '');
-```
-Deze functie maakt een `jQuery.ajax()` request om zo een JSON op te halen met daarin de portfolios, waaruit een lijst gegenereerd wordt, gesorteerd op ismain, alfabet. `search` is een optionele parameter die kan worden gebruikt om naar portfolios te zoeken.
+Deze functie maakt een `jQuery.ajax()` request om zo een JSON op te halen met daarin de studieroutes pf portfolios, waaruit een lijst gegenereerd wordt, gesorteerd op favoriet of ismain, alfabet. `courses` is een boolean waarmee aangegeven wordt of het om de courses of portfolios lijst gaat. `search` is een optionele parameter die kan worden gebruikt om naar studieroutes te zoeken. Er wordt rekening gehouden met de globale variable `favoriteCourses`, waardoor alle of alleen favoriete studieroutes weergegeven worden.
 
 
 #### setFolder

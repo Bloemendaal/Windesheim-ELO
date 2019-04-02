@@ -49,10 +49,10 @@
          },
          functions: {
             onload: function() {
-               setCourses();
+               setCoursesPortfolios(true);
             },
             search: function(q) {
-               setCourses(q);
+               setCoursesPortfolios(true, q);
             },
             container: function(t, e) {
                var $this = $(t);
@@ -65,7 +65,7 @@
             },
             fab: function() {
                favoriteCourses = Math.abs(favoriteCourses + 1) * -1;
-               setCourses($('#search').is(':visible') ? $('#search').val() : '');
+               setCoursesPortfolios(true, $('#search').is(':visible') ? $('#search').val() : '');
             }
          }
       },
@@ -100,10 +100,10 @@
          },
          functions: {
             onload: function(){
-               setPortfolios();
+               setCoursesPortfolios(false);
             },
             search: function(q){
-               setPortfolios(q);
+               setPortfolios(false, q);
             },
             container: function(t, e){
                var $this = $(t);
@@ -532,48 +532,105 @@
 
    }
 
-   function setCourses(search = '') {
+   function setCoursesPortfolios(courses, search = '') {
+      var timeout = 1;
+      var list = $('#container-list > ul');
+
+      setTimeout(function () {
+         if (timeout) {
+            list.html('<span class="last-child uk-text-center uk-text-small uk-margin-left">' + printLanguages({
+               en: 'Loading...',
+               nl: 'Laden...',
+               de: 'Wird geladen...'
+            }) + '</span>');
+         }
+      }, 250);
+      setTimeout(function () {
+         if (timeout) {
+            var msg, actionText;
+            switch (lang) {
+               case 'nl':
+               msg = "Het laden duurt langer dan verwacht...";
+               actionText = "Herladen";
+               break;
+               case 'de':
+               msg = "Das Laden dauert länger als erwartet...";
+               actionText = "Neu laden";
+               break;
+               default:
+               msg = "Loading takes longer than expected...";
+               actionText = "Reload";
+            }
+            snackbar.show({
+               message: msg,
+               actionHandler: function() {
+                  location.reload();
+               },
+               actionText: actionText,
+               multiline: true,
+               actionOnBottom: true
+            });
+         }
+      }, 3000);
+
       $.ajax({
-         url:  '/services/Studyroutemobile.asmx/LoadStudyroutes',
+         url:  courses ? '/services/Studyroutemobile.asmx/LoadStudyroutes' : '/services/MyPortfolioMobile.asmx/LoadPortfolios',
          type: 'GET',
-         data: {
+         data: courses ? {
             start: 0,
-            length: 50,
+            length: 100,
             filter: favoriteCourses,
             search: search
-         },
-         success: function(data) {
-            var list = $('#container-list > ul');
-            list.html('<span class="last-child uk-text-center uk-text-small uk-margin-left">Geen resultaten gevonden...</span>');
-
-            data.STUDYROUTES.forEach(function(c) {
-               list.append('<li class="mdc-list-item uk-width-1-1 ' + (c.IS_FAVORITE ? 'uk-flex-first' : '') + '" data-id="'+c.ID+'" data-name="'+c.NAME+'" ' + (c.PREFACEPAGE_URL ? 'data-syllabus="' + encodeURI(c.PREFACEPAGE_URL) + '"' : '') + ' data-mdc-auto-init="MDCRipple"><div class="uk-margin-right"><div class="uk-inline uk-cover-container uk-border-circle mdc-list-item__image"><img src="'+c.IMAGEURL_24+'" alt="'+c.NAME+'" uk-cover></div></div><span>'+c.NAME+'</span><i class="mdc-icon-toggle mdc-theme--text-icon-on-background material-icons uk-margin-auto-left" role="button">'+(c.IS_FAVORITE ? 'star' : 'star_border')+'</i></li>');
-            });
-
-            mdc.autoInit(document.getElementById('container-list'), () => {});
-         }
-      });
-   }
-
-   function setPortfolios(search = '') {
-      $.ajax({
-         url:  '/services/MyPortfolioMobile.asmx/LoadPortfolios',
-         type: 'GET',
-         data: {
+         } : {
             start: 0,
-            length: 50,
+            length: 100,
             userId: -1,
             search: search
          },
-         success: function(data) {
-            var list = $('#container-list > ul');
-            list.html('<span class="last-child uk-text-center uk-text-small uk-margin-left">Geen resultaten gevonden...</span>');
+         complete: function(data) {
+            timeout = 0;
+            list.html('<span class="last-child uk-text-center uk-text-small uk-margin-left">' + printLanguages({
+               en: 'No results found...',
+               nl: 'Geen resultaten gevonden...',
+               de: 'Keine Ergebnisse gefunden ...'
+            }) + '</span>');
 
-            data.PORTFOLIOS.forEach(function(c) {
-               list.append('<li class="mdc-list-item uk-width-1-1 ' + (c.ISMAIN ? 'uk-flex-first' : '') + '" data-id="'+c.ID+'" data-name="'+c.NAME+'" data-mdc-auto-init="MDCRipple"><i class="material-icons mdc-list-item__graphic">folder_shared</i><span>'+c.NAME+'</span></li>');
-            });
-
-            mdc.autoInit(document.getElementById('container-list'), () => {});
+            if (data.status == 200) {
+               if (courses) {
+                  data.responseJSON.STUDYROUTES.forEach(function(c) {
+                     list.append('<li class="mdc-list-item uk-width-1-1 ' + (c.IS_FAVORITE ? 'uk-flex-first' : '') + '" data-id="'+c.ID+'" data-name="'+c.NAME+'" ' + (c.PREFACEPAGE_URL ? 'data-syllabus="' + encodeURI(c.PREFACEPAGE_URL) + '"' : '') + ' data-mdc-auto-init="MDCRipple"><div class="uk-margin-right"><div class="uk-inline uk-cover-container uk-border-circle mdc-list-item__image"><img src="'+c.IMAGEURL_24+'" alt="'+c.NAME+'" uk-cover></div></div><span>'+c.NAME+'</span><i class="mdc-icon-toggle mdc-theme--text-icon-on-background material-icons uk-margin-auto-left" role="button">'+(c.IS_FAVORITE ? 'star' : 'star_border')+'</i></li>');
+                  });
+               } else {
+                  data.responseJSON.PORTFOLIOS.forEach(function(c) {
+                     list.append('<li class="mdc-list-item uk-width-1-1 ' + (c.ISMAIN ? 'uk-flex-first' : '') + '" data-id="'+c.ID+'" data-name="'+c.NAME+'" data-mdc-auto-init="MDCRipple"><i class="material-icons mdc-list-item__graphic">folder_shared</i><span>'+c.NAME+'</span></li>');
+                  });
+               }
+               mdc.autoInit(document.getElementById('container-list'), () => {});
+            } else {
+               var msg, actionText;
+               switch (lang) {
+                  case 'nl':
+                  msg = "Kan de ELO momenteel niet bereiken...";
+                  actionText = "Herladen";
+                  break;
+                  case 'de':
+                  msg = "ELO kann derzeit nicht erreicht werden...";
+                  actionText = "Neu laden";
+                  break;
+                  default:
+                  msg = "Cannot reach the ELO...";
+                  actionText = "Reload";
+               }
+               snackbar.show({
+                  message: msg,
+                  actionHandler: function() {
+                     location.reload();
+                  },
+                  actionText: actionText,
+                  multiline: true,
+                  actionOnBottom: true
+               });
+            }
          }
       });
    }
@@ -595,10 +652,45 @@
             append[k].after('<ul id="folder-'+parent+'" class="mdc-list uk-margin-left uk-padding-remove" style="display:none"></ul>');
             append[k] = $('#folder-'+parent);
          }
-         append[k].html('<span class="last-child uk-text-center uk-text-small uk-margin-left">Geen resultaten gevonden...</span>');
+         append[k].html('<span class="last-child uk-text-center uk-text-small uk-margin-left">' + printLanguages({
+            en: 'Loading...',
+            nl: 'Laden...',
+            de: 'Wird geladen...'
+         }) + '</span>');
       });
 
-      var url = '/services/'+(pages[tab].name == 'portfolio' ? 'my' + pages[tab].name : pages[tab].name)+'mobile.asmx/Load'+pages[tab].name.charAt(0).toUpperCase() + pages[tab].name.slice(1)+'Content';
+      var url = '/services/' + (pages[tab].name == 'portfolio' ? 'my' + pages[tab].name : pages[tab].name) + 'mobile.asmx/Load' + pages[tab].name.charAt(0).toUpperCase() + pages[tab].name.slice(1) + 'Content';
+
+      var timeout = 1;
+      if (!i) {
+         setTimeout(function () {
+            if (timeout) {
+               var msg, actionText;
+               switch (lang) {
+                  case 'nl':
+                  msg = "Het laden duurt langer dan verwacht...";
+                  actionText = "Herladen";
+                  break;
+                  case 'de':
+                  msg = "Das Laden dauert länger als erwartet...";
+                  actionText = "Neu laden";
+                  break;
+                  default:
+                  msg = "Loading takes longer than expected...";
+                  actionText = "Reload";
+               }
+               snackbar.show({
+                  message: msg,
+                  actionHandler: function() {
+                     location.reload();
+                  },
+                  actionText: actionText,
+                  multiline: true,
+                  actionOnBottom: true
+               });
+            }
+         }, 3000);
+      }
 
       $.ajax({
          url:  url,
@@ -610,10 +702,19 @@
             length: 100
          },
          success: function(data) {
+            timeout = 0;
+
+            append.forEach(function(a){
+               a.children('.last-child').html(printLanguages({
+                  en: 'No results found...',
+                  nl: 'Geen resultaten gevonden...',
+                  de: 'Keine Ergebnisse gefunden ...'
+               }));
+            });
             data[pages[tab].name.toUpperCase() + '_CONTENT'].forEach(function(item) {
                var properties = prepareItemType(item.URL, item.ITEMTYPE);
                var link = (item.hasOwnProperty('URL') && properties.display == 'link');
-               var html = (link ? '<a href="' + encodeURI(item.URL) + '" target="_blank" rel="noopener" ' : '<li data-display="' + properties.display + '"' + (item.hasOwnProperty('URL') ? 'data-url="' + encodeURI(item.URL) + '" ' : '')) + 'data-id="'+item.ID+'" data-name="'+item.NAME+'" data-type="' + item.ITEMTYPE + '" ' + (item.hasOwnProperty('STUDYROUTE_RESOURCE_ID') ? 'data-resource="' + item.STUDYROUTE_RESOURCE_ID + '" ' : '') + ' data-mdc-auto-init="MDCRipple" class="mdc-list-item ' + (hidenav && item.hasOwnProperty('HIDE_IN_NAVIGATION') && item.HIDE_IN_NAVIGATION ? 'folder-hidenav' : '') + '">' + (properties.display == 'folder' ? '<i class="material-icons mdc-list-item__graphic folder-icon-arrow">arrow_right</i><i class="material-icons mdc-list-item__graphic folder-icon-margin uk-margin-remove-left uk-position-relative"' : '<i class="material-icons mdc-list-item__graphic folder-icon-margin uk-position-relative"') + (properties.color && !properties.label ? ' style="color:' + properties.color + '"' : '') + '>' + properties.icon + (properties.color && properties.label ? '<span class="folder-icon-badge" style="background-color:' + properties.color + '">' + properties.label + '</span>' : '') + '</i><span class="folder-text-padding">' + item.NAME + '</span>' + (link ? '<i class="mdc-list-item__meta material-icons">launch</i></a>' : '</li>');
+               var html = (link ? '<a href="' + encodeURI(item.URL) + '" target="_blank" rel="noopener" ' : '<li data-display="' + properties.display + '"' + (item.hasOwnProperty('URL') ? 'data-url="' + encodeURI(item.URL) + '" ' : '')) + 'data-id="'+item.ID+'" data-name="'+item.NAME+'" data-type="' + item.ITEMTYPE + '" ' + (item.hasOwnProperty('STUDYROUTE_RESOURCE_ID') ? 'data-resource="' + item.STUDYROUTE_RESOURCE_ID + '" ' : '') + ' data-mdc-auto-init="MDCRipple" class="mdc-list-item uk-margin-remove-top ' + (hidenav && item.hasOwnProperty('HIDE_IN_NAVIGATION') && item.HIDE_IN_NAVIGATION ? 'folder-hidenav' : '') + '">' + (properties.display == 'folder' ? '<i class="material-icons mdc-list-item__graphic folder-icon-arrow">arrow_right</i><i class="material-icons mdc-list-item__graphic folder-icon-margin uk-margin-remove-left uk-position-relative"' : '<i class="material-icons mdc-list-item__graphic folder-icon-margin uk-position-relative"') + (properties.color && !properties.label ? ' style="color:' + properties.color + '"' : '') + '>' + properties.icon + (properties.color && properties.label ? '<span class="folder-icon-badge" style="background-color:' + properties.color + '">' + properties.label + '</span>' : '') + '</i><span class="folder-text-padding">' + item.NAME + '</span>' + (link ? '<i class="mdc-list-item__meta material-icons">launch</i></a>' : '</li>');
 
                append.forEach(function(a){
                   a.append(html);
@@ -632,6 +733,44 @@
             if (i) {
                i++;
                readFolderURL(npath, i);
+            } else {
+
+            }
+         },
+         error: function () {
+            timeout = 0;
+
+            append.forEach(function(a){
+               a.children('.last-child').html(printLanguages({
+                  en: 'No results found...',
+                  nl: 'Geen resultaten gevonden...',
+                  de: 'Keine Ergebnisse gefunden ...'
+               }));
+            });
+            if (!i) {
+               var msg, actionText;
+               switch (lang) {
+                  case 'nl':
+                  msg = "Kan de ELO momenteel niet bereiken...";
+                  actionText = "Herladen";
+                  break;
+                  case 'de':
+                  msg = "ELO kann derzeit nicht erreicht werden...";
+                  actionText = "Neu laden";
+                  break;
+                  default:
+                  msg = "Cannot reach the ELO...";
+                  actionText = "Reload";
+               }
+               snackbar.show({
+                  message: msg,
+                  actionHandler: function() {
+                     location.reload();
+                  },
+                  actionText: actionText,
+                  multiline: true,
+                  actionOnBottom: true
+               });
             }
          }
       });
