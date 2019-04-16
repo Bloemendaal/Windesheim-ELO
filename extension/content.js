@@ -307,7 +307,7 @@
          }
       },
       {
-         name: 'sharenet',
+         name: 'wip',
          title: 'WIP',
          icon: 'supervised_user_circle',
          display: {
