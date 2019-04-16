@@ -308,10 +308,10 @@
       },
       {
          name: 'sharenet',
-         title: 'Sharenet',
+         title: 'WIP',
          icon: 'supervised_user_circle',
          display: {
-            link: '//sharenet.windesheim.nl'
+            link: '//wip.windesheim.nl'
          }
       },
       {
