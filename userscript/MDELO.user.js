@@ -31,7 +31,7 @@
    var snackbar;
    var progressBar;
 
-   var favoriteCourses = 0;
+   var favoriteCourses = localStorage.getItem("favoriteCourses") == "-1" ? -1 : 0;
    var pages = [
       {
          name: 'courses',
@@ -65,6 +65,7 @@
             },
             fab: function() {
                favoriteCourses = Math.abs(favoriteCourses + 1) * -1;
+               localStorage.setItem("favoriteCourses", favoriteCourses.toString());
                setCoursesPortfolios(true, $('#search').is(':visible') ? $('#search').val() : '');
             }
          }
