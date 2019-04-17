@@ -516,10 +516,13 @@
             </button>
          </div>
       </div>
-      <div id="snackbar" class="mdc-snackbar" aria-live="assertive" aria-atomic="true" aria-hidden="true">
-         <div class="mdc-snackbar__text"></div>
-         <div class="mdc-snackbar__action-wrapper">
-            <button type="button" class="mdc-snackbar__action-button"></button>
+      <div class="mdc-snackbar" id="snackbar">
+         <div class="mdc-snackbar__surface">
+            <div class="mdc-snackbar__label" role="status" aria-live="polite"></div>
+            <div class="mdc-snackbar__actions">
+               <button type="button" class="mdc-button mdc-snackbar__action"></button>
+               <button class="mdc-icon-button mdc-snackbar__dismiss material-icons" title="Dismiss">close</button>
+            </div>
          </div>
       </div>
    </body>
