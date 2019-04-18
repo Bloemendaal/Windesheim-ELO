@@ -2,7 +2,7 @@
 (function() {
    'use strict';
 
-   var version = 1.59;
+   var version = 1.60;
    var tab     = false;
    var hidenav = false;
    var lang    = 0;

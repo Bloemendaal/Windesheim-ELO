@@ -8,7 +8,7 @@
 // @downloadURL   https://github.com/Bloemendaal/Windesheim-ELO/raw/master/userscript/MDELO.user.js
 // @updateURL     https://github.com/Bloemendaal/Windesheim-ELO/raw/master/userscript/MDELO.user.js
 // @supportURL    https://github.com/Bloemendaal/Windesheim-ELO/issues
-// @version       1.5.9
+// @version       1.6.0
 
 // @match         https://elo.windesheim.nl/*
 // @grant         none
@@ -21,7 +21,7 @@
 (function() {
    'use strict';
 
-   var version = 1.59;
+   var version = 1.60;
    var tab     = false;
    var hidenav = false;
    var lang    = 0;
