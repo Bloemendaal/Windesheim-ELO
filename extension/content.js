@@ -592,7 +592,7 @@
             if (data.status == 200) {
                if (courses) {
                   data.responseJSON.STUDYROUTES.forEach(function(c) {
-                     list.append('<li class="mdc-list-item uk-width-1-1 ' + (c.IS_FAVORITE ? 'uk-flex-first' : '') + '" data-id="'+c.ID+'" data-name="'+c.NAME+'" ' + (c.PREFACEPAGE_URL ? 'data-syllabus="' + encodeURI(c.PREFACEPAGE_URL) + '"' : '') + ' data-mdc-auto-init="MDCRipple"><div class="uk-margin-right"><div class="uk-inline uk-cover-container uk-border-circle mdc-list-item__image"><img src="'+c.IMAGEURL_24+'" alt="'+c.NAME+'" uk-cover></div></div><span>'+c.NAME+'</span><i class="mdc-icon-toggle mdc-theme--text-icon-on-background material-icons uk-margin-auto-left" role="button">'+(c.IS_FAVORITE ? 'star' : 'star_border')+'</i></li>');
+                     list.append('<li class="mdc-list-item uk-width-1-1 ' + (c.IS_FAVORITE ? 'uk-flex-first' : '') + '" data-id="'+c.ID+'" data-name="'+c.NAME+'" ' + (c.PREFACEPAGE_URL ? 'data-syllabus="' + encodeURI(c.PREFACEPAGE_URL) + '"' : '') + ' data-mdc-auto-init="MDCRipple"><div class="uk-margin-right"><div class="uk-inline uk-cover-container uk-border-circle mdc-list-item__image"><img src="'+c.IMAGEURL_24+'" alt="'+c.NAME+'" uk-cover></div></div><span>'+c.NAME+'</span><i class="mdc-icon-button mdc-theme--text-icon-on-background material-icons uk-margin-auto-left" role="button">'+(c.IS_FAVORITE ? 'star' : 'star_border')+'</i></li>');
                   });
                } else {
                   data.responseJSON.PORTFOLIOS.forEach(function(c) {
