@@ -2,7 +2,7 @@
 (function() {
    'use strict';
 
-   var version = 1.59;
+   var version = 1.60;
    var tab     = false;
    var hidenav = false;
    var lang    = 0;
@@ -1454,7 +1454,7 @@
          var title = $this.data('name');
          var url   = $this.data('url');
 
-         setPage(7, title, true);
+         setPage(6, title, true);
          history.pushState({ title: title }, title, '/' + pages[tab].name + '/' + encodeURIComponent(title) + '/' + encodeURIComponent(url));
          setIframe(url);
          $('#nav-menu-list > li').removeClass('mdc-list-item--activated');
