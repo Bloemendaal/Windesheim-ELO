@@ -1,0 +1,31 @@
+{
+  "name": "windesheim-elo",
+  "version": "1.6.0",
+  "description": "Verander de Windesheim ELO in een Material Design applicatie!",
+  "directories": {
+    "doc": "docs"
+  },
+  "dependencies": {
+    "material-components-web": "^2.2.0",
+    "uikit": "^3.1.5"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bloemendaal/Windesheim-ELO.git"
+  },
+  "keywords": [
+    "windesheim",
+    "elo",
+    "material-design",
+    "javascript",
+    "chrome-extension",
+    "userscript"
+  ],
+  "author": "Casper Bloemendaal",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Bloemendaal/Windesheim-ELO/issues"
+  },
+  "homepage": "https://github.com/Bloemendaal/Windesheim-ELO#readme"
+}
