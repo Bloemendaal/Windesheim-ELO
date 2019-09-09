@@ -418,6 +418,13 @@
                display: 'include'
             }
          ]
+      },
+      {
+         id: {
+            studyroute: 11
+         },
+         icon: 'web',
+         display: 'iframe'
       }
    ];
    var languages = {
@@ -706,6 +713,9 @@
                }));
             });
             data[pages[tab].name.toUpperCase() + '_CONTENT'].forEach(function(item) {
+               if (item.hasOwnProperty('STUDYROUTE_ITEM_ID')) {
+                  item.URL = 'https://elo.windesheim.nl/Pages/StudyRouteSCOPlayer/StudyRouteSCOPlayer.aspx?FK_ID=' + item.STUDYROUTE_ITEM_ID;
+               }
                var properties = prepareItemType(item.URL, item.ITEMTYPE);
                var link = (item.hasOwnProperty('URL') && properties.display == 'link');
                var html = (link ? '<a href="' + encodeURI(item.URL) + '" target="_blank" rel="noopener" ' : '<li data-display="' + properties.display + '"' + (item.hasOwnProperty('URL') ? 'data-url="' + encodeURI(item.URL) + '" ' : '')) + 'data-id="'+item.ID+'" data-name="'+item.NAME+'" data-type="' + item.ITEMTYPE + '" ' + (item.hasOwnProperty('STUDYROUTE_RESOURCE_ID') ? 'data-resource="' + item.STUDYROUTE_RESOURCE_ID + '" ' : '') + ' data-mdc-auto-init="MDCRipple" class="mdc-list-item uk-margin-remove-top ' + (hidenav && item.hasOwnProperty('HIDE_IN_NAVIGATION') && item.HIDE_IN_NAVIGATION ? 'folder-hidenav' : '') + '">' + (properties.display == 'folder' ? '<i class="material-icons mdc-list-item__graphic folder-icon-arrow">arrow_right</i><i class="material-icons mdc-list-item__graphic folder-icon-margin uk-margin-remove-left uk-position-relative"' : '<i class="material-icons mdc-list-item__graphic folder-icon-margin uk-position-relative"') + (properties.color && !properties.label ? ' style="color:' + properties.color + '"' : '') + '>' + properties.icon + (properties.color && properties.label ? '<span class="folder-icon-badge" style="background-color:' + properties.color + '">' + properties.label + '</span>' : '') + '</i><span class="folder-text-padding">' + item.NAME + '</span>' + (link ? '<i class="mdc-list-item__meta material-icons">launch</i></a>' : '</li>');
