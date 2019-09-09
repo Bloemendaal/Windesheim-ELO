@@ -8,7 +8,7 @@
 // @downloadURL   https://github.com/Bloemendaal/Windesheim-ELO/raw/master/userscript/MDELO.user.js
 // @updateURL     https://github.com/Bloemendaal/Windesheim-ELO/raw/master/userscript/MDELO.user.js
 // @supportURL    https://github.com/Bloemendaal/Windesheim-ELO/issues
-// @version       1.6.0
+// @version       1.6.1
 
 // @match         https://elo.windesheim.nl/*
 // @grant         none
@@ -21,7 +21,7 @@
 (function() {
    'use strict';
 
-   var version = 1.60;
+   var version = 1.61;
    var tab     = false;
    var hidenav = false;
    var lang    = 0;
@@ -437,6 +437,13 @@
                display: 'include'
             }
          ]
+      },
+      {
+         id: {
+            studyroute: 11
+         },
+         icon: 'web',
+         display: 'iframe'
       }
    ];
    var languages = {
@@ -611,7 +618,7 @@
             if (data.status == 200) {
                if (courses) {
                   data.responseJSON.STUDYROUTES.forEach(function(c) {
-                     list.append('<li class="mdc-list-item uk-width-1-1 ' + (c.IS_FAVORITE ? 'uk-flex-first' : '') + '" data-id="'+c.ID+'" data-name="'+c.NAME+'" ' + (c.PREFACEPAGE_URL ? 'data-syllabus="' + encodeURI(c.PREFACEPAGE_URL) + '"' : '') + ' data-mdc-auto-init="MDCRipple"><div class="uk-margin-right"><div class="uk-inline uk-cover-container uk-border-circle mdc-list-item__image"><img src="'+c.IMAGEURL_24+'" alt="'+c.NAME+'" uk-cover></div></div><span>'+c.NAME+'</span><i class="mdc-icon-button mdc-theme--text-icon-on-background material-icons uk-margin-auto-left" role="button">'+(c.IS_FAVORITE ? 'star' : 'star_border')+'</i></li>');
+                     list.append('<li class="mdc-list-item uk-width-1-1 ' + (c.IS_FAVORITE ? 'uk-flex-first' : '') + '" data-id="'+c.ID+'" data-name="'+c.NAME+'" ' + (c.PREFACEPAGE_URL ? 'data-syllabus="' + encodeURI(c.PREFACEPAGE_URL) + '"' : '') + ' data-mdc-auto-init="MDCRipple"><div class="uk-margin-right"><div class="uk-inline uk-cover-container uk-border-circle mdc-list-item__image uk-flex">' + (c.IMAGEURL_24 ? '<img src="'+c.IMAGEURL_24+'" alt="'+c.NAME+'" uk-cover>' : '<i class="material-icons mdc-list-item__graphic" style="margin:auto">book</i>') + '</div></div><span>'+c.NAME+'</span><i class="mdc-icon-button mdc-theme--text-icon-on-background material-icons uk-margin-auto-left" role="button">'+(c.IS_FAVORITE ? 'star' : 'star_border')+'</i></li>');
                   });
                } else {
                   data.responseJSON.PORTFOLIOS.forEach(function(c) {
@@ -725,6 +732,9 @@
                }));
             });
             data[pages[tab].name.toUpperCase() + '_CONTENT'].forEach(function(item) {
+               if (item.hasOwnProperty('IS_SCO') && item.IS_SCO == 1) {
+                  item.URL = 'https://elo.windesheim.nl/Pages/StudyRouteSCOPlayer/StudyRouteSCOPlayer.aspx?FK_ID=' + item.STUDYROUTE_ITEM_ID;
+               }
                var properties = prepareItemType(item.URL, item.ITEMTYPE);
                var link = (item.hasOwnProperty('URL') && properties.display == 'link');
                var html = (link ? '<a href="' + encodeURI(item.URL) + '" target="_blank" rel="noopener" ' : '<li data-display="' + properties.display + '"' + (item.hasOwnProperty('URL') ? 'data-url="' + encodeURI(item.URL) + '" ' : '')) + 'data-id="'+item.ID+'" data-name="'+item.NAME+'" data-type="' + item.ITEMTYPE + '" ' + (item.hasOwnProperty('STUDYROUTE_RESOURCE_ID') ? 'data-resource="' + item.STUDYROUTE_RESOURCE_ID + '" ' : '') + ' data-mdc-auto-init="MDCRipple" class="mdc-list-item uk-margin-remove-top ' + (hidenav && item.hasOwnProperty('HIDE_IN_NAVIGATION') && item.HIDE_IN_NAVIGATION ? 'folder-hidenav' : '') + '">' + (properties.display == 'folder' ? '<i class="material-icons mdc-list-item__graphic folder-icon-arrow">arrow_right</i><i class="material-icons mdc-list-item__graphic folder-icon-margin uk-margin-remove-left uk-position-relative"' : '<i class="material-icons mdc-list-item__graphic folder-icon-margin uk-position-relative"') + (properties.color && !properties.label ? ' style="color:' + properties.color + '"' : '') + '>' + properties.icon + (properties.color && properties.label ? '<span class="folder-icon-badge" style="background-color:' + properties.color + '">' + properties.label + '</span>' : '') + '</i><span class="folder-text-padding">' + item.NAME + '</span>' + (link ? '<i class="mdc-list-item__meta material-icons">launch</i></a>' : '</li>');

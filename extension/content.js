@@ -2,7 +2,7 @@
 (function() {
    'use strict';
 
-   var version = 1.60;
+   var version = 1.61;
    var tab     = false;
    var hidenav = false;
    var lang    = 0;
@@ -599,7 +599,7 @@
             if (data.status == 200) {
                if (courses) {
                   data.responseJSON.STUDYROUTES.forEach(function(c) {
-                     list.append('<li class="mdc-list-item uk-width-1-1 ' + (c.IS_FAVORITE ? 'uk-flex-first' : '') + '" data-id="'+c.ID+'" data-name="'+c.NAME+'" ' + (c.PREFACEPAGE_URL ? 'data-syllabus="' + encodeURI(c.PREFACEPAGE_URL) + '"' : '') + ' data-mdc-auto-init="MDCRipple"><div class="uk-margin-right"><div class="uk-inline uk-cover-container uk-border-circle mdc-list-item__image"><img src="'+c.IMAGEURL_24+'" alt="'+c.NAME+'" uk-cover></div></div><span>'+c.NAME+'</span><i class="mdc-icon-button mdc-theme--text-icon-on-background material-icons uk-margin-auto-left" role="button">'+(c.IS_FAVORITE ? 'star' : 'star_border')+'</i></li>');
+                     list.append('<li class="mdc-list-item uk-width-1-1 ' + (c.IS_FAVORITE ? 'uk-flex-first' : '') + '" data-id="'+c.ID+'" data-name="'+c.NAME+'" ' + (c.PREFACEPAGE_URL ? 'data-syllabus="' + encodeURI(c.PREFACEPAGE_URL) + '"' : '') + ' data-mdc-auto-init="MDCRipple"><div class="uk-margin-right"><div class="uk-inline uk-cover-container uk-border-circle mdc-list-item__image uk-flex">' + (c.IMAGEURL_24 ? '<img src="'+c.IMAGEURL_24+'" alt="'+c.NAME+'" uk-cover>' : '<i class="material-icons mdc-list-item__graphic" style="margin:auto">book</i>') + '</div></div><span>'+c.NAME+'</span><i class="mdc-icon-button mdc-theme--text-icon-on-background material-icons uk-margin-auto-left" role="button">'+(c.IS_FAVORITE ? 'star' : 'star_border')+'</i></li>');
                   });
                } else {
                   data.responseJSON.PORTFOLIOS.forEach(function(c) {
@@ -713,7 +713,7 @@
                }));
             });
             data[pages[tab].name.toUpperCase() + '_CONTENT'].forEach(function(item) {
-               if (item.hasOwnProperty('STUDYROUTE_ITEM_ID')) {
+               if (item.hasOwnProperty('IS_SCO') && item.IS_SCO == 1) {
                   item.URL = 'https://elo.windesheim.nl/Pages/StudyRouteSCOPlayer/StudyRouteSCOPlayer.aspx?FK_ID=' + item.STUDYROUTE_ITEM_ID;
                }
                var properties = prepareItemType(item.URL, item.ITEMTYPE);
