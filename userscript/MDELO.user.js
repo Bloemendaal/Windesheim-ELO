@@ -8,7 +8,7 @@
 // @downloadURL   https://github.com/Bloemendaal/Windesheim-ELO/raw/master/userscript/MDELO.user.js
 // @updateURL     https://github.com/Bloemendaal/Windesheim-ELO/raw/master/userscript/MDELO.user.js
 // @supportURL    https://github.com/Bloemendaal/Windesheim-ELO/issues
-// @version       1.6.1
+// @version       1.6.2
 
 // @match         https://elo.windesheim.nl/*
 // @grant         none
@@ -21,7 +21,7 @@
 (function() {
    'use strict';
 
-   var version = 1.61;
+   var version = 1.62;
    var tab     = false;
    var hidenav = false;
    var lang    = 0;
@@ -57,7 +57,7 @@
             container: function(t, e) {
                var $this = $(t);
                var id = $this.data('id');
-               if (e.target.nodeName == 'I') {
+               if (e.target.classList.contains('mdc-icon-button')) {
                   favoriteCourse(id, e, $this);
                } else {
                   prepareFolder(1, id, $this.data('name'), $this.data('syllabus'));
