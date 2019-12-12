@@ -2,7 +2,7 @@
 (function() {
    'use strict';
 
-   var version = 1.62;
+   var version = 1.70;
    var tab     = false;
    var hidenav = false;
    var lang    = 0;
@@ -502,7 +502,7 @@
 
          if (!ignoreState) {
             var state = { title: t };
-            history.pushState(state, t, '/' + pages[k].name);
+            history.pushState(state, t, '#' + pages[k].name);
             path = preparePath();
          }
 
@@ -831,7 +831,7 @@
                if (e && ((cpath != itemID && itemID != -1) || (cpath != courseID && itemID == -1))) {
                   npath = npath[1].split('-');
                   npath.pop();
-                  history.pushState({ title: title }, title, '/' + pages[tab].name + '/' + npath.join('-') + '-' + courseID + (itemID == -1 ? '' : '/' + prepareItemPath($thisnav)));
+                  history.pushState({ title: title }, title, '#' + pages[tab].name + '/' + npath.join('-') + '-' + courseID + (itemID == -1 ? '' : '/' + prepareItemPath($thisnav)));
                   path = preparePath();
                }
 
@@ -859,7 +859,7 @@
             if (e && ((cpath != itemID && itemID != -1) || (cpath != courseID && itemID == -1))) {
                npath = npath[1].split('-');
                npath.pop();
-               history.pushState({ title: title }, title, '/' + pages[tab].name + '/' + npath.join('-') + '-' + courseID + (itemID == -1 ? '' : '/' + prepareItemPath($thisnav)));
+               history.pushState({ title: title }, title, '#' + pages[tab].name + '/' + npath.join('-') + '-' + courseID + (itemID == -1 ? '' : '/' + prepareItemPath($thisnav)));
                path = preparePath();
             }
 
@@ -928,7 +928,7 @@
 
       history.pushState({
          title: title
-      }, title, '/' + pages[tab].name + '/' + encodeURIComponent(title) + '-' + id);
+      }, title, '#' + pages[tab].name + '/' + encodeURIComponent(title) + '-' + id);
       path = preparePath();
 
       setFolder(append, id);
@@ -1073,10 +1073,10 @@
    }
 
    function preparePath(toLower = true) {
-      if (toLower) {
-         return location.pathname.toLowerCase().split('?')[0].replace(/^\/+|\/+$/g, '').split('/');
+      if (location.pathname == '/Start.aspx') {
+         return (toLower ? location.hash.toLowerCase() : location.hash).substr(1).replace(/^\/+|\/+$/g, '').split('/');
       } else {
-         return location.pathname.split('?')[0].replace(/^\/+|\/+$/g, '').split('/');
+         return (toLower ? location.pathname.toLowerCase() : location.pathname).split('?')[0].replace(/^\/+|\/+$/g, '').split('/');
       }
    }
 
@@ -1220,7 +1220,7 @@
             $('#nav-menu-list > li[data-id="' + k + '"]').addClass('mdc-list-item--activated');
          }
       } else if (['security', 'cms', 'services'].indexOf(npath[0]) < 0) {
-         location.replace('/Security/SAML2/Login.aspx?redirectUrl=' + encodeURIComponent(location.origin + '/' + pages[0].name));
+         location.replace('/Security/SAML2/Login.aspx?redirectUrl=' + encodeURIComponent(location.origin + '/Start.aspx#' + pages[0].name));
       }
 
       path = npath;
@@ -1465,7 +1465,7 @@
          var url   = $this.data('url');
 
          setPage(6, title, true);
-         history.pushState({ title: title }, title, '/' + pages[tab].name + '/' + encodeURIComponent(title) + '/' + encodeURIComponent(url));
+         history.pushState({ title: title }, title, '#' + pages[tab].name + '/' + encodeURIComponent(title) + '/' + encodeURIComponent(url));
          setIframe(url);
          $('#nav-menu-list > li').removeClass('mdc-list-item--activated');
          if ($this.hasClass('mdc-list-item--activated')) {
