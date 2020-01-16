@@ -2,7 +2,7 @@
 (function() {
    'use strict';
 
-   var version = 1.70;
+   var version = 1.80;
    var tab     = false;
    var hidenav = false;
    var lang    = 0;
@@ -61,13 +61,29 @@
          showInNav: false,
          display: {
             nav: 'folder',
-            container: 'folder'
+            container: 'folder',
+            fab: 'save_alt'
          },
          functions: {
             navback: function(){
                $('#nav-menu-list > li').removeClass('mdc-list-item--activated');
                $('#nav-menu-list > li[data-id="0"]').addClass('mdc-list-item--activated');
                setPage(0);
+            },
+            fab: function () {
+               var currentPath = preparePath(false);
+               var courseID = currentPath[1].split('-');
+               var subFolder = currentPath.length > 2 ? currentPath[currentPath.length - 1] : -1;
+               getFolderContents(courseID[courseID.length - 1], subFolder)
+               .then(async (result) => {
+                  console.log(result);
+                  var zip = new JSZip();
+                  await generateZip(result, zip);
+                  zip.generateAsync({type:"blob"})
+                  .then((content) => {
+                     saveAs(content, $('#title').text() + ".zip");
+                  });
+               });
             }
          }
       },
@@ -162,28 +178,6 @@
             }
          }
       },
-      // {
-      //    name: 'project',
-      //    title: {
-      //       en: 'Project',
-      //       nl: 'Project',
-      //       de: 'Projekte'
-      //    },
-      //    icon: 'extension',
-      //    display: {
-      //       nav: 'menu',
-      //       container: 'list'
-      //    },
-      //    functions: {
-      //       onload: function(){
-      //          $('#container-list > ul').html(printLanguages({
-      //             en: 'This part has yet to be developed. Please try again later.',
-      //             nl: 'Dit onderdeel moet nog worden ontwikkeld. Probeer het later nog eens.',
-      //             de: 'Dieser Teil muss noch entwickelt werden. Bitte versuchen Sie es sp&auml;ter erneut.'
-      //          }));
-      //       }
-      //    }
-      // },
       {
          name: 'forum',
          title: 'Forum',
@@ -457,6 +451,115 @@
       }
    };
 
+   async function generateZip(result, folder) {
+      for (var i = 0; i < result.length; i++) {
+         if (result[i].STUDYROUTE_CONTENT) {
+            await generateZip(result[i].STUDYROUTE_CONTENT, folder.folder(result[i].NAME));
+         } else if (result[i].URL) {
+            const file = await fetch(result[i].URL).then((response) => {
+               if (response.ok) {
+                  return response.blob();
+               }
+
+               return null;
+            }).catch((error) => {
+               return null;
+            });
+
+            if (file) {
+               var name = result[i].NAME;
+               var exts = result[i].URL.split('.');
+               if (exts.length > 1) {
+                  var ext = exts.pop();
+                  if (ext != result[i].NAME.split('.').pop()) {
+                     name += '.' + ext;
+                  }
+               }
+
+               folder.file(name, file);
+            }
+         }
+      }
+   }
+   async function getFolderContents(courseID, parent = -1) {
+      var timeout = 1;
+      setTimeout(function () {
+         if (timeout) {
+            eloTimeout();
+         }
+      }, 3000);
+
+      var url = new URL('/services/' + (pages[tab].name == 'portfolio' ? 'my' + pages[tab].name : pages[tab].name) + 'mobile.asmx/Load' + pages[tab].name.charAt(0).toUpperCase() + pages[tab].name.slice(1) + 'Content', location.origin),
+      params = {
+         [pages[tab].name + 'id']: courseID,
+         parentid: parent,
+         start: 0,
+         length: 1000
+      };
+      Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+
+      return await fetch(url)
+      .then((response) => {
+         return response.json();
+      })
+      .then(async (myJson) => {
+         timeout = 0;
+
+         for (var i = 0; i < myJson.STUDYROUTE_CONTENT.length; i++) {
+            if (prepareItemType(myJson.STUDYROUTE_CONTENT[i].URL, myJson.STUDYROUTE_CONTENT[i].ITEMTYPE).display == 'folder') {
+               myJson.STUDYROUTE_CONTENT[i].STUDYROUTE_CONTENT = await getFolderContents(courseID, myJson.STUDYROUTE_CONTENT[i].ID);
+            }
+         }
+
+         return myJson.STUDYROUTE_CONTENT;
+      });
+   }
+
+   function eloError() {
+      var msg, actionText;
+      switch (lang) {
+         case 'nl':
+         msg = "Kan de ELO momenteel niet bereiken...";
+         actionText = "Herladen";
+         break;
+         case 'de':
+         msg = "ELO kann derzeit nicht erreicht werden...";
+         actionText = "Neu laden";
+         break;
+         default:
+         msg = "Cannot reach the ELO...";
+         actionText = "Reload";
+      }
+      eloSnackbar(msg, actionText);
+   }
+   function eloTimeout() {
+      var msg, actionText;
+      switch (lang) {
+         case 'nl':
+         msg = "Het laden duurt langer dan verwacht...";
+         actionText = "Herladen";
+         break;
+         case 'de':
+         msg = "Das Laden dauert länger als erwartet...";
+         actionText = "Neu laden";
+         break;
+         default:
+         msg = "Loading takes longer than expected...";
+         actionText = "Reload";
+      }
+      eloSnackbar(msg, actionText);
+   }
+   function eloSnackbar(msg, actionText) {
+      snackbar.show({
+         message: msg,
+         actionHandler: function() {
+            location.reload();
+         },
+         actionText: actionText,
+         multiline: true,
+         actionOnBottom: true
+      });
+   }
 
    function printLanguages(o) {
       if (typeof o == 'object') {
@@ -548,29 +651,7 @@
       }, 250);
       setTimeout(function () {
          if (timeout) {
-            var msg, actionText;
-            switch (lang) {
-               case 'nl':
-               msg = "Het laden duurt langer dan verwacht...";
-               actionText = "Herladen";
-               break;
-               case 'de':
-               msg = "Das Laden dauert länger als erwartet...";
-               actionText = "Neu laden";
-               break;
-               default:
-               msg = "Loading takes longer than expected...";
-               actionText = "Reload";
-            }
-            snackbar.show({
-               message: msg,
-               actionHandler: function() {
-                  location.reload();
-               },
-               actionText: actionText,
-               multiline: true,
-               actionOnBottom: true
-            });
+            eloTimeout();
          }
       }, 3000);
 
@@ -608,29 +689,7 @@
                }
                mdc.autoInit(document.getElementById('container-list'), () => {});
             } else {
-               var msg, actionText;
-               switch (lang) {
-                  case 'nl':
-                  msg = "Kan de ELO momenteel niet bereiken...";
-                  actionText = "Herladen";
-                  break;
-                  case 'de':
-                  msg = "ELO kann derzeit nicht erreicht werden...";
-                  actionText = "Neu laden";
-                  break;
-                  default:
-                  msg = "Cannot reach the ELO...";
-                  actionText = "Reload";
-               }
-               snackbar.show({
-                  message: msg,
-                  actionHandler: function() {
-                     location.reload();
-                  },
-                  actionText: actionText,
-                  multiline: true,
-                  actionOnBottom: true
-               });
+               eloError();
             }
          }
       });
@@ -666,29 +725,7 @@
       if (!i) {
          setTimeout(function () {
             if (timeout) {
-               var msg, actionText;
-               switch (lang) {
-                  case 'nl':
-                  msg = "Het laden duurt langer dan verwacht...";
-                  actionText = "Herladen";
-                  break;
-                  case 'de':
-                  msg = "Das Laden dauert länger als erwartet...";
-                  actionText = "Neu laden";
-                  break;
-                  default:
-                  msg = "Loading takes longer than expected...";
-                  actionText = "Reload";
-               }
-               snackbar.show({
-                  message: msg,
-                  actionHandler: function() {
-                     location.reload();
-                  },
-                  actionText: actionText,
-                  multiline: true,
-                  actionOnBottom: true
-               });
+               eloTimeout();
             }
          }, 3000);
       }
@@ -752,29 +789,7 @@
                }));
             });
             if (!i) {
-               var msg, actionText;
-               switch (lang) {
-                  case 'nl':
-                  msg = "Kan de ELO momenteel niet bereiken...";
-                  actionText = "Herladen";
-                  break;
-                  case 'de':
-                  msg = "ELO kann derzeit nicht erreicht werden...";
-                  actionText = "Neu laden";
-                  break;
-                  default:
-                  msg = "Cannot reach the ELO...";
-                  actionText = "Reload";
-               }
-               snackbar.show({
-                  message: msg,
-                  actionHandler: function() {
-                     location.reload();
-                  },
-                  actionText: actionText,
-                  multiline: true,
-                  actionOnBottom: true
-               });
+               eloError();
             }
          }
       });
@@ -847,10 +862,9 @@
                      nl: 'Map omhoog',
                      de: '&Uuml;bergeordneter Ordner'
                   }) + '</span></li><hr class="mdc-list-divider">');
-                  if (pages[tab].name == 'portfolio') {
-                     setPage({fab: 'save_alt'});
-                  } else { setPage({fab: false}); }
-               } else { setPage({fab: false}); }
+               }
+
+               setPage({fab: pages[tab].name == 'portfolio' && itemID == -1 ? false : 'save_alt'});
             }
          } else {
             $('#nav-folder-list li.mdc-list-item').removeClass('mdc-list-item--activated');
@@ -1115,15 +1129,7 @@
                   msg = "An error occurred. Please try again later.";
                   actionText = "Reload";
                }
-               snackbar.show({
-                  message: msg,
-                  actionHandler: function() {
-                     location.reload();
-                  },
-                  actionText: actionText,
-                  multiline: true,
-                  actionOnBottom: true
-               });
+               eloSnackbar(msg, actionText);
             }
          }
       });
