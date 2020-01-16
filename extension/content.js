@@ -286,6 +286,20 @@
          }
       },
       {
+         name: 'logout',
+         title: {
+            en: 'Logout',
+            nl: 'Uitloggen',
+            de: 'Ausloggen'
+         },
+         icon: 'logout',
+         display: {
+            link:'//liveadminwindesheim.sharepoint.com/sites/wip/_layouts/15/SignOut.aspx',
+            //link: 'https://login.windows.net/common/oauth2/logout?response_mode=form_post&post_logout_redirect_uri=https%3A%2F%2Felo.windesheim.nl',
+            launch: false
+         }
+      },
+      {
          name: 'notification',
          title: {
             en: 'Notification',
@@ -304,7 +318,8 @@
          title: 'Educator',
          icon: 'account_circle',
          display: {
-            link: '//educator.windesheim.nl'
+            link: '//educator.windesheim.nl',
+            launch: true
          }
       },
       {
@@ -312,7 +327,8 @@
          title: 'WIP',
          icon: 'supervised_user_circle',
          display: {
-            link: '//wip.windesheim.nl'
+            link: '//wip.windesheim.nl',
+            launch: true
          }
       },
       {
@@ -324,7 +340,8 @@
          },
          icon: 'add_circle',
          display: {
-            link: '//windesheim.topdesk.net/tas/public/ssp/'
+            link: '//windesheim.topdesk.net/tas/public/ssp/',
+            launch: true
          }
       },
       {
@@ -336,7 +353,8 @@
          },
          icon: 'bug_report',
          display: {
-            link: '//github.com/Bloemendaal/Windesheim-ELO/issues/new'
+            link: '//github.com/Bloemendaal/Windesheim-ELO/issues/new',
+            launch: true
          }
       }
    ];
@@ -1311,7 +1329,8 @@
             if (pages[k].display == 'hr') {
                menu.append('<li role="separator" class="mdc-list-divider"></li>');
             } else if (pages[k].display.hasOwnProperty('link')) {
-               menu.append('<a href="' + pages[k].display.link + '" target="_blank" rel="noopener" class="mdc-list-item" data-mdc-auto-init="MDCRipple" tabindex="0" aria-selected="true" aria-expanded="true"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">'+pages[k].icon+'</i>'+printLanguages(pages[k].title)+'<i class="mdc-list-item__meta material-icons">launch</i></a>')
+               var launch = pages[k].display.launch || false;
+               menu.append('<a href="' + pages[k].display.link + '" ' + (launch ? 'target="_blank" rel="noopener"' : '') + ' class="mdc-list-item" data-mdc-auto-init="MDCRipple" tabindex="0" aria-selected="true" aria-expanded="true"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">'+pages[k].icon+'</i>'+printLanguages(pages[k].title) + (launch ? '<i class="mdc-list-item__meta material-icons">launch</i>' : '') + '</a>');
             } else {
                menu.append('<li class="mdc-list-item" data-id="'+k+'" data-mdc-auto-init="MDCRipple" tabindex="0" aria-selected="true" aria-expanded="true"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">'+pages[k].icon+'</i>'+printLanguages(pages[k].title)+'</li>');
             }

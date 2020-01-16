@@ -305,6 +305,18 @@
          }
       },
       {
+         name: 'logout',
+         title: {
+            en: 'Logout',
+            nl: 'Uitloggen',
+            de: 'Ausloggen'
+         },
+         icon: 'logout',
+         display: {
+            link: 'https://login.windows.net/common/oauth2/logout?post_logout_redirect_uri=https%3A%2F%2Felo.windesheim.nl'
+         }
+      },
+      {
          name: 'notification',
          title: {
             en: 'Notification',
@@ -1330,7 +1342,8 @@
             if (pages[k].display == 'hr') {
                menu.append('<li role="separator" class="mdc-list-divider"></li>');
             } else if (pages[k].display.hasOwnProperty('link')) {
-               menu.append('<a href="' + pages[k].display.link + '" target="_blank" rel="noopener" class="mdc-list-item" data-mdc-auto-init="MDCRipple" tabindex="0" aria-selected="true" aria-expanded="true"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">'+pages[k].icon+'</i>'+printLanguages(pages[k].title)+'<i class="mdc-list-item__meta material-icons">launch</i></a>')
+               var launch = pages[k].display.launch || false;
+               menu.append('<a href="' + pages[k].display.link + '" ' + (launch ? 'target="_blank" rel="noopener"' : '') + ' class="mdc-list-item" data-mdc-auto-init="MDCRipple" tabindex="0" aria-selected="true" aria-expanded="true"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">'+pages[k].icon+'</i>'+printLanguages(pages[k].title) + (launch ? '<i class="mdc-list-item__meta material-icons">launch</i>' : '') + '</a>');
             } else {
                menu.append('<li class="mdc-list-item" data-id="'+k+'" data-mdc-auto-init="MDCRipple" tabindex="0" aria-selected="true" aria-expanded="true"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">'+pages[k].icon+'</i>'+printLanguages(pages[k].title)+'</li>');
             }
