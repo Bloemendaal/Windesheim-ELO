@@ -322,6 +322,11 @@ ul.mdc-list:not(.mdc-list--non-interactive) .mdc-list-item {
 .darktheme .mdc-linear-progress__buffer {
     background: rgba(0,0,0,.12);
 }
+
+.darktheme .mdc-linear-progress__bar-inner {
+    background: rgb(255, 255, 255);
+}
+
 .darktheme #drawer, .darktheme .mdc-fab, .darktheme .mdc-menu-surface, .darktheme #handin-upload, .darktheme #handin-review, .darktheme {
     background: #333;
 }
