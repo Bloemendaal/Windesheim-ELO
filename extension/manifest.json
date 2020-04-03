@@ -3,7 +3,7 @@
    "name": "__MSG_appName__",
    "description": "__MSG_appDesc__",
    "author": "Casper Bloemendaal",
-   "version": "1.8.1",
+   "version": "1.8.2",
    "icons": {
       "16":  "icon/icon16.png",
       "48":  "icon/icon48.png",
