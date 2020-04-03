@@ -11,6 +11,7 @@
    var upload;
    var snackbar;
    var progressBar;
+   var progressBarParent;
 
    var favoriteCourses = localStorage.getItem("favoriteCourses") == "-1" ? -1 : 0;
    var pages = [
@@ -1079,6 +1080,7 @@
             if (submit) {
                dProperties = prepareItemType(data.HANDIN_URL, data.HANDIN_TYPE, 'handin');
 
+               progressBarParent.addClass('mdc-linear-progress--closed');
                progressBar.css('transform', 'scaleX(1)');
                sbtn.hide();
                doc.show();
@@ -1090,11 +1092,13 @@
                   assignment: data.ID
                };
 
+               progressBarParent.addClass('mdc-linear-progress--closed');
                progressBar.css('transform', 'scaleX(1)');
                sbtn.show();
                doc.show();
                doc.children('div').html(prepareHandinHTML(data.INITIAL_DOCUMENT_URL, data.INITIAL_DOCUMENT_NAME, dProperties));
             } else {
+               progressBarParent.addClass('mdc-linear-progress--closed');
                progressBar.css('transform', 'scaleX(0)');
                doc.hide();
                sbtn.hide();
@@ -1516,17 +1520,21 @@
 
       // File upload
       progressBar = $('#handin-progress > .mdc-linear-progress__bar.mdc-linear-progress__primary-bar');
+      progressBarParent = $('#handin-progress');
       upload = UIkit.upload('#handin-upload', {
          url: '/Services/Assignment.asmx/UploadTempFile',
          multiple: true,
          concurrent: 1,
          loadStart: function (e) {
+            progressBarParent.removeClass('mdc-linear-progress--closed');
             progressBar.css('transform', 'scaleX(0)');
          },
          progress: function (e) {
+            progressBarParent.removeClass('mdc-linear-progress--closed');
             progressBar.css('transform', 'scaleX('+(e.loaded/e.total).toFixed(2)+')');
          },
          loadEnd: function (e) {
+            progressBarParent.removeClass('mdc-linear-progress--closed');
             progressBar.css('transform', 'scaleX(1)');
          },
          completeAll: function() {
