@@ -2,7 +2,7 @@
 (function() {
    'use strict';
 
-   var version = 1.82;
+   var version = 1.83;
    var tab     = false;
    var hidenav = false;
    var lang    = 0;
@@ -443,6 +443,14 @@
          },
          icon: 'web',
          display: 'iframe'
+      },
+      {
+         id: {
+            studyroute: 12,
+            portfolio: 0,
+            handin: -1
+         },
+         icon: 'feedback'
       }
    ];
    var languages = {
@@ -1070,6 +1078,13 @@
                review.children('div').html(prepareHandinHTML(data.REVIEW_URL, data.REVIEW_NAME, rProperties));
             } else { review.hide(); }
 
+            if (data.hasOwnProperty('REVIEW')) {
+               var rProperties = prepareItemType(null, data.REVIEW_TYPE, 'handin');
+
+               review.show();
+               review.children('div').html(prepareHandinHTML('', data.REVIEW, rProperties));
+            } else { review.hide(); }
+
             if (data.hasOwnProperty('INITIAL_DOCUMENT_URL') && (submit || data.INITIAL_DOCUMENT_STATUS == -1)) {
                var sProperties = prepareItemType(data.INITIAL_DOCUMENT_URL, data.INITIAL_DOCUMENT_TYPE, 'handin');
 
@@ -1109,7 +1124,7 @@
    }
 
    function prepareHandinHTML(url, name, properties) {
-      return (properties.hasOwnProperty('delete') ? '<div class="uk-grid uk-grid-collapse"><div class="uk-width-expand">' : '') + '<a href="' + encodeURI(url) + '" target="_blank" rel="noopener" data-mdc-auto-init="MDCRipple" class="mdc-list-item"><i class="material-icons mdc-list-item__graphic uk-position-relative"' + (properties.color && !properties.label ? ' style="color:' + properties.color + '"' : '') + '>' + properties.icon + (properties.color && properties.label ? '<span class="folder-icon-badge" style="background-color:' + properties.color + '">' + properties.label + '</span>' : '') + '</i><span class="folder-text-padding">' + name + '</span><i class="mdc-list-item__meta material-icons">launch</i></a>' + (properties.hasOwnProperty('delete') ? '</div><div class="uk-width-auto"><div class="handin-delete mdc-list-item" data-id="' + properties.delete.id + '" data-assignment="' + properties.delete.assignment + '" data-mdc-auto-init="MDCRipple"><i class="material-icons mdc-list-item__meta">delete</i></div></div>' : '');
+      return (properties.hasOwnProperty('delete') ? '<div class="uk-grid uk-grid-collapse"><div class="uk-width-expand">' : '') + (url ? '<a href="' + encodeURI(url) + '" target="_blank" rel="noopener" data-mdc-auto-init="MDCRipple" class="mdc-list-item">' : '<div class="mdc-list-item">') + '<i class="material-icons mdc-list-item__graphic uk-position-relative"' + (properties.color && !properties.label ? ' style="color:' + properties.color + '"' : '') + '>' + properties.icon + (properties.color && properties.label ? '<span class="folder-icon-badge" style="background-color:' + properties.color + '">' + properties.label + '</span>' : '') + '</i><span class="folder-text-padding">' + name + '</span>' + (url ? '<i class="mdc-list-item__meta material-icons">launch</i></a>' + (properties.hasOwnProperty('delete') ? '</div><div class="uk-width-auto"><div class="handin-delete mdc-list-item" data-id="' + properties.delete.id + '" data-assignment="' + properties.delete.assignment + '" data-mdc-auto-init="MDCRipple"><i class="material-icons mdc-list-item__meta">delete</i></div></div>' : '') : '</div>');
    }
 
    function preparePath(toLower = true) {
