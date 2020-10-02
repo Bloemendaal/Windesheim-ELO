@@ -89,6 +89,16 @@ a.material-icons {
    position: relative;
    height: calc(100vh - 56px);
 }
+#container-handin .mdc-list-item {
+	min-height: 48px;
+	height: auto;
+	line-height: normal;
+	align-items: flex-start;
+}
+#container-handin .mdc-list-item .mdc-list-item__graphic {
+	padding-top: 8px;
+	padding-bottom: 8px;
+}
 #handin-upload,
 #handin-review {
    border: 1px dashed #e6e6e6;
