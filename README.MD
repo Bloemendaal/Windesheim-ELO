@@ -1,3 +1,9 @@
+<div style="text-align:center">
+<img src="./docs/legacy.png" alt="Legacy">
+</div>
+
+Dit project wordt niet meer onderhouden omdat ik inmiddels afgestudeerd ben. Mocht je geïnteresseerd zijn in het overnemen van het project, stuur me dan even een berichtje. Verder zijn de meeste technieken in dit project behoorlijk achterhaald, dus als je nog student bent, neem deze code dan niet als standaard of voorbeeld.
+
 # Material Design ELO
 Een material design omgeving ontworpen voor de Windesheim ELO, verkrijgbaar als [Chrome Extensie](https://chrome.google.com/webstore/detail/windesheim-elo/admnckenaonlfihjidfgpkapnhgdjpbj) (aanbevolen) en als [UserScript](https://github.com/Bloemendaal/Windesheim-ELO/raw/master/userscript/MDELO.user.js).
 
