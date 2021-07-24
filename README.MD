@@ -1,7 +1,7 @@
-<div style="text-align:center">
-<img src="./docs/legacy.png" alt="Legacy">
-</div>
-
+<p align="center">
+<img align="center" src="./docs/legacy.png" alt="Legacy">
+</p>
+   
 Dit project wordt niet meer onderhouden omdat ik inmiddels afgestudeerd ben. Mocht je geïnteresseerd zijn in het overnemen van het project, stuur me dan even een berichtje. Verder zijn de meeste technieken in dit project behoorlijk achterhaald, dus als je nog student bent, neem deze code dan niet als standaard of voorbeeld.
 
 # Material Design ELO
